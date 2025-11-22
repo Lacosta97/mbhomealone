@@ -108,7 +108,6 @@
                 <!-- Левая часть: фото + текст -->
                 <div class="user-main">
                     <div class="user-photo">
-                        <!-- пока заглушка, потом подставим реальное фото -->
                         <img src="img/user_placeholder.png" alt="User photo">
                     </div>
 
@@ -141,6 +140,29 @@
         </div>
 
     </div>
+
+    <!-- Кнопка-иконка RULES -->
+    <button class="rules-icon-btn" id="rulesBtn" aria-label="Rules">
+        <img src="img/icons/rules-book.png" alt="rules icon">
+    </button>
+
+    <!-- Кнопка-иконка MUSIC -->
+    <button class="music-icon-btn" id="musicBtn" aria-label="Music">
+        <img src="img/icons/speaker.png" alt="music icon">
+    </button>
+
+    <!-- Модальное окно RULES -->
+    <div class="rules-modal" id="rulesModal">
+        <div class="rules-modal__backdrop" id="rulesBackdrop"></div>
+        <div class="rules-modal__content">
+            <button class="rules-modal__close" id="rulesCloseBtn">✕</button>
+            <h2 class="rules-modal__title">RULES</h2>
+            <p class="rules-modal__text">test</p>
+        </div>
+    </div>
+
+    <!-- Скрипт MBHA -->
+    <script src="js/main.js"></script>
 </body>
 
 </html>

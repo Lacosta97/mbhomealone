@@ -28,7 +28,6 @@ body {
 .house-wrap {
     width: 100%;
     min-height: 100vh;
-    /* было 120, чтобы блоки не улетали слишком вниз */
     padding-bottom: 60px;
     display: flex;
     justify-content: center;
@@ -73,9 +72,6 @@ body {
     background-repeat: repeat;
 }
 
-
-/* дальний снег */
-
 .snow-layer--far {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0, rgba(255, 255, 255, 0.5) 1px, transparent 3px);
     background-size: 220px 220px;
@@ -83,18 +79,12 @@ body {
     opacity: 0.35;
 }
 
-
-/* средний слой */
-
 .snow-layer--mid {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.75) 0, rgba(255, 255, 255, 0.75) 1.5px, transparent 4px);
     background-size: 260px 260px;
     animation: snowMid 28s linear infinite;
     opacity: 0.55;
 }
-
-
-/* ближний слой */
 
 .snow-layer--near {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0, rgba(255, 255, 255, 0.95) 2px, transparent 5px);
@@ -179,7 +169,7 @@ body {
 }
 
 
-/* позиции 20 звёзд */
+/* позиции звёзд */
 
 .star-1 {
     top: 6%;
@@ -331,9 +321,6 @@ body {
     position: absolute;
 }
 
-
-/* цвета ламп */
-
 .color-yellow {
     background: radial-gradient(circle, #fff7e6, #ffbb33 45%, transparent 70%);
     box-shadow: 0 0 12px #ffbb33;
@@ -359,9 +346,6 @@ body {
     box-shadow: 0 0 12px #ec4899;
 }
 
-
-/* верхняя гирлянда */
-
 .garland-top {
     top: 33%;
     animation: garlandWave 1.6s ease-in-out infinite;
@@ -384,162 +368,6 @@ body {
         opacity: 0.4;
         transform: scale(0.85);
     }
-}
-
-
-/* 11 ламп по горизонтали */
-
-.garland-1 {
-    left: 15%;
-}
-
-.garland-2 {
-    left: 22%;
-}
-
-.garland-3 {
-    left: 29%;
-}
-
-.garland-4 {
-    left: 36%;
-}
-
-.garland-5 {
-    left: 43%;
-}
-
-.garland-6 {
-    left: 50%;
-}
-
-.garland-7 {
-    left: 57%;
-}
-
-.garland-8 {
-    left: 64%;
-}
-
-.garland-9 {
-    left: 71%;
-}
-
-.garland-10 {
-    left: 78%;
-}
-
-.garland-11 {
-    left: 85%;
-}
-
-
-/* вертикальные гирлянды */
-
-.garland-vert {
-    animation: garlandEq 1.8s linear infinite;
-}
-
-@keyframes garlandEq {
-    0%,
-    20% {
-        opacity: 0.2;
-        transform: scale(0.7);
-    }
-    40%,
-    60% {
-        opacity: 1;
-        transform: scale(1.1);
-    }
-    80%,
-    100% {
-        opacity: 0.15;
-        transform: scale(0.7);
-    }
-}
-
-
-/* левая */
-
-.garland-left {
-    left: 15.5%;
-}
-
-.garland-left-1 {
-    top: 71%;
-    animation-delay: 0s;
-}
-
-.garland-left-2 {
-    top: 66%;
-    animation-delay: 0.12s;
-}
-
-.garland-left-3 {
-    top: 61%;
-    animation-delay: 0.24s;
-}
-
-.garland-left-4 {
-    top: 56%;
-    animation-delay: 0.36s;
-}
-
-.garland-left-5 {
-    top: 51%;
-    animation-delay: 0.48s;
-}
-
-.garland-left-6 {
-    top: 46%;
-    animation-delay: 0.60s;
-}
-
-.garland-left-7 {
-    top: 41%;
-    animation-delay: 0.72s;
-}
-
-
-/* правая */
-
-.garland-right {
-    left: 84.5%;
-}
-
-.garland-right-1 {
-    top: 41%;
-    animation-delay: 0.72s;
-}
-
-.garland-right-2 {
-    top: 46%;
-    animation-delay: 0.60s;
-}
-
-.garland-right-3 {
-    top: 51%;
-    animation-delay: 0.48s;
-}
-
-.garland-right-4 {
-    top: 56%;
-    animation-delay: 0.36s;
-}
-
-.garland-right-5 {
-    top: 61%;
-    animation-delay: 0.24s;
-}
-
-.garland-right-6 {
-    top: 66%;
-    animation-delay: 0.12s;
-}
-
-.garland-right-7 {
-    top: 71%;
-    animation-delay: 0s;
 }
 
 
@@ -582,48 +410,6 @@ body {
     }
 }
 
-.tree-1 {
-    top: 73%;
-    left: 20.5%;
-    animation-delay: 0.0s;
-}
-
-.tree-2 {
-    top: 73%;
-    left: 26.5%;
-    animation-delay: 0.25s;
-}
-
-.tree-3 {
-    top: 71%;
-    left: 23.5%;
-    animation-delay: 0.5s;
-}
-
-.tree-4 {
-    top: 69%;
-    left: 25.5%;
-    animation-delay: 0.75s;
-}
-
-.tree-5 {
-    top: 67%;
-    left: 22.5%;
-    animation-delay: 1.0s;
-}
-
-.tree-6 {
-    top: 65%;
-    left: 24.5%;
-    animation-delay: 1.25s;
-}
-
-.tree-7 {
-    top: 63%;
-    left: 23.5%;
-    animation-delay: 1.5s;
-}
-
 
 /* ===== USER SECTION ===== */
 
@@ -640,18 +426,12 @@ body {
     gap: 24px;
 }
 
-
-/* левая часть: фото + текст */
-
 .user-main {
     display: flex;
     align-items: flex-start;
     gap: 16px;
     flex: 1;
 }
-
-
-/* рамка под фото */
 
 .user-photo {
     width: 180px;
@@ -667,9 +447,6 @@ body {
     height: 100%;
     object-fit: cover;
 }
-
-
-/* текст */
 
 .user-text {
     flex: 1;
@@ -689,9 +466,6 @@ body {
     font-size: 15px;
     color: #94a3b8;
 }
-
-
-/* TOTAL блок (справа, такой же ширины, как фото) */
 
 .total-panel {
     width: 180px;
@@ -746,7 +520,149 @@ body {
 }
 
 
-/* ===== MOBILE (до 768px) ===== */
+/* === ICON RULES BUTTON (книга) === */
+
+.rules-icon-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1500;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.rules-icon-btn img {
+    width: 64px;
+    height: 64px;
+    image-rendering: pixelated;
+    display: block;
+}
+
+.rules-icon-btn:active img {
+    transform: scale(1.1);
+}
+
+
+/* === ICON MUSIC BUTTON (колонка) — обновлённый === */
+
+.music-icon-btn {
+    position: fixed;
+    /* фиксированные координаты */
+    top: 73%;
+    left: 68.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1500;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.music-icon-btn img {
+    width: 32px;
+    /* уменьшено в 2 раза */
+    height: 32px;
+    image-rendering: pixelated;
+    display: block;
+}
+
+.music-icon-btn:active {
+    transform: translate(-50%, -50%) translate(1px, 1px);
+}
+
+
+/* анимация на проигрывании */
+
+.music-icon-btn.is-playing img {
+    animation: speakerBounce 0.35s infinite alternate ease-out;
+}
+
+@keyframes speakerBounce {
+    from {
+        transform: translateY(0) scale(1);
+    }
+    to {
+        transform: translateY(-3px) scale(1.05);
+    }
+}
+
+
+/* ===== RULES MODAL ===== */
+
+.rules-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+}
+
+.rules-modal--visible {
+    display: block;
+}
+
+.rules-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
+}
+
+.rules-modal__content {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    max-width: 420px;
+    width: 90%;
+    max-height: 70vh;
+    padding: 20px 18px 18px;
+    background: #020617;
+    border: 3px solid #38bdf8;
+    box-shadow: 0 0 0 3px #0f172a, 4px 4px 0 #000;
+    color: #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rules-modal__title {
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #38bdf8;
+    text-align: center;
+}
+
+.rules-modal__text {
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.rules-modal__close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    border: none;
+    background: transparent;
+    color: #e5e7eb;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.rules-modal__close:active {
+    transform: translate(1px, 1px);
+}
+
+
+/* ===== MOBILE ===== */
 
 @media (max-width: 768px) {
     .house-wrap {
@@ -756,45 +672,29 @@ body {
     .house-inner {
         padding: 8px 8px 0;
     }
-    .house-img {
-        margin-top: 0;
-    }
-    /* гирлянды меньше */
     .garland,
     .tree-light {
         width: 6px !important;
         height: 6px !important;
     }
-    .garland-top {
-        top: 31% !important;
-    }
-    /* блок пользователя компактнее */
-    .user-section {
-        padding: 16px 16px 48px;
-    }
-    .user-info {
-        flex-wrap: wrap;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    .user-main {
-        width: 100%;
+    .username {
+        font-size: 20px;
     }
     .user-photo {
         width: 130px;
         height: 130px;
     }
-    .username {
-        font-size: 20px;
+    .rules-icon-btn img {
+        width: 48px;
+        height: 48px;
     }
-    .user-account {
-        font-size: 14px;
+    /* МОБИЛЬНАЯ ПОЗИЦИЯ КОЛОНКИ */
+    .music-icon-btn {
+        top: 72%;
+        left: 70%;
     }
-    .total-panel {
-        width: 100%;
-        max-width: 260px;
-        margin-top: 16px;
-        margin-left: auto;
-        margin-right: auto;
+    .music-icon-btn img {
+        width: 28px;
+        height: 28px;
     }
 }
