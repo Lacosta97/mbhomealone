@@ -819,4 +819,98 @@ body {
             height: 6px;
         }
     }
+    /* ===== ДОПОЛНИТЕЛЬНЫЕ ПРАВКИ ДЛЯ МОБИЛОК ===== */
+    @media (max-width: 600px) {
+        /* Дом ближе к верху, меньше отступов */
+        .house-wrap {
+            min-height: 100vh;
+            padding-bottom: 120px;
+        }
+        .house-inner {
+            padding-top: 0;
+            padding-left: 8px;
+            padding-right: 8px;
+            transform: scale(1.05);
+            transform-origin: top center;
+        }
+        .house-img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+        /* гирлянды и ёлочные лампочки меньше */
+        .garland {
+            width: 6px;
+            height: 6px;
+        }
+        .tree-light {
+            width: 6px;
+            height: 6px;
+        }
+        /* верхняя горизонтальная гирлянда — опустить на 2% */
+        .garland-top {
+            top: 38%;
+        }
+        /* звёзды опускаем на 2% (увеличиваем top) */
+        .star-1 {
+            top: 8%;
+        }
+        .star-2 {
+            top: 12%;
+        }
+        .star-3 {
+            top: 13%;
+        }
+        .star-4 {
+            top: 10%;
+        }
+        .star-5 {
+            top: 6%;
+        }
+        .star-6 {
+            top: 7%;
+        }
+        .star-7 {
+            top: 10%;
+        }
+        .star-8 {
+            top: 14%;
+        }
+        .star-9 {
+            top: 6%;
+        }
+        .star-10 {
+            top: 11%;
+        }
+        .star-11 {
+            top: 15%;
+        }
+        .star-12 {
+            top: 9%;
+        }
+        .star-13 {
+            top: 11%;
+        }
+        .star-14 {
+            top: 5%;
+        }
+        .star-15 {
+            top: 14.5%;
+        }
+        .star-16 {
+            top: 8%;
+        }
+        .star-17 {
+            top: 16%;
+        }
+        .star-18 {
+            top: 15%;
+        }
+        .star-19 {
+            top: 11%;
+        }
+        .star-20 {
+            top: 7%;
+        }
+    }
 }
