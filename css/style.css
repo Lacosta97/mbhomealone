@@ -898,10 +898,24 @@ body {
         width: 48px;
         height: 48px;
     }
+    /* Мобильная верстка блока юзера: TOTAL под фото */
+    .user-info {
+        flex-direction: column;
+        /* вместо ряда — колонка */
+        align-items: flex-start;
+        /* выравниваем по левому краю */
+        gap: 16px;
+    }
+    .total-panel {
+        width: 100%;
+        /* растягиваем на всю ширину */
+        margin-top: 8px;
+        /* небольшой отступ сверху */
+    }
     /* мобильная позиция колонки (можно потом подправить) */
     .music-icon-btn {
-        top: 72%;
-        left: 70%;
+        top: 66%;
+        left: 78%;
     }
     .music-icon-btn img {
         width: 28px;
