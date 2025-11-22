@@ -810,10 +810,15 @@ body {
     inset: 0;
     z-index: 2000;
     display: none;
+    /* выравниваем контент и кнопку по центру экрана, одна под другой */
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
 
 .rules-modal--visible {
-    display: block;
+    display: flex;
 }
 
 .rules-modal__backdrop {
@@ -821,12 +826,12 @@ body {
     inset: 0;
     background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(2px);
+    z-index: 0;
 }
 
 .rules-modal__content {
-    position: absolute;
-    inset: 0;
-    margin: auto;
+    position: relative;
+    z-index: 1;
     max-width: 420px;
     width: 90%;
     max-height: 70vh;
@@ -838,6 +843,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    text-align: center;
 }
 
 .rules-modal__title {
@@ -1034,27 +1040,39 @@ body {
     color: #f97373;
 }
 
-.rules-page {
-    position: relative;
-}
-
 .dont-push-btn {
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-    padding: 6px 14px;
+    position: relative;
+    z-index: 1;
+    margin-top: 16px;
+    /* форма и размер как "пробел" */
+    display: inline-block;
+    padding: 10px 40px;
+    min-width: 180px;
+    max-width: 260px;
     font-family: "Pixelify Sans", system-ui, sans-serif;
     font-size: 12px;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     text-transform: uppercase;
-    background: #b91c1c;
-    color: #ffe4e6;
+    text-align: center;
+    /* объёмная "клавиша" */
+    background: linear-gradient(#fecaca, #f97373, #b91c1c);
+    color: #111827;
+    border-radius: 999px;
     border: 3px solid #111827;
-    box-shadow: 0 0 0 3px #f97316, 0 4px 0 0 #111827;
+    /* двойная тень: контур + "высота" */
+    box-shadow: 0 0 0 3px #f97316, 0 6px 0 #111827;
     cursor: pointer;
+    outline: none;
+    /* чуть "пружинит" при ховере */
+    transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.12s ease-out;
+}
+
+.dont-push-btn:hover {
+    filter: brightness(1.05);
 }
 
 .dont-push-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 0 0 3px #f97316, 0 2px 0 0 #111827;
+    /* как нажатый пробел: опускается и тень становится меньше */
+    transform: translateY(4px);
+    box-shadow: 0 0 0 3px #f97316, 0 2px 0 #111827;
 }
