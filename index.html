@@ -160,6 +160,26 @@
             <p class="rules-modal__text">test</p>
         </div>
     </div>
+    <!-- === ВХОД ПО КОДУ / ГОСТЬ === -->
+    <div class="code-modal" id="codeModal">
+        <div class="code-modal__backdrop"></div>
+        <div class="code-modal__content">
+            <h2 class="code-modal__title">ENTER YOUR CODE</h2>
+
+
+            <input type="text" id="codeInput" class="code-modal__input" maxlength="4" autocomplete="off" placeholder="XXXX">
+
+            <button id="codeSubmitBtn" class="code-modal__btn code-modal__btn--primary">
+      ENTER
+    </button>
+
+            <button id="codeGuestBtn" class="code-modal__btn code-modal__btn--ghost">
+      I DON'T HAVE A CODE, I'M CURIOUS
+    </button>
+
+            <p class="code-modal__error" id="codeError"></p>
+        </div>
+    </div>
 
     <!-- Скрипт MBHA -->
     <script src="js/main.js"></script>

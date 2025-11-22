@@ -1,6 +1,247 @@
-// MBHA main JS – сюда позже поедет логика (коды, подарки, игра и т.д.)
+// MBHA main JS – коды, гости, музыка, правила
 (function() {
-    // ==== RULES ====
+    // =================== MBHA: USERS FROM GOOGLE SHEETS ===================
+
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWO7yjYAibcHlzSacrVRoI59NWF3R0BvK4In7Hb2Gf6vD8Raco_QOdGUJiS7ckRARsCbc3Rz5wUHUu/pub?gid=0&single=true&output=csv";
+
+    // Кэш таблицы, чтобы не грузить несколько раз
+    let usersDbCache = null;
+
+    function getUrlParams() {
+        return new URLSearchParams(window.location.search);
+    }
+
+    // Берём code из URL: ?code=AB12
+    function getCodeFromUrl() {
+        const params = getUrlParams();
+        const code = params.get("code");
+        return code ? code.trim().toUpperCase() : null;
+    }
+
+    function isGuestFromUrl() {
+        const params = getUrlParams();
+        return params.get("guest") === "1";
+    }
+
+    // Парсер CSV под нашу таблицу
+    function parseCsv(text) {
+        const lines = text.trim().split(/\r?\n/);
+        if (!lines.length) return [];
+
+        const headers = lines[0].split(",").map(h => h.trim());
+        const rows = lines.slice(1).filter(line => line.trim().length > 0);
+
+        return rows.map(line => {
+            const cells = line.split(",");
+            const obj = {};
+            headers.forEach((h, i) => {
+                obj[h] = (cells[i] || "").trim();
+            });
+            return obj;
+        });
+    }
+
+    // Загружаем всех юзеров из Google Sheets
+    async function loadUsersFromSheet() {
+        if (usersDbCache) return usersDbCache;
+
+        const res = await fetch(SHEET_URL);
+        if (!res.ok) {
+            throw new Error("Failed to fetch sheet: " + res.status);
+        }
+        const text = await res.text();
+        const rows = parseCsv(text);
+
+        const dbByCode = {};
+        rows.forEach(row => {
+            const rawCode = row["CODE"] || "";
+            const code = rawCode.trim().toUpperCase();
+            if (code) {
+                dbByCode[code] = row;
+            }
+        });
+
+        usersDbCache = dbByCode;
+        return usersDbCache;
+    }
+
+    function makeGuestProfile(code) {
+        return {
+            PLAYER: "GUEST",
+            CODE: code || "",
+            "PERSONAL ACCOUNT": "-----",
+            TEAM: "",
+            "TEAM KEVIN": "0",
+            "TEAM OF BANDITS": "0",
+            TOTAL: "0"
+        };
+    }
+
+    function normalizeProfile(row) {
+        return {
+            name: row["PLAYER"] || "GUEST",
+            code: (row["CODE"] || "").trim().toUpperCase(),
+            personalAccount: row["PERSONAL ACCOUNT"] || "-----",
+            total: row["TOTAL"] || "0",
+            teamKevin: row["TEAM KEVIN"] || "0",
+            teamBandits: row["TEAM OF BANDITS"] || "0"
+        };
+    }
+
+    function getAvatarSrc(profile) {
+        if (!profile || !profile.code) {
+            return "img/avatars/GUEST.png";
+        }
+        return `img/avatars/${profile.code}.png`;
+    }
+
+    function renderProfile(profile) {
+        const usernameEl = document.querySelector(".username");
+        const personalEl = document.getElementById("personal_value");
+        const totalEl = document.getElementById("total_value");
+        const kevinEl = document.getElementById("kevin_value");
+        const banditsEl = document.getElementById("bandits_value");
+        const photoEl = document.querySelector(".user-photo img");
+
+        if (usernameEl) usernameEl.textContent = profile.name;
+        if (personalEl) personalEl.textContent = profile.personalAccount;
+        if (totalEl) totalEl.textContent = profile.total;
+        if (kevinEl) kevinEl.textContent = profile.teamKevin;
+        if (banditsEl) banditsEl.textContent = profile.teamBandits;
+
+        if (photoEl) {
+            photoEl.src = getAvatarSrc(profile);
+        }
+    }
+
+    // Загружаем и рендерим профиль в зависимости от URL (code или guest)
+    async function initUserProfile() {
+        const code = getCodeFromUrl();
+        const guestMode = isGuestFromUrl();
+
+        let row;
+        try {
+            const usersDb = await loadUsersFromSheet();
+
+            if (!guestMode && code && usersDb[code]) {
+                row = usersDb[code];
+            } else if (!guestMode && code && !usersDb[code]) {
+                row = makeGuestProfile(code);
+            } else {
+                row = makeGuestProfile(null);
+            }
+        } catch (err) {
+            console.error("Ошибка работы с таблицей:", err);
+            row = makeGuestProfile(code);
+        }
+
+        const profile = normalizeProfile(row);
+        renderProfile(profile);
+    }
+
+    // =================== ВХОД ПО КОДУ ===================
+
+    function showCodeModal() {
+        const modal = document.getElementById("codeModal");
+        if (!modal) return;
+        modal.classList.add("code-modal--visible");
+
+        const input = document.getElementById("codeInput");
+        if (input) {
+            input.value = ""; // гарантированно чистое поле
+            setTimeout(() => input.focus(), 50);
+        }
+    }
+
+    function hideCodeModal() {
+        const modal = document.getElementById("codeModal");
+        if (!modal) return;
+        modal.classList.remove("code-modal--visible");
+    }
+
+    function updateUrlParams(params) {
+        const qs = params.toString();
+        const newUrl = window.location.pathname + (qs ? "?" + qs : "");
+        window.history.replaceState(null, "", newUrl); // меняем URL БЕЗ перезагрузки
+    }
+
+    function initCodeFlow() {
+        const codeModal = document.getElementById("codeModal");
+        const codeInput = document.getElementById("codeInput");
+        const codeSubmitBtn = document.getElementById("codeSubmitBtn");
+        const codeGuestBtn = document.getElementById("codeGuestBtn");
+        const codeError = document.getElementById("codeError");
+
+        // ВСЕГДА показываем модалку при заходе
+        if (codeModal) {
+            showCodeModal();
+        }
+
+        // Если вдруг модалки нет — грузим профиль как гость/по URL
+        if (!codeInput || !codeSubmitBtn || !codeGuestBtn) {
+            initUserProfile();
+            return;
+        }
+
+        function showError(msg) {
+            if (codeError) {
+                codeError.textContent = msg || "";
+            }
+        }
+
+        // Подтверждение кода
+        codeSubmitBtn.addEventListener("click", async() => {
+            const raw = codeInput.value.trim().toUpperCase();
+
+            if (raw.length !== 4) {
+                showError("НУ ДАЙ ТРОХИ ЛІТЕР");
+                return;
+            }
+
+            try {
+                const usersDb = await loadUsersFromSheet();
+                if (!usersDb[raw]) {
+                    showError("Такого кода нет. Проверь ещё раз.");
+                    return;
+                }
+
+                // Код валидный → ставим его в URL (без перезагрузки), скрываем модалку и рендерим профиль
+                const params = getUrlParams();
+                params.set("code", raw);
+                params.delete("guest");
+                updateUrlParams(params);
+
+                hideCodeModal();
+                initUserProfile();
+            } catch (err) {
+                console.error("Ошибка проверки кода:", err);
+                showError("Міша, все ***, давай по новой");
+            }
+        });
+
+        // Вход как гость
+        codeGuestBtn.addEventListener("click", () => {
+            const params = getUrlParams();
+            params.delete("code");
+            params.set("guest", "1");
+            updateUrlParams(params);
+
+            hideCodeModal();
+            initUserProfile();
+        });
+
+        // Enter по инпуту
+        codeInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                codeSubmitBtn.click();
+            }
+        });
+    }
+
+    // Сразу запускаем логику входа
+    initCodeFlow();
+
+    // =================== RULES ===================
     const rulesBtn = document.getElementById("rulesBtn");
     const rulesModal = document.getElementById("rulesModal");
     const rulesBackdrop = document.getElementById("rulesBackdrop");
@@ -30,10 +271,8 @@
         });
     }
 
-    // ==== MUSIC ====
+    // =================== MUSIC ===================
     const musicBtn = document.getElementById("musicBtn");
-
-    // Путь к треку в проекте
     const musicUrl = "audio/song1.mp3";
 
     let audio = null;
@@ -41,7 +280,7 @@
 
     if (musicBtn) {
         audio = new Audio(musicUrl);
-        audio.loop = true; // трек зациклен; убери, если не нужно
+        audio.loop = true;
 
         function updateVisual() {
             if (!musicBtn) return;
@@ -54,12 +293,14 @@
 
         function playMusic() {
             if (!audio) return;
-            audio.play().then(() => {
-                isPlaying = true;
-                updateVisual();
-            }).catch((err) => {
-                console.error("Cannot play audio:", err);
-            });
+            audio.play()
+                .then(() => {
+                    isPlaying = true;
+                    updateVisual();
+                })
+                .catch((err) => {
+                    console.error("Cannot play audio:", err);
+                });
         }
 
         function pauseMusic() {
@@ -78,7 +319,6 @@
             }
         });
 
-        // если когда-то уберёшь loop — при завершении трека сбросим анимацию
         audio.addEventListener("ended", function() {
             isPlaying = false;
             updateVisual();

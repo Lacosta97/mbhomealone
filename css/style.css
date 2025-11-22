@@ -922,3 +922,114 @@ body {
         height: 28px;
     }
 }
+
+
+/* ===== CODE MODAL (вход по коду) ===== */
+
+.code-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: none;
+    /* показываем только, когда нужно */
+}
+
+.code-modal--visible {
+    display: block;
+}
+
+.code-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
+}
+
+.code-modal__content {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    max-width: 360px;
+    width: 90%;
+    padding: 20px 16px 18px;
+    background: #020617;
+    border: 3px solid #a855f7;
+    box-shadow: 0 0 0 3px #0f172a, 4px 4px 0 #000;
+    color: #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+}
+
+.code-modal__title {
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #a855f7;
+}
+
+.code-modal__text {
+    font-size: 14px;
+    color: #cbd5f5;
+}
+
+.code-modal__input {
+    margin-top: 4px;
+    padding: 10px 12px;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    border-radius: 8px;
+    border: 2px solid #4b5563;
+    background: #020617;
+    color: #e5e7eb;
+    outline: none;
+}
+
+.code-modal__input:focus {
+    border-color: #a855f7;
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.5);
+}
+
+.code-modal__btn {
+    margin-top: 8px;
+    padding: 10px 12px;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 8px;
+    border: 2px solid #4b5563;
+    background: #020617;
+    color: #e5e7eb;
+    cursor: pointer;
+}
+
+.code-modal__btn--primary {
+    border-color: #22c55e;
+    background: #022c22;
+}
+
+.code-modal__btn--primary:hover {
+    filter: brightness(1.1);
+}
+
+.code-modal__btn--ghost {
+    border-color: #6b7280;
+    background: transparent;
+}
+
+.code-modal__btn--ghost:hover {
+    background: rgba(15, 23, 42, 0.9);
+}
+
+.code-modal__error {
+    min-height: 18px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #f97373;
+}
