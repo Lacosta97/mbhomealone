@@ -753,3 +753,57 @@ body {
     background: rgba(15, 23, 42, 0.9);
     white-space: nowrap;
 }
+
+
+/* ===== МОБИЛЬНАЯ ВЕРСИЯ (айфоны и прочие до ~600px ширины) ===== */
+
+@media (max-width: 600px) {
+    /* Дом чуть крупнее, меньше отступов, без лишней высоты */
+    .house-wrap {
+        min-height: 100vh;
+        padding-bottom: 130px;
+        /* чтобы снизу не наезжала плашка */
+    }
+    .house-inner {
+        max-width: 100%;
+        padding: 8px 8px 0;
+        transform: scale(1.05);
+        /* слегка увеличиваем дом */
+        transform-origin: top center;
+        /* масштаб из центра сверху */
+    }
+    /* Картинка дома — аккуратно по ширине экрана */
+    .house-img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+    /* Лейбл сверху более аккуратный и по центру */
+    .house-label {
+        font-size: 10px;
+        padding: 5px 10px;
+        margin-bottom: 6px;
+    }
+    /* Текст под домом — компактнее */
+    .below-section {
+        padding: 16px 12px 120px;
+    }
+    .below-inner {
+        font-size: 13px;
+    }
+    /* Нижняя плашка — меньше, под мобильный формат */
+    .bottom-bar {
+        padding: 8px 12px;
+    }
+    .bottom-inner {
+        font-size: 12px;
+        gap: 8px;
+    }
+    .bottom-title {
+        font-size: 10px;
+    }
+    .bottom-tag {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+}
