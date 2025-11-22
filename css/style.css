@@ -806,4 +806,17 @@ body {
         font-size: 10px;
         padding: 3px 8px;
     }
+    @media (max-width: 600px) {
+        /* ...твои мобильные стили тут... */
+        /* гирлянды поменьше */
+        .garland {
+            width: 6px;
+            height: 6px;
+        }
+        /* лампочки на ёлке тоже поменьше */
+        .tree-light {
+            width: 6px;
+            height: 6px;
+        }
+    }
 }
