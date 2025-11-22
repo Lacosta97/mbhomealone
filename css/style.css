@@ -40,6 +40,7 @@ body {
     max-width: 1100px;
     padding: 16px 16px 0;
     position: relative;
+    /* важно для огоньков */
 }
 
 .house-img {
@@ -125,7 +126,10 @@ body {
 
 .lights-layer {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     z-index: 3;
 }
@@ -371,6 +375,162 @@ body {
 }
 
 
+/* позиции 11 ламп по верхней линии */
+
+.garland-1 {
+    left: 15%;
+}
+
+.garland-2 {
+    left: 22%;
+}
+
+.garland-3 {
+    left: 29%;
+}
+
+.garland-4 {
+    left: 36%;
+}
+
+.garland-5 {
+    left: 43%;
+}
+
+.garland-6 {
+    left: 50%;
+}
+
+.garland-7 {
+    left: 57%;
+}
+
+.garland-8 {
+    left: 64%;
+}
+
+.garland-9 {
+    left: 71%;
+}
+
+.garland-10 {
+    left: 78%;
+}
+
+.garland-11 {
+    left: 85%;
+}
+
+
+/* вертикальные гирлянды */
+
+.garland-vert {
+    animation: garlandEq 1.8s linear infinite;
+}
+
+@keyframes garlandEq {
+    0%,
+    20% {
+        opacity: 0.2;
+        transform: scale(0.7);
+    }
+    40%,
+    60% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    80%,
+    100% {
+        opacity: 0.15;
+        transform: scale(0.7);
+    }
+}
+
+
+/* левая вертикальная */
+
+.garland-left {
+    left: 15.5%;
+}
+
+.garland-left-1 {
+    top: 71%;
+    animation-delay: 0s;
+}
+
+.garland-left-2 {
+    top: 66%;
+    animation-delay: 0.12s;
+}
+
+.garland-left-3 {
+    top: 61%;
+    animation-delay: 0.24s;
+}
+
+.garland-left-4 {
+    top: 56%;
+    animation-delay: 0.36s;
+}
+
+.garland-left-5 {
+    top: 51%;
+    animation-delay: 0.48s;
+}
+
+.garland-left-6 {
+    top: 46%;
+    animation-delay: 0.60s;
+}
+
+.garland-left-7 {
+    top: 41%;
+    animation-delay: 0.72s;
+}
+
+
+/* правая вертикальная */
+
+.garland-right {
+    left: 84.5%;
+}
+
+.garland-right-1 {
+    top: 41%;
+    animation-delay: 0.72s;
+}
+
+.garland-right-2 {
+    top: 46%;
+    animation-delay: 0.60s;
+}
+
+.garland-right-3 {
+    top: 51%;
+    animation-delay: 0.48s;
+}
+
+.garland-right-4 {
+    top: 56%;
+    animation-delay: 0.36s;
+}
+
+.garland-right-5 {
+    top: 61%;
+    animation-delay: 0.24s;
+}
+
+.garland-right-6 {
+    top: 66%;
+    animation-delay: 0.12s;
+}
+
+.garland-right-7 {
+    top: 71%;
+    animation-delay: 0s;
+}
+
+
 /* ===== TREE LIGHTS ===== */
 
 .tree-light {
@@ -408,6 +568,51 @@ body {
         opacity: 0.3;
         transform: scale(0.85);
     }
+}
+
+
+/* позиции огоньков на ёлке */
+
+.tree-1 {
+    top: 73%;
+    left: 20.5%;
+    animation-delay: 0.0s;
+}
+
+.tree-2 {
+    top: 73%;
+    left: 26.5%;
+    animation-delay: 0.25s;
+}
+
+.tree-3 {
+    top: 71%;
+    left: 23.5%;
+    animation-delay: 0.5s;
+}
+
+.tree-4 {
+    top: 69%;
+    left: 25.5%;
+    animation-delay: 0.75s;
+}
+
+.tree-5 {
+    top: 67%;
+    left: 22.5%;
+    animation-delay: 1.0s;
+}
+
+.tree-6 {
+    top: 65%;
+    left: 24.5%;
+    animation-delay: 1.25s;
+}
+
+.tree-7 {
+    top: 63%;
+    left: 23.5%;
+    animation-delay: 1.5s;
 }
 
 
@@ -542,18 +747,24 @@ body {
     display: block;
 }
 
+.rules-icon-btn:hover img,
+.rules-icon-btn:focus-visible img {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px #c084fc);
+}
+
 .rules-icon-btn:active img {
     transform: scale(1.1);
 }
 
 
-/* === ICON MUSIC BUTTON (колонка) — обновлённый === */
+/* === ICON MUSIC BUTTON (колонка) === */
 
 .music-icon-btn {
-    position: fixed;
+    position: absolute;
     /* фиксированные координаты */
-    top: 73%;
-    left: 68.5%;
+    top: 70%;
+    left: 76%;
     transform: translate(-50%, -50%);
     z-index: 1500;
     padding: 0;
@@ -566,7 +777,6 @@ body {
 
 .music-icon-btn img {
     width: 32px;
-    /* уменьшено в 2 раза */
     height: 32px;
     image-rendering: pixelated;
     display: block;
@@ -688,7 +898,7 @@ body {
         width: 48px;
         height: 48px;
     }
-    /* МОБИЛЬНАЯ ПОЗИЦИЯ КОЛОНКИ */
+    /* мобильная позиция колонки (можно потом подправить) */
     .music-icon-btn {
         top: 72%;
         left: 70%;
