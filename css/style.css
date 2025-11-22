@@ -1,3 +1,5 @@
+/* ===== СБРОС ===== */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -17,7 +19,9 @@ body {
 }
 
 
-/* ===== СКРОЛЛЯЩИЙСЯ ДОМ ===== */
+/* ===========================
+   ===  БЛОК ДОМА  ============
+   =========================== */
 
 .page {
     min-height: 100vh;
@@ -50,44 +54,18 @@ body {
     z-index: 1;
 }
 
-.house-label {
-    margin-bottom: 8px;
-    display: inline-flex;
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.6);
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    position: relative;
-    z-index: 3;
-}
 
-
-/* ===== СЛОЙ ОГОНЬКОВ + СНЕГ ===== */
-
-.lights-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 3;
-}
-
-
-/* ===== СНЕГ ВОКРУГ ДОМА (3 слоя) ===== */
+/* ===========================
+   ===  СНЕГ  =================
+   =========================== */
 
 .snow-layer {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 2;
-    /* между домом и огоньками */
     overflow: hidden;
 }
-
-
-/* общий стиль слоя снега */
 
 .snow-layer__layer {
     position: absolute;
@@ -96,11 +74,10 @@ body {
     top: -20%;
     bottom: -10%;
     background-repeat: repeat;
-    opacity: 0.7;
 }
 
 
-/* дальний снег — мелкий, медленный */
+/* дальний снег */
 
 .snow-layer--far {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0, rgba(255, 255, 255, 0.5) 1px, transparent 3px);
@@ -110,7 +87,7 @@ body {
 }
 
 
-/* средний слой */
+/* средний */
 
 .snow-layer--mid {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.75) 0, rgba(255, 255, 255, 0.75) 1.5px, transparent 4px);
@@ -120,7 +97,7 @@ body {
 }
 
 
-/* ближний снег — крупнее, быстрее, кинематографично */
+/* ближний */
 
 .snow-layer--near {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0, rgba(255, 255, 255, 0.95) 2px, transparent 5px);
@@ -130,30 +107,42 @@ body {
 }
 
 @keyframes snowFar {
-    0% {
+    from {
         transform: translate3d(0, -40px, 0);
     }
-    100% {
+    to {
         transform: translate3d(0, 120px, 0);
     }
 }
 
 @keyframes snowMid {
-    0% {
+    from {
         transform: translate3d(-40px, -60px, 0);
     }
-    100% {
+    to {
         transform: translate3d(40px, 160px, 0);
     }
 }
 
 @keyframes snowNear {
-    0% {
+    from {
         transform: translate3d(30px, -80px, 0);
     }
-    100% {
+    to {
         transform: translate3d(-30px, 200px, 0);
     }
+}
+
+
+/* ===========================
+   ===  ЗВЕЗДЫ / ГИРЛЯНДЫ  ====
+   =========================== */
+
+.lights-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
 }
 
 .light-dot {
@@ -162,12 +151,11 @@ body {
     height: 8px;
     border-radius: 50%;
     opacity: 0;
-    animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
 }
 
 
-/* ⭐ Звёзды */
+/* === ЗВЕЗДЫ === */
 
 .star {
     width: 7px;
@@ -201,153 +189,133 @@ body {
 }
 
 
-/* ⭐ 20 звёзд */
+/* === 20 звёзд === */
+
+
+/* (оставляю как есть — уже выровнены под твой дом) */
 
 .star-1 {
     top: 6%;
     left: 18%;
-    animation-duration: 3.2s;
-    animation-delay: 0.3s;
+    animation: twinkle 3.2s 0.3s infinite;
 }
 
 .star-2 {
     top: 10%;
     right: 20%;
-    animation-duration: 4.1s;
-    animation-delay: 1s;
+    animation: twinkle 4.1s 1s infinite;
 }
 
 .star-3 {
     top: 11%;
     left: 46%;
-    animation-duration: 3.6s;
-    animation-delay: 2s;
+    animation: twinkle 3.6s 2s infinite;
 }
 
 .star-4 {
     top: 8%;
     left: 70%;
-    animation-duration: 5s;
-    animation-delay: 0.7s;
+    animation: twinkle 5s 0.7s infinite;
 }
 
 .star-5 {
     top: 4%;
     left: 40%;
-    animation-duration: 4.4s;
-    animation-delay: 1.4s;
+    animation: twinkle 4.4s 1.4s infinite;
 }
 
 .star-6 {
     top: 5%;
     left: 12%;
-    animation-duration: 3.7s;
-    animation-delay: 0.4s;
+    animation: twinkle 3.7s 0.4s infinite;
 }
 
 .star-7 {
     top: 8%;
     left: 33%;
-    animation-duration: 4.2s;
-    animation-delay: 1.2s;
+    animation: twinkle 4.2s 1.2s infinite;
 }
 
 .star-8 {
     top: 12%;
     left: 10%;
-    animation-duration: 3.4s;
-    animation-delay: 0.8s;
+    animation: twinkle 3.4s 0.8s infinite;
 }
 
 .star-9 {
     top: 4%;
     left: 55%;
-    animation-duration: 5.0s;
-    animation-delay: 1.4s;
+    animation: twinkle 5s 1.4s infinite;
 }
 
 .star-10 {
     top: 9%;
     left: 65%;
-    animation-duration: 3.8s;
-    animation-delay: 0.6s;
+    animation: twinkle 3.8s 0.6s infinite;
 }
 
 .star-11 {
     top: 13%;
     left: 78%;
-    animation-duration: 4.7s;
-    animation-delay: 1.6s;
+    animation: twinkle 4.7s 1.6s infinite;
 }
 
 .star-12 {
     top: 7%;
     left: 85%;
-    animation-duration: 3.9s;
-    animation-delay: 2.0s;
+    animation: twinkle 3.9s 2s infinite;
 }
 
 .star-13 {
     top: 9%;
     left: 28%;
-    animation-duration: 3.5s;
-    animation-delay: 1.1s;
+    animation: twinkle 3.5s 1.1s infinite;
 }
 
 .star-14 {
     top: 3%;
     left: 44%;
-    animation-duration: 4.3s;
-    animation-delay: 0.9s;
+    animation: twinkle 4.3s 0.9s infinite;
 }
 
 .star-15 {
     top: 12.5%;
     left: 60%;
-    animation-duration: 3.6s;
-    animation-delay: 2.3s;
+    animation: twinkle 3.6s 2.3s infinite;
 }
 
 .star-16 {
     top: 6%;
     left: 72%;
-    animation-duration: 4.9s;
-    animation-delay: 0.5s;
+    animation: twinkle 4.9s 0.5s infinite;
 }
 
 .star-17 {
     top: 14%;
     left: 18%;
-    animation-duration: 4.0s;
-    animation-delay: 2.1s;
+    animation: twinkle 4s 2.1s infinite;
 }
 
 .star-18 {
     top: 13%;
     left: 50%;
-    animation-duration: 3.8s;
-    animation-delay: 1.7s;
+    animation: twinkle 3.8s 1.7s infinite;
 }
 
 .star-19 {
     top: 9%;
     left: 90%;
-    animation-duration: 4.4s;
-    animation-delay: 1.9s;
+    animation: twinkle 4.4s 1.9s infinite;
 }
 
 .star-20 {
     top: 5%;
     left: 5%;
-    animation-duration: 3.3s;
-    animation-delay: 0.7s;
+    animation: twinkle 3.3s 0.7s infinite;
 }
 
 
-/* 🎄 ГИРЛЯНДЫ */
-
-
-/* базовый стиль лампочки гирлянды */
+/* === ГИРЛЯНДЫ === */
 
 .garland {
     width: 12px;
@@ -357,7 +325,7 @@ body {
 }
 
 
-/* верхняя гирлянда "дышит волной" */
+/* верхняя гирлянда */
 
 .garland-top {
     top: 36%;
@@ -388,7 +356,7 @@ body {
 }
 
 
-/* боковые "фонтан-гирлянды" (эквалайзер) */
+/* вертикальные гирлянды */
 
 .garland-vert {
     animation: garlandEq 1.8s linear infinite;
@@ -416,35 +384,35 @@ body {
 }
 
 
-/* 🎨 Цвета лампочек */
+/* цвета */
 
 .color-yellow {
     background: radial-gradient(circle, #fff7e6, #ffbb33 45%, transparent 70%);
-    box-shadow: 0 0 16px #ffbb33;
+    box-shadow: 0 0 12px #ffbb33;
 }
 
 .color-red {
     background: radial-gradient(circle, #ffe5e5, #ff4d4d 45%, transparent 70%);
-    box-shadow: 0 0 16px #ff4d4d;
+    box-shadow: 0 0 12px #ff4d4d;
 }
 
 .color-green {
     background: radial-gradient(circle, #e6ffe6, #22c55e 45%, transparent 70%);
-    box-shadow: 0 0 16px #22c55e;
+    box-shadow: 0 0 12px #22c55e;
 }
 
 .color-blue {
     background: radial-gradient(circle, #e6f0ff, #3b82f6 45%, transparent 70%);
-    box-shadow: 0 0 16px #3b82f6;
+    box-shadow: 0 0 12px #3b82f6;
 }
 
 .color-pink {
     background: radial-gradient(circle, #ffe6f7, #ec4899 45%, transparent 70%);
-    box-shadow: 0 0 16px #ec4899;
+    box-shadow: 0 0 12px #ec4899;
 }
 
 
-/* ===== ВЕРХНЯЯ ГОРИЗОНТАЛЬНАЯ ГИРЛЯНДА (11 ламп) ===== */
+/* верхняя гирлянда 11 ламп */
 
 .garland-1 {
     left: 14%;
@@ -458,7 +426,7 @@ body {
 
 .garland-3 {
     left: 28%;
-    animation-delay: 0.30s;
+    animation-delay: 0.3s;
 }
 
 .garland-4 {
@@ -468,7 +436,7 @@ body {
 
 .garland-5 {
     left: 42%;
-    animation-delay: 0.60s;
+    animation-delay: 0.6s;
 }
 
 .garland-6 {
@@ -478,7 +446,7 @@ body {
 
 .garland-7 {
     left: 56%;
-    animation-delay: 0.90s;
+    animation-delay: 0.9s;
 }
 
 .garland-8 {
@@ -488,7 +456,7 @@ body {
 
 .garland-9 {
     left: 70%;
-    animation-delay: 1.20s;
+    animation-delay: 1.2s;
 }
 
 .garland-10 {
@@ -498,11 +466,11 @@ body {
 
 .garland-11 {
     left: 84%;
-    animation-delay: 1.50s;
+    animation-delay: 1.5s;
 }
 
 
-/* ===== ЛЕВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА (фонтан снизу вверх) ===== */
+/* левая фонтана */
 
 .garland-left {
     left: 15.5%;
@@ -544,7 +512,7 @@ body {
 }
 
 
-/* ===== ПРАВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА (фонтан сверху вниз) ===== */
+/* правая фонтана */
 
 .garland-right {
     left: 84.5%;
@@ -586,66 +554,51 @@ body {
 }
 
 
-/* ===== ГИРЛЯНДА НА ЁЛКЕ (7 лампочек) ===== */
+/* ===========================
+   ===  ЕЛКА  ================
+   =========================== */
 
 .tree-light {
-    position: absolute;
     width: 11px;
     height: 11px;
     border-radius: 50%;
     animation: treeBlink 1.9s ease-in-out infinite;
 }
 
-
-/* красная лампа */
-
 .tree-red {
     background: radial-gradient(circle, #ffe5e5, #ff3b3b 45%, transparent 70%);
     box-shadow: 0 0 18px #ff3b3b;
 }
-
-
-/* синяя лампа */
 
 .tree-blue {
     background: radial-gradient(circle, #e3f0ff, #2f76ff 45%, transparent 70%);
     box-shadow: 0 0 18px #2f76ff;
 }
 
-
-/* мягкое дыхание для ёлки */
-
 @keyframes treeBlink {
     0% {
         opacity: 0.3;
         transform: scale(0.85);
-        filter: brightness(0.7);
     }
     40% {
         opacity: 1;
         transform: scale(1);
-        filter: brightness(1.4);
     }
     70% {
         opacity: 0.5;
         transform: scale(0.9);
-        filter: brightness(1);
     }
     100% {
         opacity: 0.3;
         transform: scale(0.85);
-        filter: brightness(0.7);
     }
 }
 
 .tree-1 {
     top: 73%;
     left: 20.5%;
-    animation-delay: 0.0s;
+    animation-delay: 0s;
 }
-
-
-/* нижний ряд */
 
 .tree-2 {
     top: 73%;
@@ -668,7 +621,7 @@ body {
 .tree-5 {
     top: 67%;
     left: 22.5%;
-    animation-delay: 1.0s;
+    animation-delay: 1s;
 }
 
 .tree-6 {
@@ -684,233 +637,117 @@ body {
 }
 
 
-/* ===== ТЕКСТОВЫЕ БЛОКИ НИЖЕ ДОМА ===== */
+/* ===========================
+   === USER SECTION ==========
+   =========================== */
 
-.below-section {
-    padding: 24px 16px 120px;
-    background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), #020617);
-    border-top: 1px solid rgba(30, 64, 175, 0.6);
-}
-
-.below-inner {
+.user-section {
+    padding: 32px 16px 80px;
     max-width: 1100px;
     margin: 0 auto;
-    font-size: 14px;
-    color: #e5e7eb;
-    line-height: 1.7;
 }
 
-.below-title {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-
-/* ===== ПЛАШКА СНИЗУ ===== */
-
-.bottom-bar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 10;
-    padding: 10px 16px;
-    background: rgba(15, 23, 42, 0.94);
-    border-top: 1px solid rgba(148, 163, 184, 0.6);
-    backdrop-filter: blur(12px);
-}
-
-.bottom-inner {
-    max-width: 1100px;
-    margin: 0 auto;
+.user-info {
     display: flex;
+    gap: 16px;
     align-items: center;
+    margin-bottom: 20px;
+}
+
+.user-photo {
+    width: 90px;
+    height: 90px;
+    border: 3px solid #3b82f6;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.user-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-text .username {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #f1f5f9;
+}
+
+.user-text .user-account {
+    font-size: 15px;
+    color: #94a3b8;
+}
+
+
+/* TOTAL BOX */
+
+.total-card {
+    margin-top: 12px;
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.total-title {
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.total-box {
+    display: flex;
     justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    font-size: 13px;
+    padding: 12px;
+    background: #1e293b;
+    border-radius: 8px;
 }
 
-.bottom-title {
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    font-size: 11px;
-    color: #a5b4fc;
-    white-space: nowrap;
+.team {
+    width: 45%;
+    text-align: center;
+    font-size: 15px;
+    color: #e2e8f0;
 }
 
-.bottom-text {
-    flex: 1;
-    min-width: 160px;
-    color: #e5e7eb;
-}
-
-.bottom-tag {
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(148, 163, 184, 0.6);
-    background: rgba(15, 23, 42, 0.9);
-    white-space: nowrap;
+.divider {
+    width: 2px;
+    background: #475569;
+    border-radius: 2px;
 }
 
 
-/* ===== МОБИЛЬНАЯ ВЕРСИЯ (айфоны и прочие до ~600px ширины) ===== */
+/* ===========================
+   === MOBILE FIXES ==========
+   =========================== */
 
-@media (max-width: 600px) {
-    /* Дом чуть крупнее, меньше отступов, без лишней высоты */
-    .house-wrap {
-        min-height: 100vh;
-        padding-bottom: 130px;
-        /* чтобы снизу не наезжала плашка */
+@media (max-width: 768px) {
+    .garland,
+    .star {
+        transform: scale(0.75);
     }
-    .house-inner {
-        max-width: 100%;
-        padding: 8px 8px 0;
-        transform: scale(1.05);
-        /* слегка увеличиваем дом */
-        transform-origin: top center;
-        /* масштаб из центра сверху */
+    .garland-top {
+        top: 38%;
+        /* мобильный фикс */
     }
-    /* Картинка дома — аккуратно по ширине экрана */
     .house-img {
-        width: 100%;
-        height: auto;
-        object-fit: contain;
+        margin-top: -12vh;
+        /* растягиваем дом ближе к верху */
     }
-    /* Лейбл сверху более аккуратный и по центру */
-    .house-label {
-        font-size: 10px;
-        padding: 5px 10px;
-        margin-bottom: 6px;
+    .user-photo {
+        width: 70px;
+        height: 70px;
     }
-    /* Текст под домом — компактнее */
-    .below-section {
-        padding: 16px 12px 120px;
+    .username {
+        font-size: 18px;
     }
-    .below-inner {
-        font-size: 13px;
+    .total-card {
+        padding: 12px;
     }
-    /* Нижняя плашка — меньше, под мобильный формат */
-    .bottom-bar {
-        padding: 8px 12px;
-    }
-    .bottom-inner {
-        font-size: 12px;
-        gap: 8px;
-    }
-    .bottom-title {
-        font-size: 10px;
-    }
-    .bottom-tag {
-        font-size: 10px;
-        padding: 3px 8px;
-    }
-    @media (max-width: 600px) {
-        /* ...твои мобильные стили тут... */
-        /* гирлянды поменьше */
-        .garland {
-            width: 6px;
-            height: 6px;
-        }
-        /* лампочки на ёлке тоже поменьше */
-        .tree-light {
-            width: 6px;
-            height: 6px;
-        }
-    }
-    /* ===== ДОПОЛНИТЕЛЬНЫЕ ПРАВКИ ДЛЯ МОБИЛОК ===== */
-    @media (max-width: 600px) {
-        /* Дом ближе к верху, меньше отступов */
-        .house-wrap {
-            min-height: 100vh;
-            padding-bottom: 120px;
-        }
-        .house-inner {
-            padding-top: 0;
-            padding-left: 8px;
-            padding-right: 8px;
-            transform: scale(1.05);
-            transform-origin: top center;
-        }
-        .house-img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-        }
-        /* гирлянды и ёлочные лампочки меньше */
-        .garland {
-            width: 6px;
-            height: 6px;
-        }
-        .tree-light {
-            width: 6px;
-            height: 6px;
-        }
-        /* верхняя горизонтальная гирлянда — опустить на 2% */
-        .garland-top {
-            top: 38%;
-        }
-        /* звёзды опускаем на 2% (увеличиваем top) */
-        .star-1 {
-            top: 8%;
-        }
-        .star-2 {
-            top: 12%;
-        }
-        .star-3 {
-            top: 13%;
-        }
-        .star-4 {
-            top: 10%;
-        }
-        .star-5 {
-            top: 6%;
-        }
-        .star-6 {
-            top: 7%;
-        }
-        .star-7 {
-            top: 10%;
-        }
-        .star-8 {
-            top: 14%;
-        }
-        .star-9 {
-            top: 6%;
-        }
-        .star-10 {
-            top: 11%;
-        }
-        .star-11 {
-            top: 15%;
-        }
-        .star-12 {
-            top: 9%;
-        }
-        .star-13 {
-            top: 11%;
-        }
-        .star-14 {
-            top: 5%;
-        }
-        .star-15 {
-            top: 14.5%;
-        }
-        .star-16 {
-            top: 8%;
-        }
-        .star-17 {
-            top: 16%;
-        }
-        .star-18 {
-            top: 15%;
-        }
-        .star-19 {
-            top: 11%;
-        }
-        .star-20 {
-            top: 7%;
-        }
+    .total-title {
+        font-size: 18px;
     }
 }

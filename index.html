@@ -5,9 +5,7 @@
     <meta charset="UTF-8" />
     <title>MB Home Alone · MBHA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- Подключаем внешний CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body>
@@ -17,8 +15,6 @@
         <div class="house-wrap">
             <div class="house-inner">
 
-
-
                 <!-- === СНЕГ ВОКРУГ ДОМА === -->
                 <div class="snow-layer">
                     <div class="snow-layer__layer snow-layer--far"></div>
@@ -26,7 +22,7 @@
                     <div class="snow-layer__layer snow-layer--near"></div>
                 </div>
 
-                <!-- === СЛОЙ ОГОНЬКОВ === -->
+                <!-- === ОГОНЬКИ: ЗВЁЗДЫ + ГИРЛЯНДЫ === -->
                 <div class="lights-layer">
 
                     <!-- ⭐ 20 звёзд -->
@@ -35,7 +31,6 @@
                     <div class="light-dot star star-3"></div>
                     <div class="light-dot star star-4"></div>
                     <div class="light-dot star star-5"></div>
-
                     <div class="light-dot star star-6"></div>
                     <div class="light-dot star star-7"></div>
                     <div class="light-dot star star-8"></div>
@@ -52,7 +47,7 @@
                     <div class="light-dot star star-19"></div>
                     <div class="light-dot star star-20"></div>
 
-                    <!-- 🎄 ВЕРХНЯЯ РАЗНОЦВЕТНАЯ ГИРЛЯНДА -->
+                    <!-- 🎄 ВЕРХНЯЯ ГИРЛЯНДА (ВОЗВРАЩЕНА) -->
                     <div class="light-dot garland garland-top garland-1 color-yellow"></div>
                     <div class="light-dot garland garland-top garland-2 color-red"></div>
                     <div class="light-dot garland garland-top garland-3 color-green"></div>
@@ -65,7 +60,7 @@
                     <div class="light-dot garland garland-top garland-10 color-pink"></div>
                     <div class="light-dot garland garland-top garland-11 color-yellow"></div>
 
-                    <!-- 🎄 ЛЕВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА (снизу вверх) -->
+                    <!-- 🎄 ЛЕВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА -->
                     <div class="light-dot garland garland-vert garland-left garland-left-1 color-yellow"></div>
                     <div class="light-dot garland garland-vert garland-left garland-left-2 color-red"></div>
                     <div class="light-dot garland garland-vert garland-left garland-left-3 color-green"></div>
@@ -74,7 +69,7 @@
                     <div class="light-dot garland garland-vert garland-left garland-left-6 color-yellow"></div>
                     <div class="light-dot garland garland-vert garland-left garland-left-7 color-red"></div>
 
-                    <!-- 🎄 ПРАВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА (сверху вниз) -->
+                    <!-- 🎄 ПРАВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА -->
                     <div class="light-dot garland garland-vert garland-right garland-right-1 color-yellow"></div>
                     <div class="light-dot garland garland-vert garland-right garland-right-2 color-red"></div>
                     <div class="light-dot garland garland-vert garland-right garland-right-3 color-green"></div>
@@ -83,7 +78,7 @@
                     <div class="light-dot garland garland-vert garland-right garland-right-6 color-yellow"></div>
                     <div class="light-dot garland garland-vert garland-right garland-right-7 color-red"></div>
 
-                    <!-- 🎄 Гирлянда на ёлке -->
+                    <!-- 🎄 ОГОНЬКИ НА ЁЛКЕ -->
                     <div class="light-dot tree-light tree-red  tree-1"></div>
                     <div class="light-dot tree-light tree-blue tree-2"></div>
                     <div class="light-dot tree-light tree-red  tree-3"></div>
@@ -100,22 +95,46 @@
             </div>
         </div>
 
-        <!-- === БЛОК ПОД ДОМОМ === -->
-        <div class="below-section">
-            <div class="below-inner">
-                <div class="below-title">Тестовый блок</div>
-                <p>
-                    Дом скроллится, звёзды мерцают, снег падает, гирлянды играют 🔥<br> Дальше будем добавлять контент, мотивацию и украшения.
-                </p>
+        <!-- === USER SECTION (8bit) === -->
+        <div class="user-section">
+
+            <div class="user-info">
+
+                <div class="user-photo">
+                    <img src="img/user_placeholder.png" alt="User photo">
+                </div>
+
+                <div class="user-text">
+                    <div class="username">USERNAME</div>
+                    <div class="user-account">PERSONAL ACCOUNT: <span id="personal_value">12345</span></div>
+                </div>
+
             </div>
+
+            <div class="total-card">
+
+                <div class="total-title">TOTAL: <span id="total_value">999999</span></div>
+
+                <div class="total-box">
+
+                    <div class="team team-kevin">
+                        TEAM KEVIN <br>
+                        <span id="kevin_value">100000</span>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="team team-bandits">
+                        TEAM OF BANDITS <br>
+                        <span id="bandits_value">80000</span>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
     </div>
-
-
-
-    <!-- Скрипт на будущее -->
-    <script src="js/main.js"></script>
 </body>
 
 </html>
