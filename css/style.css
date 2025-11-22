@@ -322,7 +322,7 @@ body {
 }
 
 
-/* верхняя горизонтальная гирлянда (чуть выше крыши) */
+/* верхняя горизонтальная гирлянда */
 
 .garland-top {
     top: 33%;
@@ -756,7 +756,7 @@ body {
    =========================== */
 
 @media (max-width: 768px) {
-    /* дом не занимает больше высоты, блоки сразу под ним */
+    /* дом сразу под шапкой, ничего не обрезано */
     .house-wrap {
         min-height: auto;
         padding-bottom: 24px;
@@ -765,32 +765,51 @@ body {
         padding: 8px 8px 0;
     }
     .house-img {
-        margin-top: -6vh;
-        /* чуть поджали вверх */
+        margin-top: 0;
+        /* убираем отрицательный отступ, чтобы крыша не резалась */
     }
+    /* на мобиле делаем огоньки поменьше */
     .garland,
-    .tree-light,
+    .tree-light {
+        transform: scale(0.7);
+    }
     .star {
         transform: scale(0.8);
     }
-    /* user-section ближе к дому и компактнее */
+    /* блок юзера ближе и компактнее */
     .user-section {
         padding: 16px 16px 48px;
     }
+    /* фото слева, текст справа в один ряд;
+       TOTAL уходит на новую строку и по центру */
     .user-info {
-        flex-direction: column;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
         align-items: flex-start;
-        gap: 16px;
+        gap: 12px;
     }
     .user-photo {
-        width: 140px;
-        height: 140px;
+        width: 130px;
+        height: 130px;
     }
-    .total-panel {
-        width: 220px;
+    .user-text {
+        flex: 1;
     }
     .username {
         font-size: 20px;
+    }
+    .user-account {
+        font-size: 14px;
+    }
+    .total-panel {
+        width: 100%;
+        max-width: 260px;
+        margin-top: 16px;
+        /* отступ сверху от блока с фото+текстом */
+        margin-left: auto;
+        margin-right: auto;
+        /* центрируем */
     }
     .total-panel-title {
         font-size: 14px;
