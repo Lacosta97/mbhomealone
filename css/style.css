@@ -19,7 +19,7 @@ body {
 }
 
 
-/* ===== PAGE STRUCTURE ===== */
+/* ===== PAGE & HOUSE ===== */
 
 .page {
     min-height: 100vh;
@@ -70,8 +70,10 @@ body {
     top: -20%;
     bottom: -10%;
     background-repeat: repeat;
-    opacity: 0.7;
 }
+
+
+/* дальний снег */
 
 .snow-layer--far {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0, rgba(255, 255, 255, 0.5) 1px, transparent 3px);
@@ -80,12 +82,18 @@ body {
     opacity: 0.35;
 }
 
+
+/* средний слой */
+
 .snow-layer--mid {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.75) 0, rgba(255, 255, 255, 0.75) 1.5px, transparent 4px);
     background-size: 260px 260px;
     animation: snowMid 28s linear infinite;
     opacity: 0.55;
 }
+
+
+/* ближний слой */
 
 .snow-layer--near {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0, rgba(255, 255, 255, 0.95) 2px, transparent 5px);
@@ -95,28 +103,28 @@ body {
 }
 
 @keyframes snowFar {
-    0% {
+    from {
         transform: translate3d(0, -40px, 0);
     }
-    100% {
+    to {
         transform: translate3d(0, 120px, 0);
     }
 }
 
 @keyframes snowMid {
-    0% {
+    from {
         transform: translate3d(-40px, -60px, 0);
     }
-    100% {
+    to {
         transform: translate3d(40px, 160px, 0);
     }
 }
 
 @keyframes snowNear {
-    0% {
+    from {
         transform: translate3d(30px, -80px, 0);
     }
-    100% {
+    to {
         transform: translate3d(-30px, 200px, 0);
     }
 }
@@ -131,32 +139,189 @@ body {
     z-index: 3;
 }
 
-
-/* ===== STARS (не трогаю) ===== */
-
 .light-dot {
     position: absolute;
     width: 8px;
     height: 8px;
     border-radius: 50%;
     opacity: 0;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
 }
+
+
+/* ===== STARS ===== */
 
 .star {
     width: 7px;
     height: 7px;
     background: radial-gradient(circle, #e5e7eb, #60a5fa 55%, transparent 75%);
     box-shadow: 0 0 12px rgba(96, 165, 250, 0.9);
-    animation-name: twinkle;
+    animation: twinkle 4s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0% {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    40% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    60% {
+        opacity: 0.4;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.7);
+    }
 }
 
 
-/* === ТУТ ВСЕ 20 ЗВЁЗД — НЕ МЕНЯЮ === */
+/* позиции 20 звёзд */
+
+.star-1 {
+    top: 6%;
+    left: 18%;
+    animation-duration: 3.2s;
+    animation-delay: 0.3s;
+}
+
+.star-2 {
+    top: 10%;
+    right: 20%;
+    animation-duration: 4.1s;
+    animation-delay: 1s;
+}
+
+.star-3 {
+    top: 11%;
+    left: 46%;
+    animation-duration: 3.6s;
+    animation-delay: 2s;
+}
+
+.star-4 {
+    top: 8%;
+    left: 70%;
+    animation-duration: 5s;
+    animation-delay: 0.7s;
+}
+
+.star-5 {
+    top: 4%;
+    left: 40%;
+    animation-duration: 4.4s;
+    animation-delay: 1.4s;
+}
+
+.star-6 {
+    top: 5%;
+    left: 12%;
+    animation-duration: 3.7s;
+    animation-delay: 0.4s;
+}
+
+.star-7 {
+    top: 8%;
+    left: 33%;
+    animation-duration: 4.2s;
+    animation-delay: 1.2s;
+}
+
+.star-8 {
+    top: 12%;
+    left: 10%;
+    animation-duration: 3.4s;
+    animation-delay: 0.8s;
+}
+
+.star-9 {
+    top: 4%;
+    left: 55%;
+    animation-duration: 5s;
+    animation-delay: 1.4s;
+}
+
+.star-10 {
+    top: 9%;
+    left: 65%;
+    animation-duration: 3.8s;
+    animation-delay: 0.6s;
+}
+
+.star-11 {
+    top: 13%;
+    left: 78%;
+    animation-duration: 4.7s;
+    animation-delay: 1.6s;
+}
+
+.star-12 {
+    top: 7%;
+    left: 85%;
+    animation-duration: 3.9s;
+    animation-delay: 2s;
+}
+
+.star-13 {
+    top: 9%;
+    left: 28%;
+    animation-duration: 3.5s;
+    animation-delay: 1.1s;
+}
+
+.star-14 {
+    top: 3%;
+    left: 44%;
+    animation-duration: 4.3s;
+    animation-delay: 0.9s;
+}
+
+.star-15 {
+    top: 12.5%;
+    left: 60%;
+    animation-duration: 3.6s;
+    animation-delay: 2.3s;
+}
+
+.star-16 {
+    top: 6%;
+    left: 72%;
+    animation-duration: 4.9s;
+    animation-delay: 0.5s;
+}
+
+.star-17 {
+    top: 14%;
+    left: 18%;
+    animation-duration: 4s;
+    animation-delay: 2.1s;
+}
+
+.star-18 {
+    top: 13%;
+    left: 50%;
+    animation-duration: 3.8s;
+    animation-delay: 1.7s;
+}
+
+.star-19 {
+    top: 9%;
+    left: 90%;
+    animation-duration: 4.4s;
+    animation-delay: 1.9s;
+}
+
+.star-20 {
+    top: 5%;
+    left: 5%;
+    animation-duration: 3.3s;
+    animation-delay: 0.7s;
+}
 
 
-/* ===== GARLAND COLORS ===== */
+/* ===== GARLANDS ===== */
 
 .garland {
     width: 12px;
@@ -165,28 +330,36 @@ body {
     position: absolute;
 }
 
+
+/* цвета ламп */
+
 .color-yellow {
     background: radial-gradient(circle, #fff7e6, #ffbb33 45%, transparent 70%);
+    box-shadow: 0 0 12px #ffbb33;
 }
 
 .color-red {
     background: radial-gradient(circle, #ffe5e5, #ff4d4d 45%, transparent 70%);
+    box-shadow: 0 0 12px #ff4d4d;
 }
 
 .color-green {
     background: radial-gradient(circle, #e6ffe6, #22c55e 45%, transparent 70%);
+    box-shadow: 0 0 12px #22c55e;
 }
 
 .color-blue {
     background: radial-gradient(circle, #e6f0ff, #3b82f6 45%, transparent 70%);
+    box-shadow: 0 0 12px #3b82f6;
 }
 
 .color-pink {
     background: radial-gradient(circle, #ffe6f7, #ec4899 45%, transparent 70%);
+    box-shadow: 0 0 12px #ec4899;
 }
 
 
-/* ===== TOP GARLAND ===== */
+/* верхняя гирлянда */
 
 .garland-top {
     top: 34%;
@@ -213,7 +386,7 @@ body {
 }
 
 
-/* === POSITIONS FOR 11 LAMPS === */
+/* 11 ламп по горизонтали */
 
 .garland-1 {
     left: 14%;
@@ -260,17 +433,354 @@ body {
 }
 
 
-/* ===== MOBILE FIX — уменьшенные гирлянды ===== */
+/* вертикальные гирлянды */
+
+.garland-vert {
+    animation: garlandEq 1.8s linear infinite;
+}
+
+@keyframes garlandEq {
+    0%,
+    20% {
+        opacity: 0.2;
+        transform: scale(0.7);
+    }
+    40%,
+    60% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    80%,
+    100% {
+        opacity: 0.15;
+        transform: scale(0.7);
+    }
+}
+
+
+/* левая */
+
+.garland-left {
+    left: 15.5%;
+}
+
+.garland-left-1 {
+    top: 71%;
+    animation-delay: 0s;
+}
+
+.garland-left-2 {
+    top: 66%;
+    animation-delay: 0.12s;
+}
+
+.garland-left-3 {
+    top: 61%;
+    animation-delay: 0.24s;
+}
+
+.garland-left-4 {
+    top: 56%;
+    animation-delay: 0.36s;
+}
+
+.garland-left-5 {
+    top: 51%;
+    animation-delay: 0.48s;
+}
+
+.garland-left-6 {
+    top: 46%;
+    animation-delay: 0.60s;
+}
+
+.garland-left-7 {
+    top: 41%;
+    animation-delay: 0.72s;
+}
+
+
+/* правая */
+
+.garland-right {
+    left: 84.5%;
+}
+
+.garland-right-1 {
+    top: 41%;
+    animation-delay: 0.72s;
+}
+
+.garland-right-2 {
+    top: 46%;
+    animation-delay: 0.60s;
+}
+
+.garland-right-3 {
+    top: 51%;
+    animation-delay: 0.48s;
+}
+
+.garland-right-4 {
+    top: 56%;
+    animation-delay: 0.36s;
+}
+
+.garland-right-5 {
+    top: 61%;
+    animation-delay: 0.24s;
+}
+
+.garland-right-6 {
+    top: 66%;
+    animation-delay: 0.12s;
+}
+
+.garland-right-7 {
+    top: 71%;
+    animation-delay: 0s;
+}
+
+
+/* ===== TREE LIGHTS ===== */
+
+.tree-light {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    animation: treeBlink 1.9s ease-in-out infinite;
+}
+
+.tree-red {
+    background: radial-gradient(circle, #ffe5e5, #ff3b3b 45%, transparent 70%);
+    box-shadow: 0 0 18px #ff3b3b;
+}
+
+.tree-blue {
+    background: radial-gradient(circle, #e3f0ff, #2f76ff 45%, transparent 70%);
+    box-shadow: 0 0 18px #2f76ff;
+}
+
+@keyframes treeBlink {
+    0% {
+        opacity: 0.3;
+        transform: scale(0.85);
+    }
+    40% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    70% {
+        opacity: 0.5;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 0.3;
+        transform: scale(0.85);
+    }
+}
+
+.tree-1 {
+    top: 73%;
+    left: 20.5%;
+    animation-delay: 0.0s;
+}
+
+.tree-2 {
+    top: 73%;
+    left: 26.5%;
+    animation-delay: 0.25s;
+}
+
+.tree-3 {
+    top: 71%;
+    left: 23.5%;
+    animation-delay: 0.5s;
+}
+
+.tree-4 {
+    top: 69%;
+    left: 25.5%;
+    animation-delay: 0.75s;
+}
+
+.tree-5 {
+    top: 67%;
+    left: 22.5%;
+    animation-delay: 1.0s;
+}
+
+.tree-6 {
+    top: 65%;
+    left: 24.5%;
+    animation-delay: 1.25s;
+}
+
+.tree-7 {
+    top: 63%;
+    left: 23.5%;
+    animation-delay: 1.5s;
+}
+
+
+/* ===== USER SECTION ===== */
+
+.user-section {
+    padding: 32px 16px 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+
+/* рамка под фото */
+
+.user-photo {
+    width: 180px;
+    height: 180px;
+    border: 3px solid #3b82f6;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.user-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* текст */
+
+.user-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+}
+
+.username {
+    font-size: 24px;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.user-account {
+    font-size: 15px;
+    color: #94a3b8;
+}
+
+
+/* TOTAL блок */
+
+.total-panel {
+    width: 180px;
+    border: 3px solid #22c55e;
+    border-radius: 12px;
+    background: #0f172a;
+    box-shadow: inset 0 0 0 2px #052e16, 0 0 20px rgba(34, 197, 94, 0.5);
+    padding: 12px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.total-panel-title {
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: #bbf7d0;
+    margin-bottom: 4px;
+}
+
+.total-panel-value {
+    font-size: 22px;
+    color: #4ade80;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.total-teams {
+    border-top: 1px solid #14532d;
+    padding-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.team {
+    flex: 1;
+    font-size: 11px;
+    color: #e2e8f0;
+    line-height: 1.4;
+}
+
+.team span {
+    display: block;
+    margin-top: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #4ade80;
+}
+
+.team-bandits span {
+    color: #f87171;
+}
+
+
+/* ===== MOBILE (до 768px) ===== */
 
 @media (max-width: 768px) {
-    /* 2× меньше гирлянды */
+    .house-wrap {
+        min-height: auto;
+        padding-bottom: 24px;
+    }
+    .house-inner {
+        padding: 8px 8px 0;
+    }
+    .house-img {
+        margin-top: 0;
+    }
+    /* гирлянды меньше */
     .garland,
     .tree-light {
         width: 6px !important;
         height: 6px !important;
     }
-    /* поднять верхнюю гирлянду */
     .garland-top {
         top: 31% !important;
+    }
+    /* блок пользователя компактнее */
+    .user-section {
+        padding: 16px 16px 48px;
+    }
+    .user-info {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .user-photo {
+        width: 130px;
+        height: 130px;
+    }
+    .username {
+        font-size: 20px;
+    }
+    .user-account {
+        font-size: 14px;
+    }
+    .total-panel {
+        width: 100%;
+        max-width: 260px;
+        margin-top: 16px;
+        margin-left: auto;
+        margin-right: auto;
     }
 }
