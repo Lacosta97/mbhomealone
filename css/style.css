@@ -756,22 +756,27 @@ body {
    =========================== */
 
 @media (max-width: 768px) {
+    /* дом не занимает больше высоты, блоки сразу под ним */
     .house-wrap {
-        min-height: 100vh;
-        padding-bottom: 60px;
+        min-height: auto;
+        padding-bottom: 24px;
     }
     .house-inner {
         padding: 8px 8px 0;
     }
     .house-img {
-        margin-top: -10vh;
+        margin-top: -6vh;
+        /* чуть поджали вверх */
     }
     .garland,
     .tree-light,
     .star {
         transform: scale(0.8);
     }
-    /* user-section в колонку, но TOTAL остаётся последним блоком */
+    /* user-section ближе к дому и компактнее */
+    .user-section {
+        padding: 16px 16px 48px;
+    }
     .user-info {
         flex-direction: column;
         align-items: flex-start;
