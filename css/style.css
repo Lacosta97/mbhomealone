@@ -328,7 +328,7 @@ body {
 /* верхняя гирлянда */
 
 .garland-top {
-    top: 36%;
+    top: 33%;
     animation: garlandWave 1.6s ease-in-out infinite;
 }
 
@@ -730,7 +730,7 @@ body {
         transform: scale(0.75);
     }
     .garland-top {
-        top: 38%;
+        top: 36%;
         /* мобильный фикс */
     }
     .house-img {
