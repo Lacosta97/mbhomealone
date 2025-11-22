@@ -322,7 +322,7 @@ body {
 }
 
 
-/* Верхняя горизонтальная гирлянда (исправленная позиция) */
+/* верхняя горизонтальная гирлянда (чуть выше крыши) */
 
 .garland-top {
     top: 33%;
@@ -648,12 +648,12 @@ body {
 .user-info {
     display: flex;
     align-items: center;
-    gap: 24px;
     justify-content: space-between;
+    gap: 24px;
 }
 
 
-/* большая рамка под фото */
+/* рамка под фото */
 
 .user-photo {
     width: 180px;
@@ -671,7 +671,7 @@ body {
 }
 
 
-/* текст по центру между фото и TOTAL */
+/* текст между фото и TOTAL */
 
 .user-text {
     flex: 1;
@@ -693,33 +693,61 @@ body {
 }
 
 
-/* квадратная рамка TOTAL справа */
+/* TOTAL справа */
 
-.total-mini {
+.total-panel {
     width: 180px;
-    height: 180px;
     border: 3px solid #22c55e;
     border-radius: 12px;
-    flex-shrink: 0;
     background: #0f172a;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     box-shadow: inset 0 0 0 2px #052e16, 0 0 20px rgba(34, 197, 94, 0.5);
+    padding: 12px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
-.total-mini-title {
-    font-size: 18px;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
+.total-panel-title {
+    font-size: 16px;
+    letter-spacing: 0.1em;
     color: #bbf7d0;
+    margin-bottom: 4px;
 }
 
-.total-mini-value {
-    font-size: 24px;
-    font-weight: 700;
+.total-panel-value {
+    font-size: 22px;
     color: #4ade80;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+
+/* две команды внутри TOTAL */
+
+.total-teams {
+    border-top: 1px solid #14532d;
+    padding-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.team {
+    flex: 1;
+    font-size: 11px;
+    color: #e2e8f0;
+    line-height: 1.4;
+}
+
+.team span {
+    display: block;
+    margin-top: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #4ade80;
+}
+
+.team-bandits span {
+    color: #f87171;
 }
 
 
@@ -738,13 +766,12 @@ body {
     .house-img {
         margin-top: -10vh;
     }
-    /* чуть уменьшим огоньки */
     .garland,
     .tree-light,
     .star {
         transform: scale(0.8);
     }
-    /* user-section в колонку */
+    /* user-section в колонку, но TOTAL остаётся последним блоком */
     .user-info {
         flex-direction: column;
         align-items: flex-start;
@@ -754,17 +781,19 @@ body {
         width: 140px;
         height: 140px;
     }
-    .total-mini {
-        width: 140px;
-        height: 140px;
+    .total-panel {
+        width: 220px;
     }
     .username {
         font-size: 20px;
     }
-    .total-mini-title {
-        font-size: 16px;
+    .total-panel-title {
+        font-size: 14px;
     }
-    .total-mini-value {
-        font-size: 20px;
+    .total-panel-value {
+        font-size: 18px;
+    }
+    .team span {
+        font-size: 12px;
     }
 }
