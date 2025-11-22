@@ -5,6 +5,13 @@
     <meta charset="UTF-8" />
     <title>MB Home Alone · MBHA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Шрифт Pixelify Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+
+    <!-- Стили -->
     <link rel="stylesheet" href="css/style.css" />
 </head>
 
@@ -22,7 +29,7 @@
                     <div class="snow-layer__layer snow-layer--near"></div>
                 </div>
 
-                <!-- === ОГОНЬКИ: ЗВЁЗДЫ + ГИРЛЯНДЫ === -->
+                <!-- === ОГОНЬКИ (ЗВЁЗДЫ + ГИРЛЯНДЫ + ЁЛКА) === -->
                 <div class="lights-layer">
 
                     <!-- ⭐ 20 звёзд -->
@@ -47,7 +54,7 @@
                     <div class="light-dot star star-19"></div>
                     <div class="light-dot star star-20"></div>
 
-                    <!-- 🎄 ВЕРХНЯЯ ГИРЛЯНДА (ВОЗВРАЩЕНА) -->
+                    <!-- 🎄 ВЕРХНЯЯ ГОРИЗОНТАЛЬНАЯ ГИРЛЯНДА (11 ламп) -->
                     <div class="light-dot garland garland-top garland-1 color-yellow"></div>
                     <div class="light-dot garland garland-top garland-2 color-red"></div>
                     <div class="light-dot garland garland-top garland-3 color-green"></div>
@@ -95,43 +102,30 @@
             </div>
         </div>
 
-        <!-- === USER SECTION (8bit) === -->
+        <!-- === USER SECTION: [PHOTO] [USERNAME + ACCOUNT] [TOTAL] === -->
         <div class="user-section">
-
             <div class="user-info">
 
+                <!-- Фото юзера -->
                 <div class="user-photo">
                     <img src="img/user_placeholder.png" alt="User photo">
                 </div>
 
+                <!-- Имя и личный аккаунт -->
                 <div class="user-text">
                     <div class="username">USERNAME</div>
-                    <div class="user-account">PERSONAL ACCOUNT: <span id="personal_value">12345</span></div>
+                    <div class="user-account">
+                        PERSONAL ACCOUNT: <span id="personal_value">12345</span>
+                    </div>
+                </div>
+
+                <!-- Квадратная рамка TOTAL -->
+                <div class="total-mini">
+                    <div class="total-mini-title">TOTAL</div>
+                    <div class="total-mini-value" id="total_value">999999</div>
                 </div>
 
             </div>
-
-            <div class="total-card">
-
-                <div class="total-title">TOTAL: <span id="total_value">999999</span></div>
-
-                <div class="total-box">
-
-                    <div class="team team-kevin">
-                        TEAM KEVIN <br>
-                        <span id="kevin_value">100000</span>
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <div class="team team-bandits">
-                        TEAM OF BANDITS <br>
-                        <span id="bandits_value">80000</span>
-                    </div>
-
-                </div>
-            </div>
-
         </div>
 
     </div>

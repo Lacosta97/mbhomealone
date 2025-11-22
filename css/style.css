@@ -12,7 +12,7 @@ body {
 }
 
 body {
-    font-family: system-ui, sans-serif;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
     background: #020617;
     color: #f9fafb;
     overflow-x: hidden;
@@ -135,7 +135,7 @@ body {
 
 
 /* ===========================
-   ===  ЗВЕЗДЫ / ГИРЛЯНДЫ  ====
+   ===  ЗВЁЗДЫ / ГИРЛЯНДЫ  ====
    =========================== */
 
 .lights-layer {
@@ -155,7 +155,7 @@ body {
 }
 
 
-/* === ЗВЕЗДЫ === */
+/* === ЗВЁЗДЫ === */
 
 .star {
     width: 7px;
@@ -190,9 +190,6 @@ body {
 
 
 /* === 20 звёзд === */
-
-
-/* (оставляю как есть — уже выровнены под твой дом) */
 
 .star-1 {
     top: 6%;
@@ -325,7 +322,7 @@ body {
 }
 
 
-/* верхняя гирлянда */
+/* Верхняя горизонтальная гирлянда (исправленная позиция) */
 
 .garland-top {
     top: 33%;
@@ -384,7 +381,7 @@ body {
 }
 
 
-/* цвета */
+/* цвета ламп */
 
 .color-yellow {
     background: radial-gradient(circle, #fff7e6, #ffbb33 45%, transparent 70%);
@@ -412,7 +409,7 @@ body {
 }
 
 
-/* верхняя гирлянда 11 ламп */
+/* верхняя гирлянда — 11 ламп */
 
 .garland-1 {
     left: 14%;
@@ -470,7 +467,7 @@ body {
 }
 
 
-/* левая фонтана */
+/* левая вертикальная гирлянда */
 
 .garland-left {
     left: 15.5%;
@@ -503,7 +500,7 @@ body {
 
 .garland-left-6 {
     top: 46%;
-    animation-delay: 0.60s;
+    animation-delay: 0.6s;
 }
 
 .garland-left-7 {
@@ -512,7 +509,7 @@ body {
 }
 
 
-/* правая фонтана */
+/* правая вертикальная гирлянда */
 
 .garland-right {
     left: 84.5%;
@@ -525,7 +522,7 @@ body {
 
 .garland-right-2 {
     top: 46%;
-    animation-delay: 0.60s;
+    animation-delay: 0.6s;
 }
 
 .garland-right-3 {
@@ -555,10 +552,11 @@ body {
 
 
 /* ===========================
-   ===  ЕЛКА  ================
+   ===  ЁЛКА  ================
    =========================== */
 
 .tree-light {
+    position: absolute;
     width: 11px;
     height: 11px;
     border-radius: 50%;
@@ -649,17 +647,21 @@ body {
 
 .user-info {
     display: flex;
-    gap: 16px;
     align-items: center;
-    margin-bottom: 20px;
+    gap: 24px;
+    justify-content: space-between;
 }
 
+
+/* большая рамка под фото */
+
 .user-photo {
-    width: 90px;
-    height: 90px;
+    width: 180px;
+    height: 180px;
     border: 3px solid #3b82f6;
     border-radius: 12px;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .user-photo img {
@@ -668,86 +670,101 @@ body {
     object-fit: cover;
 }
 
-.user-text .username {
-    font-size: 22px;
+
+/* текст по центру между фото и TOTAL */
+
+.user-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+}
+
+.username {
+    font-size: 24px;
     font-weight: 700;
-    margin-bottom: 6px;
     color: #f1f5f9;
 }
 
-.user-text .user-account {
+.user-account {
     font-size: 15px;
     color: #94a3b8;
 }
 
 
-/* TOTAL BOX */
+/* квадратная рамка TOTAL справа */
 
-.total-card {
-    margin-top: 12px;
+.total-mini {
+    width: 180px;
+    height: 180px;
+    border: 3px solid #22c55e;
+    border-radius: 12px;
+    flex-shrink: 0;
     background: #0f172a;
-    border: 2px solid #334155;
-    border-radius: 10px;
-    padding: 16px;
-}
-
-.total-title {
-    font-size: 20px;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 14px;
-}
-
-.total-box {
     display: flex;
-    justify-content: space-between;
-    padding: 12px;
-    background: #1e293b;
-    border-radius: 8px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 2px #052e16, 0 0 20px rgba(34, 197, 94, 0.5);
 }
 
-.team {
-    width: 45%;
-    text-align: center;
-    font-size: 15px;
-    color: #e2e8f0;
+.total-mini-title {
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    color: #bbf7d0;
 }
 
-.divider {
-    width: 2px;
-    background: #475569;
-    border-radius: 2px;
+.total-mini-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #4ade80;
 }
 
 
 /* ===========================
-   === MOBILE FIXES ==========
+   === MOBILE (до 768px) =====
    =========================== */
 
 @media (max-width: 768px) {
-    .garland,
-    .star {
-        transform: scale(0.75);
+    .house-wrap {
+        min-height: 100vh;
+        padding-bottom: 60px;
     }
-    .garland-top {
-        top: 36%;
-        /* мобильный фикс */
+    .house-inner {
+        padding: 8px 8px 0;
     }
     .house-img {
-        margin-top: -12vh;
-        /* растягиваем дом ближе к верху */
+        margin-top: -10vh;
+    }
+    /* чуть уменьшим огоньки */
+    .garland,
+    .tree-light,
+    .star {
+        transform: scale(0.8);
+    }
+    /* user-section в колонку */
+    .user-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
     }
     .user-photo {
-        width: 70px;
-        height: 70px;
+        width: 140px;
+        height: 140px;
+    }
+    .total-mini {
+        width: 140px;
+        height: 140px;
     }
     .username {
-        font-size: 18px;
+        font-size: 20px;
     }
-    .total-card {
-        padding: 12px;
+    .total-mini-title {
+        font-size: 16px;
     }
-    .total-title {
-        font-size: 18px;
+    .total-mini-value {
+        font-size: 20px;
     }
 }
