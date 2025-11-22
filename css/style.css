@@ -27,8 +27,9 @@ body {
 
 .house-wrap {
     width: 100%;
-    min-height: 120vh;
-    padding-bottom: 80px;
+    min-height: 100vh;
+    /* было 120, чтобы блоки не улетали слишком вниз */
+    padding-bottom: 60px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -362,7 +363,7 @@ body {
 /* верхняя гирлянда */
 
 .garland-top {
-    top: 34%;
+    top: 33%;
     animation: garlandWave 1.6s ease-in-out infinite;
 }
 
@@ -389,47 +390,47 @@ body {
 /* 11 ламп по горизонтали */
 
 .garland-1 {
-    left: 14%;
+    left: 15%;
 }
 
 .garland-2 {
-    left: 21%;
+    left: 22%;
 }
 
 .garland-3 {
-    left: 28%;
+    left: 29%;
 }
 
 .garland-4 {
-    left: 35%;
+    left: 36%;
 }
 
 .garland-5 {
-    left: 42%;
+    left: 43%;
 }
 
 .garland-6 {
-    left: 49%;
+    left: 50%;
 }
 
 .garland-7 {
-    left: 56%;
+    left: 57%;
 }
 
 .garland-8 {
-    left: 63%;
+    left: 64%;
 }
 
 .garland-9 {
-    left: 70%;
+    left: 71%;
 }
 
 .garland-10 {
-    left: 77%;
+    left: 78%;
 }
 
 .garland-11 {
-    left: 84%;
+    left: 85%;
 }
 
 
@@ -627,16 +628,26 @@ body {
 /* ===== USER SECTION ===== */
 
 .user-section {
-    padding: 32px 16px 80px;
+    padding: 24px 16px 80px;
     max-width: 1100px;
     margin: 0 auto;
 }
 
 .user-info {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 24px;
+}
+
+
+/* левая часть: фото + текст */
+
+.user-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    flex: 1;
 }
 
 
@@ -680,7 +691,7 @@ body {
 }
 
 
-/* TOTAL блок */
+/* TOTAL блок (справа, такой же ширины, как фото) */
 
 .total-panel {
     width: 180px;
@@ -765,6 +776,9 @@ body {
         flex-wrap: wrap;
         align-items: flex-start;
         gap: 12px;
+    }
+    .user-main {
+        width: 100%;
     }
     .user-photo {
         width: 130px;
