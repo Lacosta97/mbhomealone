@@ -1076,3 +1076,372 @@ body {
     transform: translateY(4px);
     box-shadow: 0 0 0 3px #f97316, 0 2px 0 #111827;
 }
+
+
+/* =========================================================
+   ARCADE BUTTON (отдельная кнопка ARCADE)
+   ========================================================= */
+
+.arcade-icon-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 100px;
+    /* чуть выше RULES, если Rules на 20-40px */
+    z-index: 1200;
+    padding: 10px 18px;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #f9fafb;
+    background: #4c1d95;
+    /* ретро-фиолетовый SNES */
+    border: 2px solid #f9fafb;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px #111827, 0 4px 0 #111827;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s ease;
+}
+
+.arcade-icon-btn:hover {
+    background: #6d28d9;
+    transform: translateY(1px);
+    box-shadow: 0 0 0 2px #111827, 0 2px 0 #111827;
+}
+
+.arcade-icon-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 2px #111827, 0 1px 0 #111827;
+}
+
+
+/* На очень маленьких экранах чуть уменьшить кнопку */
+
+@media (max-width: 600px) {
+    .arcade-icon-btn {
+        right: 12px;
+        bottom: 90px;
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+}
+
+
+/* =========================================================
+   ARCADE MODAL
+   ========================================================= */
+
+.arcade-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    /* по умолчанию скрыта, покажем через JS */
+}
+
+.arcade-modal.is-open {
+    display: block;
+}
+
+.arcade-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(3px);
+}
+
+.arcade-modal__content {
+    position: relative;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px 20px 24px;
+    background: #020617;
+    border: 3px solid #f9fafb;
+    box-shadow: 0 0 0 4px #111827, 0 16px 0 #111827;
+    border-radius: 8px;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    color: #f9fafb;
+}
+
+
+/* На маленьких экранах - адаптация */
+
+@media (max-width: 768px) {
+    .arcade-modal__content {
+        margin: 20px 12px;
+        padding: 14px 12px 16px;
+    }
+}
+
+.arcade-modal__close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: transparent;
+    color: #f9fafb;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+}
+
+
+/* =========================================================
+   ARCADE HEADER
+   ========================================================= */
+
+.arcade-header {
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.arcade-title {
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+}
+
+.arcade-subtitle {
+    font-size: 12px;
+    color: #e5e7eb;
+}
+
+.arcade-subtitle span {
+    display: inline-block;
+    padding: 1px 4px;
+    margin: 0 2px;
+    border-radius: 3px;
+    border: 1px solid #f9fafb;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   ARCADE LAYOUT
+   ========================================================= */
+
+.arcade-layout {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+@media (max-width: 700px) {
+    .arcade-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   HUD (очки, жизни, волна)
+   ========================================================= */
+
+.arcade-hud {
+    border: 2px solid #f9fafb;
+    padding: 10px;
+    background: radial-gradient(circle at top, #1f2937, #020617);
+    font-size: 13px;
+}
+
+.arcade-hud__row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.arcade-hud__label {
+    color: #e5e7eb;
+}
+
+.arcade-hud__value {
+    min-width: 50px;
+    text-align: right;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   ARCADE BUTTONS INSIDE MODAL
+   ========================================================= */
+
+.arcade-btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 14px;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #f9fafb;
+    background: #4c1d95;
+    border: 2px solid #f9fafb;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px #111827, 0 4px 0 #111827;
+    cursor: pointer;
+    transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s ease;
+}
+
+.arcade-btn--small {
+    font-size: 11px;
+    padding: 4px 10px;
+    margin-right: 6px;
+}
+
+.arcade-btn:hover {
+    background: #6d28d9;
+    transform: translateY(1px);
+    box-shadow: 0 0 0 2px #111827, 0 2px 0 #111827;
+}
+
+.arcade-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 2px #111827, 0 1px 0 #111827;
+}
+
+
+/* =========================================================
+   ИГРОВОЙ ЭКРАН
+   ========================================================= */
+
+.arcade-screen-wrap {
+    position: relative;
+    border: 3px solid #f9fafb;
+    background: #020617;
+    box-shadow: inset 0 0 0 2px #111827;
+    display: inline-block;
+    margin: 0 auto;
+}
+
+.arcade-screen-wrap canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    background: #020617;
+}
+
+
+/* На маленьких экранах можно немного масштабировать */
+
+@media (max-width: 700px) {
+    .arcade-screen-wrap {
+        transform: scale(0.9);
+        transform-origin: top center;
+    }
+}
+
+@media (max-width: 480px) {
+    .arcade-screen-wrap {
+        transform: scale(0.8);
+    }
+}
+
+
+/* =========================================================
+   START / GAME OVER OVERLAYS
+   ========================================================= */
+
+.arcade-start,
+.arcade-gameover {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    color: #f9fafb;
+    text-align: center;
+}
+
+.arcade-start__title {
+    font-size: 26px;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+}
+
+.arcade-start__text {
+    font-size: 13px;
+    color: #e5e7eb;
+}
+
+.arcade-start__text span {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid #f9fafb;
+    font-size: 11px;
+}
+
+
+/* По умолчанию стартовый экран показан, GAME OVER спрятан.
+   В JS ты будешь управлять display / классами. */
+
+#arcadeGameOverScreen {
+    display: none;
+}
+
+.arcade-gameover__title {
+    font-size: 24px;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+}
+
+.arcade-gameover__score {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+
+/* Чтобы кнопка PLAY AGAIN выглядела нормально поверх */
+
+.arcade-gameover .arcade-btn {
+    margin-top: 0;
+}
+
+
+/* =========================================================
+   ARCADE RULES (український текст правил)
+   ========================================================= */
+
+.arcade-rules {
+    margin-top: 10px;
+    text-align: left;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 12px;
+    color: #e5e7eb;
+}
+
+.arcade-rules__title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.arcade-rules__list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.arcade-rules__list li {
+    position: relative;
+    padding-left: 14px;
+    margin-bottom: 3px;
+}
+
+.arcade-rules__list li::before {
+    content: "✦";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 10px;
+    color: #a855f7;
+}

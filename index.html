@@ -151,6 +151,11 @@
         <img src="img/icons/rules-book.png" alt="rules icon">
     </button>
 
+    <!-- ОТДЕЛЬНАЯ КНОПКА ARCADE (вариант Б — пиксельная кнопка) -->
+    <button class="arcade-icon-btn" id="arcadeBtn" aria-label="Arcade">
+        ARCADE
+    </button>
+
     <!-- Модальное окно RULES -->
     <div class="rules-modal" id="rulesModal">
         <div class="rules-modal__backdrop" id="rulesBackdrop"></div>
@@ -161,22 +166,102 @@
         </div>
         <button id="dont-push-btn" class="dont-push-btn">DONT PUSH</button>
     </div>
+
+    <!-- === МОДАЛКА С ИГРОЙ-АРКАДОЙ (открывается по кнопке ARCADE) === -->
+    <div class="arcade-modal" id="arcadeModal" aria-hidden="true">
+        <div class="arcade-modal__backdrop" id="arcadeBackdrop"></div>
+        <div class="arcade-modal__content">
+            <button class="arcade-modal__close" id="arcadeCloseBtn" aria-label="Close arcade">✕</button>
+
+            <div class="arcade-header">
+                <h2 class="arcade-title">MBHA · DON'T PUSH ARCADE</h2>
+                <p class="arcade-subtitle">
+                    Use <span>←</span> <span>→</span> to move, <span>SPACE</span> to shoot. Kevin vs Bandits: catch gifts, dodge traps!
+                </p>
+
+                <div class="arcade-rules">
+                    <h3 class="arcade-rules__title">Правила гри</h3>
+                    <ul class="arcade-rules__list">
+                        <li>Кевін стоїть унизу екрана. Керуй ним стрілками ← → або клавішами A / D.</li>
+                        <li>Натискай ПРОБІЛ, щоб стріляти по об’єктах.</li>
+                        <li>Зелені подарунки — добре: збирай або збивай їх, щоб отримувати очки.</li>
+                        <li>Червоні пастки — погані: уникай їх, інакше втрачаєш життя.</li>
+                        <li>Зі збільшенням кількості очок зростає хвиля (WAVE) — об’єкти падають частіше та швидше.</li>
+                        <li>Коли життя (LIVES) закінчуються — гра завершується, але ти завжди можеш почати знову.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="arcade-layout">
+                ...
+            </div>
+
+
+            <div class="arcade-layout">
+                <!-- Панель HUD -->
+                <div class="arcade-hud">
+                    <div class="arcade-hud__row">
+                        <span class="arcade-hud__label">SCORE:</span>
+                        <span class="arcade-hud__value" id="arcadeScore">0000</span>
+                    </div>
+                    <div class="arcade-hud__row">
+                        <span class="arcade-hud__label">LIVES:</span>
+                        <span class="arcade-hud__value" id="arcadeLives">3</span>
+                    </div>
+                    <div class="arcade-hud__row">
+                        <span class="arcade-hud__label">WAVE:</span>
+                        <span class="arcade-hud__value" id="arcadeWave">1</span>
+                    </div>
+                    <button class="arcade-btn arcade-btn--small" id="arcadeRestartBtn">
+                        RESTART
+                    </button>
+                    <button class="arcade-btn arcade-btn--small" id="arcadeMuteBtn">
+                        MUTE
+                    </button>
+                </div>
+
+                <!-- Само поле игры -->
+                <div class="arcade-screen-wrap">
+                    <canvas id="arcadeCanvas" width="320" height="240"></canvas>
+
+                    <!-- Стартовый оверлей -->
+                    <div class="arcade-start" id="arcadeStartScreen">
+                        <div class="arcade-start__title">READY?</div>
+                        <div class="arcade-start__text">
+                            Press <span>SPACE</span> to start
+                        </div>
+                    </div>
+
+                    <!-- Экран GAME OVER -->
+                    <div class="arcade-gameover" id="arcadeGameOverScreen">
+                        <div class="arcade-gameover__title">GAME OVER</div>
+                        <div class="arcade-gameover__score">
+                            YOUR SCORE: <span id="arcadeFinalScore">0000</span>
+                        </div>
+                        <button class="arcade-btn" id="arcadeGameOverRestartBtn">
+                            PLAY AGAIN
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- === ВХОД ПО КОДУ / ГОСТЬ === -->
     <div class="code-modal" id="codeModal">
         <div class="code-modal__backdrop"></div>
         <div class="code-modal__content">
             <h2 class="code-modal__title">ENTER YOUR CODE</h2>
 
-
             <input type="text" id="codeInput" class="code-modal__input" maxlength="4" autocomplete="off" placeholder="XXXX">
 
             <button id="codeSubmitBtn" class="code-modal__btn code-modal__btn--primary">
-      ENTER
-    </button>
+                ENTER
+            </button>
 
             <button id="codeGuestBtn" class="code-modal__btn code-modal__btn--ghost">
-      I DON'T HAVE A CODE, I'M CURIOUS
-    </button>
+                I DON'T HAVE A CODE, I'M CURIOUS
+            </button>
 
             <p class="code-modal__error" id="codeError"></p>
         </div>
