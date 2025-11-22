@@ -1033,3 +1033,28 @@ body {
     font-size: 12px;
     color: #f97373;
 }
+
+.rules-page {
+    position: relative;
+}
+
+.dont-push-btn {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    padding: 6px 14px;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: #b91c1c;
+    color: #ffe4e6;
+    border: 3px solid #111827;
+    box-shadow: 0 0 0 3px #f97316, 0 4px 0 0 #111827;
+    cursor: pointer;
+}
+
+.dont-push-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 3px #f97316, 0 2px 0 0 #111827;
+}

@@ -148,6 +148,40 @@
         renderProfile(profile);
     }
 
+    // =================== DONT PUSH BUTTON (user/guest) ===================
+
+    const dontPushUserSound = new Audio("audio/dont-push-user.mp3");
+    const dontPushGuestSound = new Audio("audio/dont-push-guest.mp3");
+
+    dontPushUserSound.loop = false;
+    dontPushGuestSound.loop = false;
+
+    // по умолчанию — гость
+    let mbhaRole = "guest";
+
+    function setMbhaRole(role) {
+        mbhaRole = (role === "user") ? "user" : "guest";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const dontPushBtn = document.getElementById("dont-push-btn");
+        if (!dontPushBtn) return;
+
+        dontPushBtn.addEventListener("click", () => {
+            // сброс звуков
+            dontPushUserSound.pause();
+            dontPushGuestSound.pause();
+            dontPushUserSound.currentTime = 0;
+            dontPushGuestSound.currentTime = 0;
+
+            const snd = (mbhaRole === "user") ?
+                dontPushUserSound :
+                dontPushGuestSound;
+
+            snd.play().catch(() => {});
+        });
+    });
+
     // =================== ВХОД ПО КОДУ ===================
 
     function showCodeModal() {
@@ -186,8 +220,17 @@
             showCodeModal();
         }
 
-        // Если вдруг модалки нет — просто грузим профиль
+        // Если вдруг модалки нет — просто грузим профиль и выставляем роль
         if (!codeInput || !codeSubmitBtn || !codeGuestBtn) {
+            const code = getCodeFromUrl();
+            const guestMode = isGuestFromUrl();
+
+            if (guestMode || !code) {
+                setMbhaRole("guest");
+            } else {
+                setMbhaRole("user");
+            }
+
             initUserProfile();
             return;
         }
@@ -219,6 +262,8 @@
                 params.delete("guest");
                 updateUrlParams(params);
 
+                setMbhaRole("user");
+
                 hideCodeModal();
                 initUserProfile();
             } catch (err) {
@@ -233,6 +278,8 @@
             params.delete("code");
             params.set("guest", "1");
             updateUrlParams(params);
+
+            setMbhaRole("guest");
 
             hideCodeModal();
             initUserProfile();
