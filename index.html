@@ -151,7 +151,7 @@
         <img src="img/icons/rules-book.png" alt="rules icon">
     </button>
 
-    <!-- ОТДЕЛЬНАЯ КНОПКА ARCADE (вариант Б — пиксельная кнопка) -->
+    <!-- ОТДЕЛЬНАЯ КНОПКА ARCADE -->
     <button class="arcade-icon-btn" id="arcadeBtn" aria-label="Arcade">
         ARCADE
     </button>
@@ -167,35 +167,31 @@
         <button id="dont-push-btn" class="dont-push-btn">DONT PUSH</button>
     </div>
 
-    <!-- === МОДАЛКА С ИГРОЙ-АРКАДОЙ (открывается по кнопке ARCADE) === -->
+    <!-- === МОДАЛКА С PAC-MAN ARCADE === -->
     <div class="arcade-modal" id="arcadeModal" aria-hidden="true">
         <div class="arcade-modal__backdrop" id="arcadeBackdrop"></div>
         <div class="arcade-modal__content">
             <button class="arcade-modal__close" id="arcadeCloseBtn" aria-label="Close arcade">✕</button>
 
             <div class="arcade-header">
-                <h2 class="arcade-title">MBHA · DON'T PUSH ARCADE</h2>
+                <h2 class="arcade-title">MBHA · PAC-MAN ARCADE</h2>
                 <p class="arcade-subtitle">
-                    Use <span>←</span> <span>→</span> to move, <span>SPACE</span> to shoot. Kevin vs Bandits: catch gifts, dodge traps!
+                    Керуй Пакманом стрілками або хрестовиною на екрані. Їж крапки, уникай привидів і збирай бонуси MB!
                 </p>
 
-                <div class="arcade-rules">
-                    <h3 class="arcade-rules__title">Правила гри</h3>
-                    <ul class="arcade-rules__list">
-                        <li>Кевін стоїть унизу екрана. Керуй ним стрілками ← → або клавішами A / D.</li>
-                        <li>Натискай ПРОБІЛ, щоб стріляти по об’єктах.</li>
-                        <li>Зелені подарунки — добре: збирай або збивай їх, щоб отримувати очки.</li>
-                        <li>Червоні пастки — погані: уникай їх, інакше втрачаєш життя.</li>
-                        <li>Зі збільшенням кількості очок зростає хвиля (WAVE) — об’єкти падають частіше та швидше.</li>
-                        <li>Коли життя (LIVES) закінчуються — гра завершується, але ти завжди можеш почати знову.</li>
-                    </ul>
-                </div>
             </div>
 
-            <div class="arcade-layout">
-                ...
+            <div class="arcade-rules">
+                <h3 class="arcade-rules__title">Правила гри</h3>
+                <ul class="arcade-rules__list">
+                    <li>Керуєш Пакманом за допомогою клавіш ← ↑ → ↓ або WASD на комп’ютері.</li>
+                    <li>На телефоні використовуй хрестовину внизу екрана: ▲ ◀ ▼ ▶.</li>
+                    <li>Маленькі крапки — це звичайна їжа. З’їж усі крапки, щоб пройти рівень.</li>
+                    <li>Великі мерехтливі крапки дають змогу на деякий час їсти привидів.</li>
+                    <li>Бонус MB (bonus) приносить додаткові очки — ловиш, коли з’являється.</li>
+                    <li>Якщо привид торкається Пакмана у звичайному режимі — ти втрачаєш життя. Коли життя закінчуються — GAME OVER.</li>
+                </ul>
             </div>
-
 
             <div class="arcade-layout">
                 <!-- Панель HUD -->
@@ -209,9 +205,16 @@
                         <span class="arcade-hud__value" id="arcadeLives">3</span>
                     </div>
                     <div class="arcade-hud__row">
-                        <span class="arcade-hud__label">WAVE:</span>
+                        <span class="arcade-hud__label">LEVEL:</span>
                         <span class="arcade-hud__value" id="arcadeWave">1</span>
                     </div>
+
+                    <button class="arcade-btn arcade-btn--small" id="pacmanStartBtn">
+                        START
+                    </button>
+                    <button class="arcade-btn arcade-btn--small" id="pacmanPauseBtn">
+                        PAUSE
+                    </button>
                     <button class="arcade-btn arcade-btn--small" id="arcadeRestartBtn">
                         RESTART
                     </button>
@@ -220,27 +223,66 @@
                     </button>
                 </div>
 
-                <!-- Само поле игры -->
-                <div class="arcade-screen-wrap">
-                    <canvas id="arcadeCanvas" width="320" height="240"></canvas>
+                <!-- Экран игры + крестовина -->
+                <div class="arcade-screen-column">
+                    <div class="arcade-screen-wrap">
+                        <canvas id="pacmanCanvas" width="320" height="240"></canvas>
 
-                    <!-- Стартовый оверлей -->
-                    <div class="arcade-start" id="arcadeStartScreen">
-                        <div class="arcade-start__title">READY?</div>
-                        <div class="arcade-start__text">
-                            Press <span>SPACE</span> to start
+                        <!-- Стартовый экран -->
+                        <div class="arcade-start" id="pacmanStartScreen">
+                            <div class="arcade-start__title">READY?</div>
+                            <div class="arcade-start__text">
+                                Натисни <span>START</span>, щоб почати гру.<br> Керування:
+                                <br> ПК — ← ↑ → ↓ / WASD<br> Телефон — хрестовина ▲ ◀ ▼ ▶ внизу екрана.
+                            </div>
+                        </div>
+
+                        <!-- Экран GAME OVER -->
+                        <div class="arcade-gameover" id="pacmanGameOverScreen" style="display: none;">
+                            <div class="arcade-gameover__title">GAME OVER</div>
+                            <div class="arcade-gameover__score">
+                                YOUR SCORE: <span id="arcadeFinalScore">0000</span>
+                            </div>
+                            <button class="arcade-btn" id="arcadeGameOverRestartBtn">
+                                PLAY AGAIN
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Экран GAME OVER -->
-                    <div class="arcade-gameover" id="arcadeGameOverScreen">
-                        <div class="arcade-gameover__title">GAME OVER</div>
-                        <div class="arcade-gameover__score">
-                            YOUR SCORE: <span id="arcadeFinalScore">0000</span>
+                    <!-- Крестовина и кнопки START / PAUSE для мобилы -->
+                    <div class="pacman-controls" id="pacmanControls">
+                        <div class="pacman-controls-top">
+                            <button class="arcade-btn pacman-btn-top" id="pacmanStartBtnMobile">
+                                START
+                            </button>
+                            <button class="arcade-btn pacman-btn-top" id="pacmanPauseBtnMobile">
+                                PAUSE
+                            </button>
                         </div>
-                        <button class="arcade-btn" id="arcadeGameOverRestartBtn">
-                            PLAY AGAIN
-                        </button>
+
+                        <div class="pacman-dpad">
+                            <div class="pacman-dpad-row pacman-dpad-row--up">
+                                <button class="arcade-btn pacman-dpad-btn" id="pacmanBtnUp">▲</button>
+                            </div>
+                            <div class="pacman-dpad-row pacman-dpad-row--mid">
+                                <button class="arcade-btn pacman-dpad-btn" id="pacmanBtnLeft">◀</button>
+                                <div class="pacman-dpad-center"></div>
+                                <button class="arcade-btn pacman-dpad-btn" id="pacmanBtnRight">▶</button>
+                            </div>
+                            <div class="pacman-dpad-row pacman-dpad-row--down">
+                                <button class="arcade-btn pacman-dpad-btn" id="pacmanBtnDown">▼</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Оверлей "поверни телефон" -->
+            <div class="pacman-rotate-overlay" id="pacmanRotateOverlay">
+                <div class="pacman-rotate-box">
+                    <div class="pacman-rotate-title">Поверни телефон</div>
+                    <div class="pacman-rotate-text">
+                        Будь ласка, поверни телефон у горизонтальне положення,<br> щоб грати в PAC-MAN ARCADE.
                     </div>
                 </div>
             </div>
@@ -267,8 +309,9 @@
         </div>
     </div>
 
-    <!-- Скрипт MBHA -->
+    <!-- Скрипты MBHA -->
     <script src="js/main.js"></script>
+    <script src="js/pacman.js"></script>
 </body>
 
 </html>

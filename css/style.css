@@ -1137,7 +1137,6 @@ body {
     inset: 0;
     z-index: 2000;
     display: none;
-    /* по умолчанию скрыта, покажем через JS */
 }
 
 .arcade-modal.is-open {
@@ -1165,12 +1164,17 @@ body {
 }
 
 
-/* На маленьких экранах - адаптация */
+/* На маленьких экранах — почти фуллскрин */
 
 @media (max-width: 768px) {
     .arcade-modal__content {
-        margin: 20px 12px;
-        padding: 14px 12px 16px;
+        margin: 0;
+        border-radius: 0;
+        max-width: 100%;
+        min-height: 100vh;
+        padding: 12px 10px 16px;
+        box-shadow: none;
+        border-width: 0;
     }
 }
 
@@ -1192,7 +1196,7 @@ body {
    ========================================================= */
 
 .arcade-header {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     text-align: center;
 }
 
@@ -1219,14 +1223,58 @@ body {
 
 
 /* =========================================================
+   ARCADE RULES
+   ========================================================= */
+
+.arcade-rules {
+    margin-top: 6px;
+    text-align: left;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 12px;
+    color: #e5e7eb;
+}
+
+.arcade-rules__title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.arcade-rules__list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.arcade-rules__list li {
+    position: relative;
+    padding-left: 14px;
+    margin-bottom: 3px;
+}
+
+.arcade-rules__list li::before {
+    content: "✦";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 10px;
+    color: #a855f7;
+}
+
+
+/* =========================================================
    ARCADE LAYOUT
    ========================================================= */
 
 .arcade-layout {
     display: grid;
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: 190px 1fr;
     gap: 16px;
     align-items: flex-start;
+    margin-top: 10px;
 }
 
 @media (max-width: 700px) {
@@ -1237,7 +1285,7 @@ body {
 
 
 /* =========================================================
-   HUD (очки, жизни, волна)
+   HUD (очки, жизни, уровень)
    ========================================================= */
 
 .arcade-hud {
@@ -1265,7 +1313,7 @@ body {
 
 
 /* =========================================================
-   ARCADE BUTTONS INSIDE MODAL
+   ARCADE BUTTONS
    ========================================================= */
 
 .arcade-btn {
@@ -1304,8 +1352,14 @@ body {
 
 
 /* =========================================================
-   ИГРОВОЙ ЭКРАН
+   ИГРОВОЙ ЭКРАН PAC-MAN
    ========================================================= */
+
+.arcade-screen-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 .arcade-screen-wrap {
     position: relative;
@@ -1320,22 +1374,19 @@ body {
     display: block;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-    background: #020617;
+    background: #000000;
+    width: 100%;
+    height: auto;
+    max-width: 640px;
 }
 
 
-/* На маленьких экранах можно немного масштабировать */
+/* На маленьких экранах чуть уменьшаем масштаб */
 
 @media (max-width: 700px) {
     .arcade-screen-wrap {
-        transform: scale(0.9);
-        transform-origin: top center;
-    }
-}
-
-@media (max-width: 480px) {
-    .arcade-screen-wrap {
-        transform: scale(0.8);
+        width: 100%;
+        max-width: 100%;
     }
 }
 
@@ -1378,10 +1429,9 @@ body {
 }
 
 
-/* По умолчанию стартовый экран показан, GAME OVER спрятан.
-   В JS ты будешь управлять display / классами. */
+/* по умолчанию экран GAME OVER скрыт */
 
-#arcadeGameOverScreen {
+#pacmanGameOverScreen {
     display: none;
 }
 
@@ -1405,43 +1455,122 @@ body {
 
 
 /* =========================================================
-   ARCADE RULES (український текст правил)
+   PAC-MAN CONTROLS (D-PAD + START/PAUSE)
    ========================================================= */
 
-.arcade-rules {
-    margin-top: 10px;
-    text-align: left;
-    max-width: 640px;
-    margin-left: auto;
-    margin-right: auto;
+.pacman-controls {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* На десктопе крестовина не нужна */
+
+@media (min-width: 769px) {
+    .pacman-controls {
+        display: none;
+    }
+}
+
+.pacman-controls-top {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.pacman-btn-top {
+    font-size: 11px;
+    padding: 4px 10px;
+}
+
+.pacman-dpad {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+}
+
+.pacman-dpad-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.pacman-dpad-btn {
+    width: 52px;
+    height: 52px;
+    font-size: 16px;
+    padding: 0;
+}
+
+
+/* серединка крестовины */
+
+.pacman-dpad-center {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #64748b;
+    background: #020617;
+    box-shadow: inset 0 0 0 1px #0f172a;
+}
+
+
+/* На очень маленьких экранах слегка уменьшим d-pad */
+
+@media (max-width: 480px) {
+    .pacman-dpad-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 14px;
+    }
+    .pacman-dpad-center {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+
+/* =========================================================
+   Оверлей "Поверни телефон"
+   ========================================================= */
+
+.pacman-rotate-overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 40;
+    background: rgba(15, 23, 42, 0.95);
+    text-align: center;
+}
+
+.pacman-rotate-overlay.is-visible {
+    display: flex;
+}
+
+.pacman-rotate-box {
+    max-width: 260px;
+    padding: 14px 12px;
+    border-radius: 8px;
+    border: 2px solid #f9fafb;
+    background: #020617;
+    box-shadow: 0 0 0 3px #111827;
+}
+
+.pacman-rotate-title {
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+}
+
+.pacman-rotate-text {
     font-size: 12px;
     color: #e5e7eb;
-}
-
-.arcade-rules__title {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-}
-
-.arcade-rules__list {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-}
-
-.arcade-rules__list li {
-    position: relative;
-    padding-left: 14px;
-    margin-bottom: 3px;
-}
-
-.arcade-rules__list li::before {
-    content: "✦";
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-size: 10px;
-    color: #a855f7;
 }
