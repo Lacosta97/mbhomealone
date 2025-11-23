@@ -1066,3 +1066,26 @@ body {
     transform: translateY(4px);
     box-shadow: 0 0 0 3px #f97316, 0 2px 0 #111827;
 }
+
+.dont-push-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.dont-push-overlay img {
+    width: 60%;
+    max-width: 500px;
+}
+
+.dont-push-overlay.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
