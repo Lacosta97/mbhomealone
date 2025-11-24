@@ -629,6 +629,7 @@ body {
     align-items: flex-start;
     justify-content: space-between;
     gap: 24px;
+    flex-wrap: wrap;
 }
 
 .user-main {
@@ -665,6 +666,16 @@ body {
     font-size: 24px;
     font-weight: 700;
     color: #f1f5f9;
+}
+
+
+/* строка FLAPPY CAKE под именем */
+
+.user-flappy-score {
+    font-size: 13px;
+    color: #facc15;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .user-account {
@@ -725,6 +736,47 @@ body {
 }
 
 
+/* панель рекордов FLAPPY CAKE справа */
+
+.flappy-panel {
+    min-width: 220px;
+    max-width: 260px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.95);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    color: #e5e7eb;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.flappy-panel-title {
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #bfdbfe;
+    margin-bottom: 6px;
+}
+
+.flappy-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0 0 6px 0;
+}
+
+.flappy-list li {
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.flappy-panel-note {
+    font-size: 11px;
+    color: #9ca3af;
+    opacity: 0.9;
+}
+
+
 /* === ICON RULES BUTTON (книга) === */
 
 .rules-icon-btn {
@@ -755,6 +807,42 @@ body {
 
 .rules-icon-btn:active img {
     transform: scale(1.1);
+}
+
+
+/* === ICON GAME BUTTON (под книжкой) === */
+
+.game-icon-btn {
+    position: fixed;
+    top: 92px;
+    left: 16px;
+    z-index: 1499;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 18px;
+    min-width: 72px;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #0f172a;
+    background: linear-gradient(#fee2e2, #fb7185);
+    border-radius: 999px;
+    border: 3px solid #111827;
+    box-shadow: 0 0 0 2px #f97316, 0 4px 0 #111827;
+    cursor: pointer;
+    transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.12s ease-out;
+}
+
+.game-icon-btn:hover {
+    filter: brightness(1.05);
+}
+
+.game-icon-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 2px #f97316, 0 1px 0 #111827;
 }
 
 
@@ -912,6 +1000,11 @@ body {
         width: 100%;
         margin-top: 8px;
     }
+    /* FLAPPY-панель под TOTAL на мобилке */
+    .flappy-panel {
+        width: 100%;
+        max-width: 100%;
+    }
     .music-icon-btn {
         top: 67%;
         left: 78%;
@@ -919,6 +1012,11 @@ body {
     .music-icon-btn img {
         width: 28px;
         height: 28px;
+    }
+    /* GAME-кнопку можно чуть ниже на мобилке */
+    .game-icon-btn {
+        top: 86px;
+        left: 16px;
     }
 }
 

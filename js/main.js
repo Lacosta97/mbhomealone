@@ -6,8 +6,20 @@
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWO7yjYAibcHlzSacrVRoI59NWF3R0BvK4In7Hb2Gf6vD8Raco_QOdGUJiS7ckRARsCbc3Rz5wUHUu/pub?gid=0&single=true&output=csv";
     const GUEST_AVATAR = "img/avatars/GUEST.png";
 
-    // Кэш таблицы
+    // API рекордов FLAPPY CAKE
+    const FLAPPY_SCORES_API_URL =
+        "https://script.google.com/macros/s/AKfycbwRW84GGKJ-ToKuhltwcAiQegGPB9HF6AlLC_OP6CR4He8KuJCUZO2pZiyGnm4wPvfF/exec";
+
+    // Кэш таблицы юзеров
     let usersDbCache = null;
+
+    // роль в MBHA: user | guest
+    let mbhaRole = "guest";
+
+    function setMbhaRole(role) {
+        mbhaRole = role === "user" ? "user" : "guest";
+        window.mbhaRole = mbhaRole;
+    }
 
     function getUrlParams() {
         return new URLSearchParams(window.location.search);
@@ -124,6 +136,62 @@
         }
     }
 
+    // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд =====
+    function renderFlappyLeaderboard(data) {
+        const topEl = document.getElementById("flappyTop3");
+        const userScoreEl = document.getElementById("flappyUserScore");
+
+        const top = (data && data.top) || [];
+        const me = (data && data.me) || null;
+
+        // ТОП-3
+        if (topEl) {
+            topEl.innerHTML = "";
+            if (!top.length) {
+                const li = document.createElement("li");
+                li.textContent = "Поки що немає рекордів";
+                topEl.appendChild(li);
+            } else {
+                top.forEach((item, idx) => {
+                    const li = document.createElement("li");
+                    li.textContent = `${idx + 1}. ${item.name}: ${item.score}`;
+                    topEl.appendChild(li);
+                });
+            }
+        }
+
+        // Личный рекорд под именем
+        if (userScoreEl) {
+            if (me && typeof me.score === "number") {
+                userScoreEl.textContent = `FLAPPY CAKE: ${me.score}`;
+            } else {
+                userScoreEl.textContent = "FLAPPY CAKE: —";
+            }
+        }
+    }
+
+    async function loadFlappyStatsForCurrentUser() {
+        try {
+            if (!window.fetch || !FLAPPY_SCORES_API_URL) return;
+
+            const user = window.MBHA_CURRENT_USER || null;
+            const code = user && user.code ? String(user.code) : "";
+
+            const url = code ?
+                `${FLAPPY_SCORES_API_URL}?code=${encodeURIComponent(code)}` :
+                FLAPPY_SCORES_API_URL;
+
+            const res = await fetch(url);
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data.ok) return;
+
+            renderFlappyLeaderboard(data);
+        } catch (err) {
+            console.error("FLAPPY leaderboard error:", err);
+        }
+    }
+
     // Загружаем и рендерим профиль
     async function initUserProfile() {
         const code = getCodeFromUrl();
@@ -146,7 +214,18 @@
         }
 
         const profile = normalizeProfile(row);
+
+        // Глобальный объект для игр / рекордов
+        window.MBHA_CURRENT_USER = {
+            code: profile.code || null,
+            name: profile.name || "GUEST",
+            isGuest: mbhaRole !== "user" || !profile.code
+        };
+
         renderProfile(profile);
+
+        // Подтягиваем ТОП-3 и личный рекорд
+        loadFlappyStatsForCurrentUser();
     }
 
     // =================== DONT PUSH BUTTON (user/guest) ===================
@@ -156,15 +235,6 @@
 
     dontPushUserSound.loop = false;
     dontPushGuestSound.loop = false;
-
-    // по умолчанию — гость
-    let mbhaRole = "guest";
-
-    function setMbhaRole(role) {
-        mbhaRole = role === "user" ? "user" : "guest";
-        // если нужно — можно использовать в других скриптах
-        window.mbhaRole = mbhaRole;
-    }
 
     // =================== DOMContentLoaded ===================
     document.addEventListener("DOMContentLoaded", () => {

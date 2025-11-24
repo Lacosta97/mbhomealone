@@ -123,13 +123,14 @@
 
                     <div class="user-text">
                         <div class="username">USERNAME</div>
+                        <div class="user-flappy-score" id="flappyUserScore">FLAPPY CAKE: —</div>
                         <div class="user-account">
                             PERSONAL ACCOUNT: <span id="personal_value">12345</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Правая часть: TOTAL -->
+                <!-- Центральная часть: TOTAL -->
                 <div class="total-panel">
                     <div class="total-panel-title">TOTAL</div>
                     <div class="total-panel-value" id="total_value">999999</div>
@@ -146,6 +147,15 @@
                     </div>
                 </div>
 
+                <!-- Правая часть: рекорды FLAPPY CAKE -->
+                <div class="flappy-panel">
+                    <div class="flappy-panel-title">FLAPPY CAKE · TOP-3</div>
+                    <ol id="flappyTop3" class="flappy-list">
+                        <!-- Заполняется через JS -->
+                    </ol>
+                    <div class="flappy-panel-note">Рекорди гостей не зберігаються</div>
+                </div>
+
             </div>
         </div>
 
@@ -156,6 +166,11 @@
     <button class="rules-icon-btn" id="rulesBtn" aria-label="Rules">
         <img src="img/icons/rules-book.png" alt="rules icon">
     </button>
+
+    <!-- Кнопка GAME под книжкой -->
+    <a class="game-icon-btn" id="gameBtn" href="../flappy/index.html">
+        GAME
+    </a>
 
     <!-- Модальное окно RULES -->
     <div class="rules-modal" id="rulesModal">
