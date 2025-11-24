@@ -673,14 +673,31 @@ body {
 
 .user-flappy-score {
     font-size: 13px;
-    color: #facc15;
+    color: #38bdf8;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-shadow: 0 0 6px rgba(56, 189, 248, 0.9), 0 0 16px rgba(56, 189, 248, 0.7);
 }
 
 .user-account {
     font-size: 15px;
     color: #94a3b8;
+}
+
+
+/* неоновое золото только для цифр */
+
+.user-account span {
+    color: #facc15;
+    text-shadow: 0 0 6px rgba(250, 204, 21, 0.9), 0 0 14px rgba(250, 204, 21, 0.8);
+    font-weight: 700;
+}
+
+
+/* автоматом добавляем знак гривны */
+
+.user-account span::after {
+    content: " ₴";
 }
 
 .total-panel {
@@ -812,6 +829,9 @@ body {
 
 /* === ICON GAME BUTTON (под книжкой) === */
 
+
+/* === ICON GAME BUTTON (под книжкой) === */
+
 .game-icon-btn {
     position: fixed;
     top: 92px;
@@ -820,29 +840,32 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 18px;
-    min-width: 72px;
+    padding: 6px 22px;
+    min-width: 80px;
     font-family: "Pixelify Sans", system-ui, sans-serif;
     font-size: 13px;
     letter-spacing: 2px;
     text-transform: uppercase;
     text-decoration: none;
     color: #0f172a;
-    background: linear-gradient(#fee2e2, #fb7185);
+    background: radial-gradient(circle at 30% 0%, #ffe4e6 0, #fecaca 25%, #fb7185 70%, #b91c1c 100%);
     border-radius: 999px;
     border: 3px solid #111827;
-    box-shadow: 0 0 0 2px #f97316, 0 4px 0 #111827;
+    /* больше объёма */
+    box-shadow: 0 0 0 2px #f97316, 0 6px 0 #111827, 0 10px 18px rgba(0, 0, 0, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.6);
     cursor: pointer;
     transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.12s ease-out;
 }
 
 .game-icon-btn:hover {
     filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 2px #f97316, 0 7px 0 #111827, 0 14px 22px rgba(0, 0, 0, 0.7), inset 0 2px 0 rgba(255, 255, 255, 0.7);
 }
 
 .game-icon-btn:active {
     transform: translateY(3px);
-    box-shadow: 0 0 0 2px #f97316, 0 1px 0 #111827;
+    box-shadow: 0 0 0 2px #f97316, 0 2px 0 #111827, 0 6px 10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 
