@@ -139,7 +139,8 @@ canvas {
 .close-game-btn {
     position: fixed;
     top: 16px;
-    left: 16px;
+    right: 16px;
+    /* ← было left */
     z-index: 9999;
     width: 42px;
     height: 42px;

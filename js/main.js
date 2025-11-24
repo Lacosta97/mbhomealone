@@ -21,19 +21,62 @@
         window.mbhaRole = mbhaRole;
     }
 
+    // ===== AUTH (localStorage на сутки) =====
+    function getTodayStr() {
+        const d = new Date();
+        return d.toISOString().slice(0, 10); // "2025-11-25"
+    }
+
+    function loadAuthFromStorage() {
+        try {
+            const raw = localStorage.getItem("mbhaAuth");
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function saveAuthToStorage(role, code) {
+        try {
+            const data = {
+                role: role === "user" ? "user" : "guest",
+                code: code ? String(code).trim().toUpperCase() : null,
+                lastLogin: getTodayStr()
+            };
+            localStorage.setItem("mbhaAuth", JSON.stringify(data));
+        } catch (e) {
+            // тихо игнорим
+        }
+    }
+
     function getUrlParams() {
         return new URLSearchParams(window.location.search);
     }
 
     function getCodeFromUrl() {
         const params = getUrlParams();
-        const code = params.get("code");
+        let code = params.get("code");
+
+        // если в URL нет кода — пробуем взять из localStorage
+        if (!code) {
+            const saved = loadAuthFromStorage();
+            if (saved && saved.role === "user" && saved.code) {
+                code = saved.code;
+            }
+        }
+
         return code ? code.trim().toUpperCase() : null;
     }
 
     function isGuestFromUrl() {
         const params = getUrlParams();
-        return params.get("guest") === "1";
+        if (params.get("guest") === "1") return true;
+
+        const saved = loadAuthFromStorage();
+        if (saved && saved.role === "guest") return true;
+
+        return false;
     }
 
     // Парсер CSV
@@ -295,7 +338,34 @@
             const codeGuestBtn = document.getElementById("codeGuestBtn");
             const codeError = document.getElementById("codeError");
 
-            // ВСЕГДА показываем модалку при заходе
+            // Проверяем, логинился ли уже сегодня
+            const savedAuth = loadAuthFromStorage();
+            const today = getTodayStr();
+
+            if (savedAuth && savedAuth.lastLogin === today) {
+                // Восстанавливаем роль и код без показа модалки
+                if (savedAuth.role === "user") {
+                    setMbhaRole("user");
+                } else {
+                    setMbhaRole("guest");
+                }
+
+                // Синхронизируем URL (для красоты и работы getCodeFromUrl)
+                const params = getUrlParams();
+                if (savedAuth.role === "user" && savedAuth.code) {
+                    params.set("code", savedAuth.code);
+                    params.delete("guest");
+                } else {
+                    params.set("guest", "1");
+                    params.delete("code");
+                }
+                updateUrlParams(params);
+
+                initUserProfile();
+                return;
+            }
+
+            // Если нет сохранённого логина — показываем модалку
             if (codeModal) {
                 showCodeModal();
             }
@@ -343,6 +413,8 @@
                     updateUrlParams(params);
 
                     setMbhaRole("user");
+                    // <<< сохраняем auth на сегодня
+                    saveAuthToStorage("user", raw);
 
                     hideCodeModal();
                     initUserProfile();
@@ -360,6 +432,8 @@
                 updateUrlParams(params);
 
                 setMbhaRole("guest");
+                // <<< сохраняем, что зашли гостем
+                saveAuthToStorage("guest", null);
 
                 hideCodeModal();
                 initUserProfile();

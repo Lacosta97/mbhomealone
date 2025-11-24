@@ -827,45 +827,39 @@ body {
 }
 
 
-/* === ICON GAME BUTTON (под книжкой) === */
-
-
-/* === ICON GAME BUTTON (под книжкой) === */
+/* === ICON GAME BUTTON (торт справа) === */
 
 .game-icon-btn {
     position: fixed;
-    top: 92px;
-    left: 16px;
-    z-index: 1499;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 6px 22px;
-    min-width: 80px;
-    font-family: "Pixelify Sans", system-ui, sans-serif;
-    font-size: 13px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    text-decoration: none;
-    color: #0f172a;
-    background: radial-gradient(circle at 30% 0%, #ffe4e6 0, #fecaca 25%, #fb7185 70%, #b91c1c 100%);
-    border-radius: 999px;
-    border: 3px solid #111827;
-    /* больше объёма */
-    box-shadow: 0 0 0 2px #f97316, 0 6px 0 #111827, 0 10px 18px rgba(0, 0, 0, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.6);
+    top: 16px;
+    right: 16px;
+    z-index: 1500;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     cursor: pointer;
-    transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.12s ease-out;
 }
 
-.game-icon-btn:hover {
-    filter: brightness(1.05);
-    transform: translateY(-1px);
-    box-shadow: 0 0 0 2px #f97316, 0 7px 0 #111827, 0 14px 22px rgba(0, 0, 0, 0.7), inset 0 2px 0 rgba(255, 255, 255, 0.7);
+.game-icon-btn img {
+    width: 64px;
+    height: 64px;
+    image-rendering: pixelated;
+    display: block;
+    transition: transform 0.1s ease, filter 0.15s ease;
 }
 
-.game-icon-btn:active {
-    transform: translateY(3px);
-    box-shadow: 0 0 0 2px #f97316, 0 2px 0 #111827, 0 6px 10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+
+/* розовая подсветка как у RULES */
+
+.game-icon-btn:hover img,
+.game-icon-btn:focus-visible img {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px #f472b6);
+}
+
+.game-icon-btn:active img {
+    transform: scale(1.1);
 }
 
 
@@ -1037,9 +1031,9 @@ body {
         height: 28px;
     }
     /* GAME-кнопку можно чуть ниже на мобилке */
-    .game-icon-btn {
-        top: 86px;
-        left: 16px;
+    .game-icon-btn img {
+        width: 48px;
+        height: 48px;
     }
 }
 

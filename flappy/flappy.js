@@ -9,9 +9,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const scoreValue = document.getElementById("scoreValue");
     const bestScoreValue = document.getElementById("bestScoreValue");
+
     // ===== API РЕКОРДОВ FLAPPY CAKE =====
     const SCORES_API_URL = "https://script.google.com/macros/s/AKfycbwRW84GGKJ-ToKuhltwcAiQegGPB9HF6AlLC_OP6CR4He8KuJCUZO2pZiyGnm4wPvfF/exec";
 
+    // ===== AUTH: читаем mbhaAuth из localStorage =====
+    function loadAuthFromStorage() {
+        try {
+            const raw = localStorage.getItem("mbhaAuth");
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function getCurrentUserForFlappy() {
+        // 1) пробуем взять глобальный объект с главной
+        let user = window.MBHA_CURRENT_USER || null;
+
+        // 2) если его нет (отдельная страница игры) – читаем localStorage
+        if (!user) {
+            const saved = loadAuthFromStorage();
+            if (saved && saved.role === "user" && saved.code) {
+                user = {
+                    code: String(saved.code).trim().toUpperCase(),
+                    name: String(saved.code).trim().toUpperCase(), // имя можно маппить по коду на бэке
+                    isGuest: false
+                };
+            }
+        }
+
+        return user;
+    }
 
     // ===== SPRITE: TORT =====
     const cakeImg = new Image();
@@ -250,8 +280,10 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             if (!window.fetch || !SCORES_API_URL) return;
 
-            const user = window.MBHA_CURRENT_USER || null;
-            // гостей не сохраняем
+            // берём юзера либо из глобала, либо из localStorage
+            const user = getCurrentUserForFlappy();
+
+            // гостей и пустой код не сохраняем
             if (!user || user.isGuest || !user.code) return;
 
             const payload = {
@@ -274,7 +306,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // тихо игнорим
         }
     }
-
 
     // ===== ДОПОМІЖНІ ФУНКЦІЇ =====
     function resetGame() {
@@ -316,10 +347,9 @@ document.addEventListener("DOMContentLoaded", () => {
             bestScoreValue.textContent = bestScore;
         }
 
-        // <<< ДОБАВЬ ЭТУ СТРОЧКУ
+        // отправляем результат в Google Apps Script
         submitFlappyScore(score);
     }
-
 
     function spawnPipe() {
         const minTop = 50;
