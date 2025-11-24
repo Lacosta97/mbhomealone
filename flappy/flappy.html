@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>FLAPPY CAKE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="flappy.css" />
+</head>
+
+<body>
+    <div class="page">
+        <div class="game-wrapper">
+            <h1 class="game-title">FLAPPY CAKE</h1>
+
+            <div class="game-info">
+                <div class="score">Бали: <span id="scoreValue">0</span></div>
+                <div class="best-score">Рекорд: <span id="bestScoreValue">0</span></div>
+            </div>
+
+            <div class="game-container">
+                <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+                <div class="overlay" id="overlay">
+                    <div class="overlay-inner">
+                        <h2 id="overlayTitle">Нажми, чтобы начать</h2>
+                        <p id="overlayText">
+                            ПК: нажимай <b>пробел</b> или <b>клик мышкой</b><br> Телефон: <b>тапай по экрану</b>
+                        </p>
+                        <button id="startBtn" class="btn">Старт</button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="hint">
+                Управление: пробел / клик / тап — птичка подпрыгивает 🐤
+            </p>
+        </div>
+    </div>
+
+    <script src="flappy.js"></script>
+</body>
+
+</html>
