@@ -11,9 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const bestScoreValue = document.getElementById("bestScoreValue");
 
     // ===== API РЕКОРДОВ FLAPPY CAKE =====
-    const SCORES_API_URL = "https://script.google.com/macros/s/AKfycbwRW84GGKJ-ToKuhltwcAiQegGPB9HF6AlLC_OP6CR4He8KuJCUZO2pZiyGnm4wPvfF/exec";
+    const SCORES_API_URL =
+        "https://script.google.com/macros/s/AKfycbwRW84GGKJ-ToKuhltwcAiQegGPB9HF6AlLC_OP6CR4He8KuJCUZO2pZiyGnm4wPvfF/exec";
 
-    // ===== AUTH: читаем mbhaAuth из localStorage =====
+    // Берём авторизацию из localStorage (то, что сохранил main.js)
     function loadAuthFromStorage() {
         try {
             const raw = localStorage.getItem("mbhaAuth");
@@ -22,25 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (e) {
             return null;
         }
-    }
-
-    function getCurrentUserForFlappy() {
-        // 1) пробуем взять глобальный объект с главной
-        let user = window.MBHA_CURRENT_USER || null;
-
-        // 2) если его нет (отдельная страница игры) – читаем localStorage
-        if (!user) {
-            const saved = loadAuthFromStorage();
-            if (saved && saved.role === "user" && saved.code) {
-                user = {
-                    code: String(saved.code).trim().toUpperCase(),
-                    name: String(saved.code).trim().toUpperCase(), // имя можно маппить по коду на бэке
-                    isGuest: false
-                };
-            }
-        }
-
-        return user;
     }
 
     // ===== SPRITE: TORT =====
@@ -114,12 +96,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         const wy = topY + 6 + r * ((h - 18) / rows);
 
                         // колір вікна — теплий / червоний / зелений
-                        const palette = [
-                            "#fde68a", // теплий жовтий
-                            "#fecaca", // мʼякий червоний
-                            "#bbf7d0" // мʼякий зелений
-                        ];
-                        const color = palette[Math.floor(Math.random() * palette.length)];
+                        const palette = ["#fde68a", "#fecaca", "#bbf7d0"];
+                        const color =
+                            palette[Math.floor(Math.random() * palette.length)];
 
                         building.windows.push({ x: wx, y: wy, color });
                     }
@@ -161,8 +140,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillRect(0, 0, width, height);
 
         // мерехтливі зірки
-        stars.forEach(st => {
-            const flicker = Math.sin(starTime * st.speed + st.x * 0.3) * 0.5 + 0.5;
+        stars.forEach((st) => {
+            const flicker =
+                Math.sin(starTime * st.speed + st.x * 0.3) * 0.5 + 0.5;
             const alpha = 0.3 + flicker * 0.7;
 
             ctx.fillStyle = `rgba(248, 250, 252, ${alpha})`;
@@ -181,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.stroke();
 
         // лампочки
-        garlandBulbs.forEach(b => {
+        garlandBulbs.forEach((b) => {
             const flick = Math.sin(starTime * 2 + b.phase) * 0.5 + 0.5;
             const alpha = 0.4 + flick * 0.6;
 
@@ -201,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // будинки
-        cityBuildings.forEach(b => {
+        cityBuildings.forEach((b) => {
             ctx.fillStyle = "#020617";
             ctx.fillRect(b.x, b.topY, b.w, b.h);
 
@@ -214,8 +194,9 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.fillRect(b.x, b.topY - 3, b.w, 4);
 
             // вікна
-            b.windows.forEach(wi => {
-                const flicker = Math.sin(starTime * 1.5 + wi.x * 0.4) * 0.5 + 0.5;
+            b.windows.forEach((wi) => {
+                const flicker =
+                    Math.sin(starTime * 1.5 + wi.x * 0.4) * 0.5 + 0.5;
                 const alpha = 0.4 + flicker * 0.6;
                 ctx.fillStyle = wi.color;
                 ctx.globalAlpha = alpha;
@@ -225,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // сніг
-        snowflakes.forEach(s => {
+        snowflakes.forEach((s) => {
             s.y += s.vy;
             s.x += s.vx;
 
@@ -276,19 +257,18 @@ document.addEventListener("DOMContentLoaded", () => {
     let score = 0;
     let bestScore = 0;
 
+    // Отправка рекорда на Google Script
     async function submitFlappyScore(finalScore) {
         try {
             if (!window.fetch || !SCORES_API_URL) return;
 
-            // берём юзера либо из глобала, либо из localStorage
-            const user = getCurrentUserForFlappy();
-
-            // гостей и пустой код не сохраняем
-            if (!user || user.isGuest || !user.code) return;
+            const auth = loadAuthFromStorage();
+            // гостей не сохраняем
+            if (!auth || auth.role !== "user" || !auth.code) return;
 
             const payload = {
-                code: String(user.code),
-                name: String(user.name || user.code),
+                code: String(auth.code),
+                name: String(auth.name || auth.code),
                 score: Number(finalScore || 0)
             };
 
@@ -298,12 +278,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify(payload)
             });
 
-            // ответ можно игнорить, рекорды выводим на главной
             if (!res.ok) return;
             const data = await res.json();
             if (!data.ok) return;
         } catch (e) {
-            // тихо игнорим
+            // тихо
         }
     }
 
@@ -347,14 +326,14 @@ document.addEventListener("DOMContentLoaded", () => {
             bestScoreValue.textContent = bestScore;
         }
 
-        // отправляем результат в Google Apps Script
         submitFlappyScore(score);
     }
 
     function spawnPipe() {
         const minTop = 50;
         const maxTop = height - groundHeight - pipeGap - 50;
-        const topHeight = Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
+        const topHeight =
+            Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
 
         pipes.push({
             x: width + 40,
@@ -377,11 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const size = bird.radius * 3;
 
-        ctx.drawImage(
-            cakeImg, -size / 2, -size / 2,
-            size,
-            size
-        );
+        ctx.drawImage(cakeImg, -size / 2, -size / 2, size, size);
 
         ctx.restore();
     }
@@ -390,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function drawPipes() {
         const groundY = height - groundHeight;
 
-        pipes.forEach(pipe => {
+        pipes.forEach((pipe) => {
             const x = pipe.x;
             const gapTop = pipe.top;
             const gapBottom = pipe.top + pipeGap;
@@ -513,7 +488,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const gapTop = pipe.top;
             const gapBottom = pipe.top + pipeGap;
 
-            if (bird.y - bird.radius < gapTop || bird.y + bird.radius > gapBottom) {
+            if (
+                bird.y - bird.radius < gapTop ||
+                bird.y + bird.radius > gapBottom
+            ) {
                 gameOver();
                 break;
             }
@@ -557,7 +535,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    ["click", "touchstart"].forEach(evt => {
+    ["click", "touchstart"].forEach((evt) => {
         canvas.addEventListener(evt, (e) => {
             e.preventDefault();
             flap();
