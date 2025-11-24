@@ -132,3 +132,43 @@ canvas {
         font-size: 14px;
     }
 }
+
+
+/* === CLOSE GAME BUTTON === */
+
+.close-game-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-size: 26px;
+    text-decoration: none;
+    color: #0f172a;
+    background: linear-gradient(#fee2e2, #fb7185);
+    border-radius: 999px;
+    border: 3px solid #111827;
+    box-shadow: 0 0 0 2px #f97316, 0 4px 0 #111827;
+    cursor: pointer;
+    transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+
+.close-game-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 2px #f97316, 0 1px 0 #111827;
+}
+
+@media (max-width: 480px) {
+    .close-game-btn {
+        top: 12px;
+        left: 12px;
+        width: 36px;
+        height: 36px;
+        font-size: 22px;
+    }
+}
