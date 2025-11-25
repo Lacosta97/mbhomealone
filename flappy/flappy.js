@@ -14,6 +14,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const SCORES_API_URL =
         "https://script.google.com/macros/s/AKfycbwRW84GGKJ-ToKuhltwcAiQegGPB9HF6AlLC_OP6CR4He8KuJCUZO2pZiyGnm4wPvfF/exec";
 
+    // читаем авторизацию, которую сохраняет main.js
+    function loadAuthFromStorage() {
+        try {
+            const raw = localStorage.getItem("mbhaAuth");
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) {
+            return null;
+        }
+    }
+
     // ===== SPRITE: TORT =====
     const cakeImg = new Image();
     cakeImg.src = "img/tort.png";
@@ -37,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===== CHRISTMAS BACKGROUND: STARS + SNOW + CITY + GARLAND =====
     let starTime = 0;
 
-    // зірки
     const stars = Array.from({ length: 60 }, () => ({
         x: Math.random() * width,
         y: Math.random() * height * 0.7,
@@ -45,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
         speed: Math.random() * 0.02 + 0.01
     }));
 
-    // сніг
     const snowflakes = Array.from({ length: 90 }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -54,10 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
         vx: (Math.random() - 0.5) * 0.2
     }));
 
-    // лінія, де стоять будинки
     const horizonY = height - groundHeight - 20;
 
-    // будинки + вікна
     const cityBuildings = (() => {
         const arr = [];
         let xPos = -20;
@@ -75,8 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 windows: []
             };
 
-            const cols = 3 + Math.floor(Math.random() * 2); // 3–4 колонки
-            const rows = 3 + Math.floor(Math.random() * 2); // 3–4 ряди
+            const cols = 3 + Math.floor(Math.random() * 2);
+            const rows = 3 + Math.floor(Math.random() * 2);
 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
@@ -84,11 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         const wx = building.x + 6 + c * ((w - 12) / cols);
                         const wy = topY + 6 + r * ((h - 18) / rows);
 
-                        const palette = [
-                            "#fde68a", // теплий жовтий
-                            "#fecaca", // мʼякий червоний
-                            "#bbf7d0" // мʼякий зелений
-                        ];
+                        const palette = ["#fde68a", "#fecaca", "#bbf7d0"];
                         const color = palette[Math.floor(Math.random() * palette.length)];
 
                         building.windows.push({ x: wx, y: wy, color });
@@ -103,7 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return arr;
     })();
 
-    // гірлянда
     const garlandY = height * 0.22;
     const garlandBulbs = (() => {
         const bulbs = [];
@@ -126,11 +128,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function drawBackground() {
         starTime += 0.03;
 
-        // нічне небо
         ctx.fillStyle = "#050816";
         ctx.fillRect(0, 0, width, height);
 
-        // мерехтливі зірки
         stars.forEach(st => {
             const flicker = Math.sin(starTime * st.speed + st.x * 0.3) * 0.5 + 0.5;
             const alpha = 0.3 + flicker * 0.7;
@@ -139,7 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.fillRect(st.x, st.y, st.s, st.s);
         });
 
-        // гірлянда — нитка
         ctx.strokeStyle = "#1f2937";
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -150,19 +149,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         ctx.stroke();
 
-        // лампочки
         garlandBulbs.forEach(b => {
             const flick = Math.sin(starTime * 2 + b.phase) * 0.5 + 0.5;
             const alpha = 0.4 + flick * 0.6;
 
-            // свічення
             ctx.globalAlpha = alpha * 0.4;
             ctx.fillStyle = b.color;
             ctx.beginPath();
             ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
             ctx.fill();
 
-            // сама лампочка
             ctx.globalAlpha = 1;
             ctx.fillStyle = b.color;
             ctx.beginPath();
@@ -170,20 +166,16 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.fill();
         });
 
-        // будинки
         cityBuildings.forEach(b => {
             ctx.fillStyle = "#020617";
             ctx.fillRect(b.x, b.topY, b.w, b.h);
 
-            // дах
             ctx.fillStyle = "#111827";
             ctx.fillRect(b.x, b.topY, b.w, 3);
 
-            // сніг на даху
             ctx.fillStyle = "#e5f2ff";
             ctx.fillRect(b.x, b.topY - 3, b.w, 4);
 
-            // вікна
             b.windows.forEach(wi => {
                 const flicker = Math.sin(starTime * 1.5 + wi.x * 0.4) * 0.5 + 0.5;
                 const alpha = 0.4 + flicker * 0.6;
@@ -194,7 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // сніг
         snowflakes.forEach(s => {
             s.y += s.vy;
             s.x += s.vx;
@@ -213,7 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ===== СНІГ НА ЗЕМЛІ =====
     function drawGround() {
         const groundY = height - groundHeight;
 
@@ -233,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ===== GAME STATE =====
-    let gameState = "start"; // "start" | "playing" | "gameover"
+    let gameState = "start";
 
     let bird = {
         x: width / 4,
@@ -246,34 +236,29 @@ document.addEventListener("DOMContentLoaded", () => {
     let score = 0;
     let bestScore = 0;
 
-    // достаём данные игрока (сначала из глобальной, потом из localStorage)
-    function getCurrentUser() {
-        const g = window.MBHA_CURRENT_USER;
-        if (g && !g.isGuest && g.code) {
-            return g;
-        }
-
-        try {
-            const raw = localStorage.getItem("mbhaAuth");
-            if (!raw) return null;
-            const data = JSON.parse(raw);
-            if (data.role !== "user" || !data.code) return null;
-            return {
-                code: data.code,
-                name: data.name || data.code,
-                isGuest: false
-            };
-        } catch (e) {
-            return null;
-        }
-    }
-
+    // ===== ОТПРАВКА РЕКОРДА В GOOGLE SCRIPT =====
     async function submitFlappyScore(finalScore) {
         try {
             if (!window.fetch || !SCORES_API_URL) return;
 
-            const user = getCurrentUser();
-            // гостей не сохраняем
+            let user = null;
+
+            // 1) если вдруг есть глобальный объект
+            if (window.MBHA_CURRENT_USER) {
+                user = window.MBHA_CURRENT_USER;
+            } else {
+                // 2) вытаскиваем из localStorage то, что сохранил main.js
+                const saved = loadAuthFromStorage();
+                if (saved && saved.role === "user" && saved.code) {
+                    user = {
+                        code: saved.code,
+                        name: saved.name || saved.code,
+                        isGuest: false
+                    };
+                }
+            }
+
+            // гостей и тех, у кого нет кода, не пишем
             if (!user || user.isGuest || !user.code) return;
 
             const payload = {
@@ -292,7 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
             if (!data.ok) return;
         } catch (e) {
-            // тихо
+            // тихо игнорим
         }
     }
 
@@ -336,7 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
             bestScoreValue.textContent = bestScore;
         }
 
-        // отправляем результат
+        // отправляем рекорд в таблицу
         submitFlappyScore(score);
     }
 
@@ -352,7 +337,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ===== ТОРТ (ЗАМІСТЬ ПТАШКИ) =====
     function drawBird() {
         if (!cakeLoaded) return;
 
@@ -366,16 +350,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const size = bird.radius * 3;
 
-        ctx.drawImage(
-            cakeImg, -size / 2, -size / 2,
-            size,
-            size
-        );
+        ctx.drawImage(cakeImg, -size / 2, -size / 2, size, size);
 
         ctx.restore();
     }
 
-    // ===== СИНЬО-БЛАКИТНІ ТРУБИ MB =====
     function drawPipes() {
         const groundY = height - groundHeight;
 
@@ -391,7 +370,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const dark = "#0b5e88";
             const border = "#083b55";
 
-            // ВЕРХНЯ ТРУБА
             const topH = gapTop;
             if (topH > 0) {
                 const grdTop = ctx.createLinearGradient(0, 0, 0, topH);
@@ -415,7 +393,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 ctx.fillText("MB", x + w / 2, topH / 2);
             }
 
-            // НИЖНЯ ТРУБА
             const bottomH = groundY - gapBottom;
             if (bottomH > 0) {
                 const grdBottom = ctx.createLinearGradient(
@@ -453,7 +430,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillText(score, width / 2, 50);
     }
 
-    // ===== ОНОВЛЕННЯ ЛОГІКИ =====
     function updateBird() {
         bird.vy += gravity;
         bird.y += bird.vy;
@@ -509,7 +485,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ===== MAIN LOOP =====
     function loop() {
         ctx.clearRect(0, 0, width, height);
 
@@ -528,7 +503,6 @@ document.addEventListener("DOMContentLoaded", () => {
         requestAnimationFrame(loop);
     }
 
-    // ===== КЕРУВАННЯ =====
     function flap() {
         if (gameState === "start") {
             startGame();
@@ -563,7 +537,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // ===== INIT =====
     resetGame();
     loop();
 });

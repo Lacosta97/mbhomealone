@@ -410,7 +410,7 @@
                 try {
                     const usersDb = await loadUsersFromSheet();
                     if (!usersDb[raw]) {
-                        showError("Такого кода нет. Проверь ещё раз.");
+                        showError("Черевічкі мої! А ТАКИХ НЕМА");
                         return;
                     }
 
