@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ===== API РЕКОРДОВ FLAPPY CAKE =====
     const SCORES_API_URL =
-        "https://script.google.com/macros/s/AKfycbwRW84GGKJ-ToKuhltwcAiQegGPB9HF6AlLC_OP6CR4He8KuJCUZO2pZiyGnm4wPvfF/exec";
+        "https://script.google.com/macros/s/AKfycbzoMPF6NbJWBTddFUrT1PJZNqs4vdonPJw8vxiYETsxtiJFTMY4EogHzWCd_lQoFpt1/exec";
 
     // читаем авторизацию, которую сохраняет main.js
     function loadAuthFromStorage() {
