@@ -21,7 +21,6 @@
         window.mbhaRole = mbhaRole;
     }
 
-    // ====== LOCALSTORAGE АВТОРИЗАЦИИ ======
     function getTodayStr() {
         const d = new Date();
         return d.toISOString().slice(0, 10); // "2025-11-25"
@@ -37,18 +36,18 @@
         }
     }
 
-    // role: "user" | "guest", code: "AB12" или null, name опционально
+    // теперь сохраняем и name тоже
     function saveAuthToStorage(role, code, name) {
         try {
             const data = {
                 role: role === "user" ? "user" : "guest",
                 code: code ? String(code).trim().toUpperCase() : null,
-                name: name || null,
+                name: name ? String(name) : null,
                 lastLogin: getTodayStr()
             };
             localStorage.setItem("mbhaAuth", JSON.stringify(data));
         } catch (e) {
-            // тихо
+            // тихо игнорим
         }
     }
 
@@ -60,7 +59,6 @@
         const params = getUrlParams();
         let code = params.get("code");
 
-        // если в урле кода нет — пробуем взять из localStorage
         if (!code) {
             const saved = loadAuthFromStorage();
             if (saved && saved.role === "user" && saved.code) {
@@ -131,7 +129,7 @@
             TEAM: "",
             "TEAM KEVIN": "0",
             "TEAM OF BANDITS": "0",
-            TOTAL: "0"
+            TOTAL: "0",
         };
     }
 
@@ -142,7 +140,7 @@
             personalAccount: row["PERSONAL ACCOUNT"] || "-----",
             total: row["TOTAL"] || "0",
             teamKevin: row["TEAM KEVIN"] || "0",
-            teamBandits: row["TEAM OF BANDITS"] || "0"
+            teamBandits: row["TEAM OF BANDITS"] || "0",
         };
     }
 
@@ -267,11 +265,11 @@
             isGuest: mbhaRole !== "user" || !profile.code
         };
 
-        // Сохраняем авторизацию в localStorage, чтобы игра могла взять код
+        // Сохраняем в localStorage, чтобы игра Flappy могла достать юзера
         saveAuthToStorage(
             window.MBHA_CURRENT_USER.isGuest ? "guest" : "user",
             profile.code || null,
-            profile.name || "GUEST"
+            profile.name || null
         );
 
         renderProfile(profile);
@@ -359,7 +357,7 @@
                     setMbhaRole("guest");
                 }
 
-                // Синхронизируем URL (для красоты и работы getCodeFromUrl)
+                // Синхронизируем URL
                 const params = getUrlParams();
                 if (savedAuth.role === "user" && savedAuth.code) {
                     params.set("code", savedAuth.code);

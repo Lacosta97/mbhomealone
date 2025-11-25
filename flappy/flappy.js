@@ -14,17 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const SCORES_API_URL =
         "https://script.google.com/macros/s/AKfycbwRW84GGKJ-ToKuhltwcAiQegGPB9HF6AlLC_OP6CR4He8KuJCUZO2pZiyGnm4wPvfF/exec";
 
-    // Берём авторизацию из localStorage (то, что сохранил main.js)
-    function loadAuthFromStorage() {
-        try {
-            const raw = localStorage.getItem("mbhaAuth");
-            if (!raw) return null;
-            return JSON.parse(raw);
-        } catch (e) {
-            return null;
-        }
-    }
-
     // ===== SPRITE: TORT =====
     const cakeImg = new Image();
     cakeImg.src = "img/tort.png";
@@ -95,10 +84,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         const wx = building.x + 6 + c * ((w - 12) / cols);
                         const wy = topY + 6 + r * ((h - 18) / rows);
 
-                        // колір вікна — теплий / червоний / зелений
-                        const palette = ["#fde68a", "#fecaca", "#bbf7d0"];
-                        const color =
-                            palette[Math.floor(Math.random() * palette.length)];
+                        const palette = [
+                            "#fde68a", // теплий жовтий
+                            "#fecaca", // мʼякий червоний
+                            "#bbf7d0" // мʼякий зелений
+                        ];
+                        const color = palette[Math.floor(Math.random() * palette.length)];
 
                         building.windows.push({ x: wx, y: wy, color });
                     }
@@ -140,9 +131,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillRect(0, 0, width, height);
 
         // мерехтливі зірки
-        stars.forEach((st) => {
-            const flicker =
-                Math.sin(starTime * st.speed + st.x * 0.3) * 0.5 + 0.5;
+        stars.forEach(st => {
+            const flicker = Math.sin(starTime * st.speed + st.x * 0.3) * 0.5 + 0.5;
             const alpha = 0.3 + flicker * 0.7;
 
             ctx.fillStyle = `rgba(248, 250, 252, ${alpha})`;
@@ -161,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.stroke();
 
         // лампочки
-        garlandBulbs.forEach((b) => {
+        garlandBulbs.forEach(b => {
             const flick = Math.sin(starTime * 2 + b.phase) * 0.5 + 0.5;
             const alpha = 0.4 + flick * 0.6;
 
@@ -181,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // будинки
-        cityBuildings.forEach((b) => {
+        cityBuildings.forEach(b => {
             ctx.fillStyle = "#020617";
             ctx.fillRect(b.x, b.topY, b.w, b.h);
 
@@ -194,9 +184,8 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.fillRect(b.x, b.topY - 3, b.w, 4);
 
             // вікна
-            b.windows.forEach((wi) => {
-                const flicker =
-                    Math.sin(starTime * 1.5 + wi.x * 0.4) * 0.5 + 0.5;
+            b.windows.forEach(wi => {
+                const flicker = Math.sin(starTime * 1.5 + wi.x * 0.4) * 0.5 + 0.5;
                 const alpha = 0.4 + flicker * 0.6;
                 ctx.fillStyle = wi.color;
                 ctx.globalAlpha = alpha;
@@ -206,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // сніг
-        snowflakes.forEach((s) => {
+        snowflakes.forEach(s => {
             s.y += s.vy;
             s.x += s.vx;
 
@@ -257,18 +246,39 @@ document.addEventListener("DOMContentLoaded", () => {
     let score = 0;
     let bestScore = 0;
 
-    // Отправка рекорда на Google Script
+    // достаём данные игрока (сначала из глобальной, потом из localStorage)
+    function getCurrentUser() {
+        const g = window.MBHA_CURRENT_USER;
+        if (g && !g.isGuest && g.code) {
+            return g;
+        }
+
+        try {
+            const raw = localStorage.getItem("mbhaAuth");
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (data.role !== "user" || !data.code) return null;
+            return {
+                code: data.code,
+                name: data.name || data.code,
+                isGuest: false
+            };
+        } catch (e) {
+            return null;
+        }
+    }
+
     async function submitFlappyScore(finalScore) {
         try {
             if (!window.fetch || !SCORES_API_URL) return;
 
-            const auth = loadAuthFromStorage();
+            const user = getCurrentUser();
             // гостей не сохраняем
-            if (!auth || auth.role !== "user" || !auth.code) return;
+            if (!user || user.isGuest || !user.code) return;
 
             const payload = {
-                code: String(auth.code),
-                name: String(auth.name || auth.code),
+                code: String(user.code),
+                name: String(user.name || user.code),
                 score: Number(finalScore || 0)
             };
 
@@ -326,14 +336,14 @@ document.addEventListener("DOMContentLoaded", () => {
             bestScoreValue.textContent = bestScore;
         }
 
+        // отправляем результат
         submitFlappyScore(score);
     }
 
     function spawnPipe() {
         const minTop = 50;
         const maxTop = height - groundHeight - pipeGap - 50;
-        const topHeight =
-            Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
+        const topHeight = Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
 
         pipes.push({
             x: width + 40,
@@ -356,7 +366,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const size = bird.radius * 3;
 
-        ctx.drawImage(cakeImg, -size / 2, -size / 2, size, size);
+        ctx.drawImage(
+            cakeImg, -size / 2, -size / 2,
+            size,
+            size
+        );
 
         ctx.restore();
     }
@@ -365,7 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function drawPipes() {
         const groundY = height - groundHeight;
 
-        pipes.forEach((pipe) => {
+        pipes.forEach(pipe => {
             const x = pipe.x;
             const gapTop = pipe.top;
             const gapBottom = pipe.top + pipeGap;
@@ -488,10 +502,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const gapTop = pipe.top;
             const gapBottom = pipe.top + pipeGap;
 
-            if (
-                bird.y - bird.radius < gapTop ||
-                bird.y + bird.radius > gapBottom
-            ) {
+            if (bird.y - bird.radius < gapTop || bird.y + bird.radius > gapBottom) {
                 gameOver();
                 break;
             }
@@ -535,7 +546,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    ["click", "touchstart"].forEach((evt) => {
+    ["click", "touchstart"].forEach(evt => {
         canvas.addEventListener(evt, (e) => {
             e.preventDefault();
             flap();
