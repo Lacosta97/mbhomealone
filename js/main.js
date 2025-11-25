@@ -8,7 +8,7 @@
 
     // API рекордов FLAPPY CAKE
     const FLAPPY_SCORES_API_URL =
-        "https://script.google.com/macros/s/AKfycbzoMPF6NbJWBTddFUrT1PJZNqs4vdonPJw8vxiYETsxtiJFTMY4EogHzWCd_lQoFpt1/exec";
+        "https://script.google.com/macros/s/AKfycbwTquU8gN77jjnasPXsPySJwJ573fAeSzF2USbOynfGXreCwZNW4xs5_Izo3UwFw78K/exec";
 
     // Кэш таблицы юзеров
     let usersDbCache = null;
