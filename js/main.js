@@ -236,6 +236,7 @@
     }
 
     // Загружаем и рендерим профиль
+    // Загружаем и рендерим профиль
     async function initUserProfile() {
         const code = getCodeFromUrl();
         const guestMode = isGuestFromUrl();
@@ -265,18 +266,34 @@
             isGuest: mbhaRole !== "user" || !profile.code
         };
 
-        // Сохраняем в localStorage, чтобы игра Flappy могла достать юзера
-        saveAuthToStorage(
-            window.MBHA_CURRENT_USER.isGuest ? "guest" : "user",
-            profile.code || null,
-            profile.name || null
-        );
+        // ==== ОБНОВЛЯЕМ ССЫЛКУ НА ИГРУ ====
+        const gameBtn = document.getElementById("gameBtn");
+        if (gameBtn) {
+            let href = "flappy/index.html";
+            const params = new URLSearchParams();
+
+            if (window.MBHA_CURRENT_USER.isGuest || !window.MBHA_CURRENT_USER.code) {
+                // гость — просто помечаем guest=1
+                params.set("guest", "1");
+            } else {
+                // юзер — передаём код и имя
+                params.set("code", window.MBHA_CURRENT_USER.code);
+                params.set("name", window.MBHA_CURRENT_USER.name || "");
+            }
+
+            const qs = params.toString();
+            if (qs) href += "?" + qs;
+
+            gameBtn.href = href;
+        }
+        // ==== КОНЕЦ ОБНОВЛЕНИЯ ССЫЛКИ НА ИГРУ ====
 
         renderProfile(profile);
 
         // Подтягиваем ТОП-3 и личный рекорд
         loadFlappyStatsForCurrentUser();
     }
+
 
     // =================== DONT PUSH BUTTON (user/guest) ===================
 
