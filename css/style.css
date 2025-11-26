@@ -1,5 +1,13 @@
 /* ===== RESET ===== */
 
+@font-face {
+    font-family: "FixedsysLocal";
+    src: url("../fonts/ofont.ru_Fixedsys.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -12,7 +20,7 @@ body {
 }
 
 body {
-    font-family: "Silkscreen", "Pixelify Sans", system-ui, sans-serif;
+    font-family: "FixedsysLocal", system-ui, sans-serif;
     background: #020617;
     color: #f9fafb;
     overflow-x: hidden;
@@ -694,10 +702,13 @@ body {
 }
 
 
-/* автоматом добавляем знак гривны */
+/* автоматом добавляем знак гривны — ГЛИФ БЕРЁМ ИЗ СИСТЕМНОГО ШРИФТА */
 
 .user-account span::after {
     content: " ₴";
+    margin-left: 4px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.9em;
 }
 
 .total-panel {
@@ -1278,7 +1289,7 @@ body {
     transform: translate(-50%, -50%);
     box-sizing: border-box;
     border-radius: 50%;
-    border: 2px solid #f9fafb;
+    border: 2px солид #f9fafb;
     border-top-color: transparent;
     background: linear-gradient(#f9fafb, #f9fafb) center top 3px / 3px 7px no-repeat;
 }
@@ -1308,4 +1319,31 @@ body {
         right: 10px;
         bottom: 10px;
     }
+}
+
+.custom-scroll {
+    max-height: 50vh;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+
+/* Пиксельный кастом-скролл */
+
+.custom-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+    background: #020617;
+    border: 2px solid #38bdf8;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #38bdf8;
+    box-shadow: inset 0 0 0 2px #020617;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: #7dd3fc;
 }
