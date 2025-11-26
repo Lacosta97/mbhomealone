@@ -168,10 +168,10 @@
         };
     }
 
-    // аккуратно парсим числа из таблицы (убираем пробелы и т.п.)
+    // аккуратно парсим числа из таблицы (убираем всё кроме цифр, точки и минуса)
     function parseScore(value) {
         if (value == null) return 0;
-        const cleaned = String(value).replace(/\s/g, "").replace(/,/g, ".");
+        const cleaned = String(value).replace(/[^\d.\-]/g, "");
         const n = parseFloat(cleaned);
         return Number.isFinite(n) ? n : 0;
     }
@@ -188,15 +188,13 @@
             name: row["PLAYER"] || "GUEST",
             code: (row["CODE"] || "").trim().toUpperCase(),
             personalAccount: row["PERSONAL ACCOUNT"] || "-----",
-            // TOTAL теперь = Kevin + Bandits
+
+            // TOTAL = TEAM KEVIN + TEAM OF BANDITS
             total: String(totalNum),
             teamKevin: String(kevinNum),
             teamBandits: String(banditsNum),
         };
     }
-
-
-
 
     function getAvatarSrc(profile) {
         if (!profile || !profile.code) {
@@ -218,12 +216,9 @@
         if (kevinEl) kevinEl.textContent = profile.teamKevin;
         if (banditsEl) banditsEl.textContent = profile.teamBandits;
 
-        // === TOTAL = KEVIN + BANDITS ===
+        // === TOTAL берём напрямую из profile.total, он уже посчитан ===
         if (totalEl) {
-            const k = parseInt(String(profile.teamKevin || "0").replace(/\s/g, ""), 10) || 0;
-            const b = parseInt(String(profile.teamBandits || "0").replace(/\s/g, ""), 10) || 0;
-            const total = k + b;
-            totalEl.textContent = total;
+            totalEl.textContent = profile.total;
         }
 
         if (photoEl) {
@@ -236,7 +231,6 @@
             photoEl.src = src;
         }
     }
-
 
     // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд (UI остаётся прежним) =====
     function renderFlappyLeaderboard(data) {
@@ -380,7 +374,6 @@
         // Подтягиваем ТОП-3 и личный рекорд уже из Firestore
         loadFlappyStatsForCurrentUser();
     }
-
 
     // =================== DONT PUSH BUTTON (user/guest) ===================
 
@@ -606,11 +599,10 @@
                     codeModal.classList.add("code-modal--visible");
                 }
 
-                // ✅ ЖЁСТКИЙ РЕСЕТ СТРАНИЦЫ
+                // жёсткий ресет страницы после logout
                 location.reload();
             });
         }
-
 
         // =================== RULES ===================
 
