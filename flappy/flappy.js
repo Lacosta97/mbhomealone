@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const bestScoreValue = document.getElementById("bestScoreValue");
 
     // ===== FIREBASE: НАСТРОЙКА ДЛЯ FLAPPY RECS =====
-    // ВСТАВЬ СЮДА СВОЙ КОНФИГ ИЗ КОНСОЛИ FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyCLbWp6Fl2covgchvupY5H7leUCmlXFAwE",
         authDomain: "mbha-flappy.firebaseapp.com",
@@ -26,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     (function initFirebaseForFlappy() {
         if (!window.firebase) {
-            console.warn("Firebase SDK не найден. Проверь подключение скриптов firebase-app.js и firebase-firestore.js");
+            console.warn("Firebase SDK не найден. Проверь подключение firebase-app.js и firebase-firestore.js");
             return;
         }
 
@@ -42,6 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })();
 
+    // ===== АВТОРИЗАЦИЯ / ТЕКУЩИЙ ЮЗЕР =====
+
     // читаем авторизацию, которую сохраняет main.js
     function loadAuthFromStorage() {
         try {
@@ -51,6 +52,28 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (e) {
             return null;
         }
+    }
+
+    // Кто сейчас играет (юзер/гость) – общий хелпер
+    function getCurrentUserForGame() {
+        let user = null;
+
+        // 1) Если игра открыта с главной – берём глобал
+        if (window.MBHA_CURRENT_USER) {
+            user = window.MBHA_CURRENT_USER;
+        } else {
+            // 2) fallback – из localStorage
+            const saved = loadAuthFromStorage();
+            if (saved && saved.role === "user" && saved.code) {
+                user = {
+                    code: saved.code,
+                    name: saved.name || saved.code,
+                    isGuest: false
+                };
+            }
+        }
+
+        return user;
     }
 
     // ===== SPRITE: TORT =====
@@ -264,6 +287,46 @@ document.addEventListener("DOMContentLoaded", () => {
     let score = 0;
     let bestScore = 0;
 
+    // ===== ЗАГРУЗКА ЛУЧШЕГО РЕЗУЛЬТАТА ИЗ FIRESTORE =====
+    async function loadInitialBestScore() {
+        try {
+            if (!flappyScoresCollection || !db) {
+                console.log("FLAPPY: Firestore не готов, пропускаем загрузку рекорда");
+                return;
+            }
+
+            const user = getCurrentUserForGame();
+            if (!user || user.isGuest || !user.code) {
+                console.log("FLAPPY: гость или нет кода – рекорд не грузим", user);
+                return;
+            }
+
+            const code = String(user.code).toUpperCase();
+            const docRef = flappyScoresCollection.doc(code);
+            const snap = await docRef.get();
+
+            if (!snap.exists) {
+                console.log("FLAPPY: в базе ещё нет рекорда для", code);
+                return;
+            }
+
+            const data = snap.data() || {};
+            const prevBest = Number(data.bestScore || 0);
+
+            if (Number.isFinite(prevBest) && prevBest > 0) {
+                bestScore = prevBest;
+                if (bestScoreValue) {
+                    bestScoreValue.textContent = bestScore;
+                }
+                console.log("FLAPPY: загрузили рекорд из Firestore:", bestScore);
+            } else {
+                console.log("FLAPPY: в документе нет валидного bestScore", data);
+            }
+        } catch (e) {
+            console.error("FLAPPY: ошибка при загрузке рекорда из Firestore", e);
+        }
+    }
+
     // ===== ОТПРАВКА РЕКОРДА В FIREBASE FIRESTORE =====
     async function submitFlappyScore(finalScore) {
         try {
@@ -272,22 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            let user = null;
-
-            // пробуем взять из глобального объекта, который заполняет main.js
-            if (window.MBHA_CURRENT_USER) {
-                user = window.MBHA_CURRENT_USER;
-            } else {
-                // fallback: берём из localStorage, если игра открыта отдельно
-                const saved = loadAuthFromStorage();
-                if (saved && saved.role === "user" && saved.code) {
-                    user = {
-                        code: saved.code,
-                        name: saved.name || saved.code,
-                        isGuest: false
-                    };
-                }
-            }
+            const user = getCurrentUserForGame();
 
             if (!user || user.isGuest || !user.code) {
                 console.log("FLAPPY: не отправляем рекорд (гость или нет кода)", user);
@@ -309,7 +357,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const docSnap = await tx.get(docRef);
 
                 if (!docSnap.exists) {
-                    // нет документа – создаём
                     tx.set(docRef, {
                         code,
                         name,
@@ -597,4 +644,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resetGame();
     loop();
+
+    // после запуска игры подгружаем лучший результат из Firestore
+    loadInitialBestScore();
 });

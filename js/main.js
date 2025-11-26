@@ -6,9 +6,36 @@
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWO7yjYAibcHlzSacrVRoI59NWF3R0BvK4In7Hb2Gf6vD8Raco_QOdGUJiS7ckRARsCbc3Rz5wUHUu/pub?gid=0&single=true&output=csv";
     const GUEST_AVATAR = "img/avatars/GUEST.png";
 
-    // API рекордов FLAPPY CAKE
-    const FLAPPY_SCORES_API_URL =
-        "https://script.google.com/macros/s/AKfycbwTquU8gN77jjnasPXsPySJwJ573fAeSzF2USbOynfGXreCwZNW4xs5_Izo3UwFw78K/exec";
+    // ===== FIREBASE: FLAPPY SCORES (ТОП-3 + ЛИЧНЫЙ РЕКОРД) =====
+    const firebaseConfig = {
+        apiKey: "AIzaSyCLbWp6Fl2covgchvupY5H7leUCmlXFAwE",
+        authDomain: "mbha-flappy.firebaseapp.com",
+        projectId: "mbha-flappy",
+        storageBucket: "mbha-flappy.firebasestorage.app",
+        messagingSenderId: "800643993606",
+        appId: "1:800643993606:web:571b10108b0122ed383387"
+    };
+
+    let db = null;
+    let flappyScoresCollection = null;
+
+    (function initFirebaseForMain() {
+        if (!window.firebase) {
+            console.warn("MBHA: Firebase SDK не найден на главной. Проверь index.html");
+            return;
+        }
+
+        try {
+            if (!firebase.apps || !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+            flappyScoresCollection = db.collection("flappyScores");
+            console.log("MBHA: Firebase инициализирован на главной");
+        } catch (e) {
+            console.error("MBHA: ошибка инициализации Firebase на главной", e);
+        }
+    })();
 
     // Кэш таблицы юзеров
     let usersDbCache = null;
@@ -179,7 +206,7 @@
         }
     }
 
-    // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд =====
+    // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд (UI остаётся прежним) =====
     function renderFlappyLeaderboard(data) {
         const topEl = document.getElementById("flappyTop3");
         const userScoreEl = document.getElementById("flappyUserScore");
@@ -205,7 +232,7 @@
 
         // Личный рекорд под именем
         if (userScoreEl) {
-            if (me && typeof me.score === "number") {
+            if (me && typeof me.score === "number" && me.score > 0) {
                 userScoreEl.textContent = `FLAPPY CAKE: ${me.score}`;
             } else {
                 userScoreEl.textContent = "FLAPPY CAKE: —";
@@ -213,29 +240,57 @@
         }
     }
 
+    // ===== ЗАГРУЗКА ТОП-3 И ЛИЧНОГО РЕКОРДА ИЗ FIRESTORE =====
     async function loadFlappyStatsForCurrentUser() {
         try {
-            if (!window.fetch || !FLAPPY_SCORES_API_URL) return;
+            if (!db || !flappyScoresCollection) {
+                console.log("FLAPPY: Firestore не готов на главной, пропускаем загрузку рейтинга");
+                return;
+            }
 
-            const user = window.MBHA_CURRENT_USER || null;
-            const code = user && user.code ? String(user.code) : "";
+            const currentUser = window.MBHA_CURRENT_USER || null;
+            const code = currentUser && currentUser.code ?
+                String(currentUser.code).toUpperCase() :
+                null;
 
-            const url = code ?
-                `${FLAPPY_SCORES_API_URL}?code=${encodeURIComponent(code)}` :
-                FLAPPY_SCORES_API_URL;
+            // --- ТОП-3 по bestScore ---
+            const topQuery = flappyScoresCollection
+                .orderBy("bestScore", "desc")
+                .limit(3);
 
-            const res = await fetch(url);
-            if (!res.ok) return;
-            const data = await res.json();
-            if (!data.ok) return;
+            const topSnap = await topQuery.get();
+            const top = [];
+            topSnap.forEach(doc => {
+                const d = doc.data() || {};
+                const name = d.name || d.code || "PLAYER";
+                const score = Number(d.bestScore || 0);
+                if (Number.isFinite(score) && score > 0) {
+                    top.push({ name, score });
+                }
+            });
 
-            renderFlappyLeaderboard(data);
+            // --- Личный рекорд текущего пользователя ---
+            let me = null;
+            if (code) {
+                const meSnap = await flappyScoresCollection.doc(code).get();
+                if (meSnap.exists) {
+                    const d = meSnap.data() || {};
+                    const myScore = Number(d.bestScore || 0);
+                    if (Number.isFinite(myScore) && myScore > 0) {
+                        me = {
+                            name: d.name || d.code || "PLAYER",
+                            score: myScore
+                        };
+                    }
+                }
+            }
+
+            renderFlappyLeaderboard({ top, me });
         } catch (err) {
-            console.error("FLAPPY leaderboard error:", err);
+            console.error("FLAPPY leaderboard Firestore error:", err);
         }
     }
 
-    // Загружаем и рендерим профиль
     // Загружаем и рендерим профиль
     async function initUserProfile() {
         const code = getCodeFromUrl();
@@ -290,7 +345,7 @@
 
         renderProfile(profile);
 
-        // Подтягиваем ТОП-3 и личный рекорд
+        // Подтягиваем ТОП-3 и личный рекорд уже из Firestore
         loadFlappyStatsForCurrentUser();
     }
 
@@ -471,6 +526,8 @@
         initCodeFlow();
 
         // =================== RULES ===================
+
+
         const rulesBtn = document.getElementById("rulesBtn");
         const rulesModal = document.getElementById("rulesModal");
         const rulesBackdrop = document.getElementById("rulesBackdrop");
@@ -501,6 +558,7 @@
         }
 
         // =================== MUSIC ===================
+
         const musicBtn = document.getElementById("musicBtn");
         const musicUrl = "audio/song1.mp3";
 
