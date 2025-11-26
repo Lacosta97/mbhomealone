@@ -1456,3 +1456,49 @@ body {
 .custom-scroll::-webkit-scrollbar-thumb:hover {
     background: #7dd3fc;
 }
+
+.site-lock {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background: radial-gradient(circle at top, #020617, #000);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.site-lock--visible {
+    display: flex;
+}
+
+.site-lock__content {
+    padding: 26px 28px;
+    border: 3px solid #38bdf8;
+    box-shadow: 0 0 0 3px #0f172a, 5px 5px 0 #000;
+    background: #020617;
+}
+
+.site-lock__title {
+    font-family: "Silkscreen", system-ui, sans-serif;
+    font-size: 28px;
+    color: #38bdf8;
+    margin-bottom: 12px;
+    letter-spacing: 3px;
+}
+
+.site-lock__text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #e5e7eb;
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .site-lock__title {
+        font-size: 22px;
+    }
+    .site-lock__text {
+        font-size: 13px;
+    }
+}
