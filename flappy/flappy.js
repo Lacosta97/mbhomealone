@@ -10,9 +10,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const scoreValue = document.getElementById("scoreValue");
     const bestScoreValue = document.getElementById("bestScoreValue");
 
-    // ===== API РЕКОРДОВ FLAPPY CAKE =====
-    const SCORES_API_URL =
-        "https://script.google.com/macros/s/AKfycbwTquU8gN77jjnasPXsPySJwJ573fAeSzF2USbOynfGXreCwZNW4xs5_Izo3UwFw78K/exec";
+    // ===== FIREBASE: НАСТРОЙКА ДЛЯ FLAPPY RECS =====
+    // ВСТАВЬ СЮДА СВОЙ КОНФИГ ИЗ КОНСОЛИ FIREBASE
+    const firebaseConfig = {
+        apiKey: "AIzaSyCLbWp6Fl2covgchvupY5H7leUCmlXFAwE",
+        authDomain: "mbha-flappy.firebaseapp.com",
+        projectId: "mbha-flappy",
+        storageBucket: "mbha-flappy.firebasestorage.app",
+        messagingSenderId: "800643993606",
+        appId: "1:800643993606:web:571b10108b0122ed383387"
+    };
+
+    let db = null;
+    let flappyScoresCollection = null;
+
+    (function initFirebaseForFlappy() {
+        if (!window.firebase) {
+            console.warn("Firebase SDK не найден. Проверь подключение скриптов firebase-app.js и firebase-firestore.js");
+            return;
+        }
+
+        try {
+            if (!firebase.apps || !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+            flappyScoresCollection = db.collection("flappyScores");
+            console.log("FLAPPY: Firebase инициализирован для игры");
+        } catch (e) {
+            console.error("FLAPPY: ошибка инициализации Firebase", e);
+        }
+    })();
 
     // читаем авторизацию, которую сохраняет main.js
     function loadAuthFromStorage() {
@@ -204,7 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // === ВАЖНО: ВОТ ЭТА ФУНКЦИЯ, КОТОРОЙ НЕ ХВАТАЛО ===
     function drawGround() {
         const groundY = height - groundHeight;
 
@@ -237,16 +264,21 @@ document.addEventListener("DOMContentLoaded", () => {
     let score = 0;
     let bestScore = 0;
 
-    // ===== ОТПРАВКА РЕКОРДА В GOOGLE SCRIPT =====
+    // ===== ОТПРАВКА РЕКОРДА В FIREBASE FIRESTORE =====
     async function submitFlappyScore(finalScore) {
         try {
-            if (!window.fetch || !SCORES_API_URL) return;
+            if (!flappyScoresCollection || !db) {
+                console.warn("FLAPPY: Firestore не инициализирован, рекорд не сохраняем");
+                return;
+            }
 
             let user = null;
 
+            // пробуем взять из глобального объекта, который заполняет main.js
             if (window.MBHA_CURRENT_USER) {
                 user = window.MBHA_CURRENT_USER;
             } else {
+                // fallback: берём из localStorage, если игра открыта отдельно
                 const saved = loadAuthFromStorage();
                 if (saved && saved.role === "user" && saved.code) {
                     user = {
@@ -262,37 +294,48 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const payload = {
-                code: String(user.code),
-                name: String(user.name || user.code),
-                score: Number(finalScore || 0)
-            };
+            const code = String(user.code).toUpperCase();
+            const name = String(user.name || user.code);
 
-            console.log("FLAPPY: отправляем рекорд", payload);
+            const scoreNumber = Number(finalScore || 0);
+            if (!Number.isFinite(scoreNumber) || scoreNumber <= 0) {
+                console.log("FLAPPY: рекорд <= 0, не сохраняем", scoreNumber);
+                return;
+            }
 
-            const res = await fetch(SCORES_API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+            const docRef = flappyScoresCollection.doc(code);
+
+            await db.runTransaction(async(tx) => {
+                const docSnap = await tx.get(docRef);
+
+                if (!docSnap.exists) {
+                    // нет документа – создаём
+                    tx.set(docRef, {
+                        code,
+                        name,
+                        bestScore: scoreNumber,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log("FLAPPY: создан новый рекорд для", code, scoreNumber);
+                } else {
+                    const data = docSnap.data() || {};
+                    const prevBest = Number(data.bestScore || 0);
+
+                    if (scoreNumber > prevBest) {
+                        tx.update(docRef, {
+                            code,
+                            name,
+                            bestScore: scoreNumber,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        console.log("FLAPPY: обновлён рекорд для", code, scoreNumber, "(старый:", prevBest, ")");
+                    } else {
+                        console.log("FLAPPY: результат меньше/равен лучшему, не обновляем", scoreNumber, "(лучший:", prevBest, ")");
+                    }
+                }
             });
-
-            const text = await res.text();
-            console.log("FLAPPY: статус ответа", res.status, "тело:", text);
-
-            let data = null;
-            try {
-                data = JSON.parse(text);
-            } catch (e) {
-                console.warn("FLAPPY: ответ не JSON, см. выше текст");
-                return;
-            }
-
-            if (!res.ok || !data.ok) {
-                console.warn("FLAPPY: сервер вернул ошибку", data);
-                return;
-            }
         } catch (e) {
-            console.error("FLAPPY: ошибка при отправке рекорда", e);
+            console.error("FLAPPY: ошибка при записи рекорда в Firestore", e);
         }
     }
 
@@ -336,6 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
             bestScoreValue.textContent = bestScore;
         }
 
+        // отправляем рекорд в Firestore
         submitFlappyScore(score);
     }
 
@@ -504,7 +548,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         drawBackground();
         drawPipes();
-        drawGround(); // <-- земля снова есть
+        drawGround();
         drawBird();
         drawScoreOnCanvas();
 
