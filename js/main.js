@@ -115,22 +115,64 @@
     }
 
     // Парсер CSV
+    // Парсер CSV с поддержкой кавычек и запятых внутри поля
     function parseCsv(text) {
-        const lines = text.trim().split(/\r?\n/);
+        if (!text) return [];
+
+        const lines = text.replace(/\r\n/g, "\n").split("\n");
         if (!lines.length) return [];
 
-        const headers = lines[0].split(",").map((h) => h.trim());
-        const rows = lines.slice(1).filter((line) => line.trim().length > 0);
+        const headers = splitCsvLine(lines[0]);
 
-        return rows.map((line) => {
-            const cells = line.split(",");
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i];
+            if (!line || !line.trim()) continue;
+
+            const cells = splitCsvLine(line);
             const obj = {};
-            headers.forEach((h, i) => {
-                obj[h] = (cells[i] || "").trim();
+
+            headers.forEach((h, idx) => {
+                const key = (h || "").trim();
+                const raw = cells[idx] != null ? cells[idx] : "";
+                obj[key] = raw.trim();
             });
-            return obj;
-        });
+
+            rows.push(obj);
+        }
+
+        return rows;
+
+        // вспомогательная: аккуратно режем строку по запятым
+        function splitCsvLine(line) {
+            const result = [];
+            let current = "";
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+
+                if (ch === '"') {
+                    // экранированная кавычка внутри "..."
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (ch === "," && !inQuotes) {
+                    // конец ячейки
+                    result.push(current);
+                    current = "";
+                } else {
+                    current += ch;
+                }
+            }
+            result.push(current);
+            return result;
+        }
     }
+
 
     // Загружаем всех юзеров из Google Sheets
     async function loadUsersFromSheet() {
