@@ -169,15 +169,29 @@
     }
 
     function normalizeProfile(row) {
+        const name = row["PLAYER"] || "GUEST";
+        const code = (row["CODE"] || "").trim().toUpperCase();
+
+        const personalRaw = row["PERSONAL ACCOUNT"] || "-----";
+        const kevinRaw = row["TEAM KEVIN"] || "0";
+        const banditsRaw = row["TEAM OF BANDITS"] || "0";
+
+        const k = parseInt(String(kevinRaw).replace(/[^\d\-]/g, ""), 10) || 0;
+        const b = parseInt(String(banditsRaw).replace(/[^\d\-]/g, ""), 10) || 0;
+
+        const total = String(k + b);
+
         return {
-            name: row["PLAYER"] || "GUEST",
-            code: (row["CODE"] || "").trim().toUpperCase(),
-            personalAccount: row["PERSONAL ACCOUNT"] || "-----",
-            total: row["TOTAL"] || "0",
-            teamKevin: row["TEAM KEVIN"] || "0",
-            teamBandits: row["TEAM OF BANDITS"] || "0",
+            name,
+            code,
+            personalAccount: personalRaw,
+            total,
+            teamKevin: kevinRaw,
+            teamBandits: banditsRaw,
         };
     }
+
+
 
     function getAvatarSrc(profile) {
         if (!profile || !profile.code) {
