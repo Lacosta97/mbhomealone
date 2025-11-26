@@ -197,12 +197,12 @@
         return Number.isFinite(n) ? n : 0;
     }
 
+    // === ВАЖНО: просто берём значения ТРЁХ ПОЛЕЙ ИЗ ШИТСА ===
     function normalizeProfile(row) {
         const rawPlayer = getField(row, "PLAYER") || "GUEST";
         const rawCode = getField(row, "CODE") || "";
         const rawPersonal = getField(row, "PERSONAL ACCOUNT") || "-----";
 
-        // просто берём значения из таблицы как есть
         const rawKevin = getField(row, "TEAM KEVIN") || "0";
         const rawBandits = getField(row, "TEAM OF BANDITS") || "0";
         const rawTotal = getField(row, "TOTAL") || "0";
@@ -211,12 +211,11 @@
             name: rawPlayer,
             code: rawCode.trim().toUpperCase(),
             personalAccount: rawPersonal,
-            total: rawTotal,
             teamKevin: rawKevin,
             teamBandits: rawBandits,
+            total: rawTotal
         };
     }
-
 
     function getAvatarSrc(profile) {
         if (!profile || !profile.code) {
@@ -237,11 +236,7 @@
         if (personalEl) personalEl.textContent = profile.personalAccount;
         if (kevinEl) kevinEl.textContent = profile.teamKevin;
         if (banditsEl) banditsEl.textContent = profile.teamBandits;
-
-        // === TOTAL просто переносим из шитса ===
-        if (totalEl) {
-            totalEl.textContent = profile.total;
-        }
+        if (totalEl) totalEl.textContent = profile.total;
 
         if (photoEl) {
             const src = getAvatarSrc(profile);
@@ -253,7 +248,6 @@
             photoEl.src = src;
         }
     }
-
 
     // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд (UI остаётся прежним) =====
     function renderFlappyLeaderboard(data) {
