@@ -215,23 +215,28 @@
 
         if (usernameEl) usernameEl.textContent = profile.name;
         if (personalEl) personalEl.textContent = profile.personalAccount;
-        if (totalEl) totalEl.textContent = profile.total;
         if (kevinEl) kevinEl.textContent = profile.teamKevin;
         if (banditsEl) banditsEl.textContent = profile.teamBandits;
 
+        // === TOTAL = KEVIN + BANDITS ===
+        if (totalEl) {
+            const k = parseInt(String(profile.teamKevin || "0").replace(/\s/g, ""), 10) || 0;
+            const b = parseInt(String(profile.teamBandits || "0").replace(/\s/g, ""), 10) || 0;
+            const total = k + b;
+            totalEl.textContent = total;
+        }
+
         if (photoEl) {
             const src = getAvatarSrc(profile);
-
-            // fallback на гостя, если файла нет
             photoEl.onerror = function() {
                 if (!photoEl.src.includes(GUEST_AVATAR)) {
                     photoEl.src = GUEST_AVATAR;
                 }
             };
-
             photoEl.src = src;
         }
     }
+
 
     // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд (UI остаётся прежним) =====
     function renderFlappyLeaderboard(data) {
@@ -563,18 +568,15 @@
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
             logoutBtn.addEventListener("click", () => {
-                // чистим auth
                 clearAuthStorage();
                 setMbhaRole("guest");
 
-                // чистим глобального пользователя
                 window.MBHA_CURRENT_USER = {
                     code: null,
                     name: "GUEST",
                     isGuest: true
                 };
 
-                // чистим URL
                 const params = getUrlParams();
                 params.delete("code");
                 params.delete("guest");
@@ -582,10 +584,8 @@
                 const newUrl = window.location.pathname + (qs ? "?" + qs : "");
                 window.history.replaceState(null, "", newUrl);
 
-                // ставим профиль гостя в UI
                 renderProfile(normalizeProfile(makeGuestProfile(null)));
 
-                // чистим отображение FLAPPY
                 const topEl = document.getElementById("flappyTop3");
                 if (topEl) {
                     topEl.innerHTML = "";
@@ -593,22 +593,24 @@
                     li.textContent = "Поки що немає рекордів";
                     topEl.appendChild(li);
                 }
+
                 const userScoreEl = document.getElementById("flappyUserScore");
                 if (userScoreEl) {
                     userScoreEl.textContent = "FLAPPY CAKE: —";
                 }
 
-                // показываем модалку логина снова
                 const codeModal = document.getElementById("codeModal");
                 if (codeModal) {
-                    // используем уже объявленную функцию
-                    // (она в той же области видимости)
                     const anyInput = document.getElementById("codeInput");
                     if (anyInput) anyInput.value = "";
                     codeModal.classList.add("code-modal--visible");
                 }
+
+                // ✅ ЖЁСТКИЙ РЕСЕТ СТРАНИЦЫ
+                location.reload();
             });
         }
+
 
         // =================== RULES ===================
 
