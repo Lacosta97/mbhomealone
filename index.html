@@ -124,9 +124,8 @@
         <img src="flappy/img/tort.png" alt="FLAPPY CAKE">
     </a>
 
-    <!-- ✅ LOGOUT – ЕДИНСТВЕННАЯ КНОПКА -->
-    <button class="logout-icon-btn" id="logoutBtn" aria-label="Logout"></button>
-
+    <!-- ✅ LOGOUT – квадрат с текстом OUT -->
+    <button class="logout-icon-btn" id="logoutBtn" aria-label="Logout">OUT</button>
 
     <!-- RULES MODAL -->
     <div class="rules-modal" id="rulesModal">
@@ -142,6 +141,34 @@
             </div>
 
             <button id="dont-push-btn" class="dont-push-btn">DONT PUSH</button>
+        </div>
+    </div>
+
+    <!-- ✅ TEAM INTRO MODAL (аватар + ABOUT + выбор команды) -->
+    <div class="team-modal" id="teamModal">
+        <div class="team-modal__backdrop"></div>
+        <div class="team-modal__content">
+            <div class="team-modal__user">
+                <div class="team-modal__photo">
+                    <img src="img/user_placeholder.png" alt="User avatar">
+                </div>
+                <div class="team-modal__about" id="teamAboutText"></div>
+            </div>
+
+            <div class="team-modal__question">
+                Яку команду обираєш?
+            </div>
+
+            <div class="team-modal__buttons">
+                <button class="team-modal__btn team-modal__btn--kevin" id="teamKevinBtn">
+                    KEVINS TEAM
+                </button>
+                <button class="team-modal__btn team-modal__btn--bandits" id="teamBanditsBtn">
+                    TEAM OF BANDIT
+                </button>
+            </div>
+
+            <div class="team-modal__message" id="teamMessage"></div>
         </div>
     </div>
 

@@ -738,7 +738,7 @@ body {
 }
 
 .total-teams {
-    border-top: 1px solid #14532d;
+    border-top: 1px солид #14532d;
     padding-top: 8px;
     display: flex;
     justify-content: space-between;
@@ -875,39 +875,6 @@ body {
 }
 
 
-/* === ICON LOGOUT BUTTON (выключение в правом нижнем углу) === */
-
-.logout-icon-btn {
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    z-index: 1500;
-    padding: 0;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    cursor: pointer;
-}
-
-.logout-icon-btn img {
-    width: 64px;
-    height: 64px;
-    image-rendering: pixelated;
-    display: block;
-    transition: transform 0.1s ease, filter 0.15s ease;
-}
-
-.logout-icon-btn:hover img,
-.logout-icon-btn:focus-visible img {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 14px #f97373);
-}
-
-.logout-icon-btn:active img {
-    transform: scale(1.1);
-}
-
-
 /* === ICON MUSIC BUTTON (колонка) === */
 
 .music-icon-btn {
@@ -1027,6 +994,123 @@ body {
 }
 
 
+/* ===== TEAM INTRO MODAL (аватар + ABOUT + выбор команды) ===== */
+
+.team-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.team-modal--visible {
+    display: flex;
+}
+
+.team-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
+}
+
+.team-modal__content {
+    position: relative;
+    z-index: 1;
+    max-width: 420px;
+    width: 90%;
+    padding: 18px 16px 20px;
+    background: #020617;
+    border: 3px solid #22c55e;
+    box-shadow: 0 0 0 3px #0f172a, 4px 4px 0 #000;
+    color: #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+}
+
+.team-modal__user {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.team-modal__photo {
+    width: 90px;
+    height: 90px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #38bdf8;
+    flex-shrink: 0;
+}
+
+.team-modal__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.team-modal__about {
+    font-size: 13px;
+    text-align: left;
+    line-height: 1.35;
+    min-height: 3.3em;
+}
+
+.team-modal__question {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.team-modal__buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.team-modal__btn {
+    flex: 1;
+    padding: 8px 6px;
+    font-family: "Silkscreen", "Pixelify Sans", system-ui, sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 999px;
+    border: 2px солид #4b5563;
+    background: #020617;
+    color: #e5e7eb;
+    cursor: pointer;
+}
+
+.team-modal__btn--kevin {
+    border-color: #22c55e;
+    background: #052e16;
+    color: #bbf7d0;
+}
+
+.team-modal__btn--bandits {
+    border-color: #f97373;
+    background: #450a0a;
+    color: #fecaca;
+}
+
+.team-modal__btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.team-modal__message {
+    min-height: 2.4em;
+    margin-top: 6px;
+    font-size: 13px;
+    color: #e5e7eb;
+}
+
+
 /* ===== MOBILE ===== */
 
 @media (max-width: 768px) {
@@ -1058,6 +1142,11 @@ body {
         align-items: flex-start;
         gap: 16px;
     }
+    /* фото сверху, текст под фото */
+    .user-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
     .total-panel {
         width: 100%;
         margin-top: 8px;
@@ -1080,9 +1169,12 @@ body {
         width: 48px;
         height: 48px;
     }
-    .logout-icon-btn img {
-        width: 48px;
-        height: 48px;
+    .team-modal__user {
+        flex-direction: column;
+        align-items: center;
+    }
+    .team-modal__about {
+        text-align: center;
     }
 }
 
@@ -1146,7 +1238,7 @@ body {
     text-transform: uppercase;
     text-align: center;
     border-radius: 8px;
-    border: 2px solid #4b5563;
+    border: 2px солид #4b5563;
     background: #020617;
     color: #e5e7eb;
     outline: none;
@@ -1165,7 +1257,7 @@ body {
     letter-spacing: 1px;
     text-transform: uppercase;
     border-radius: 8px;
-    border: 2px solid #4b5563;
+    border: 2px солид #4b5563;
     background: #020617;
     color: #e5e7eb;
     cursor: pointer;
@@ -1215,7 +1307,7 @@ body {
     background: linear-gradient(#fecaca, #f97373, #b91c1c);
     color: #111827;
     border-radius: 999px;
-    border: 3px solid #111827;
+    border: 3px солид #111827;
     box-shadow: 0 0 0 3px #f97316, 0 6px 0 #111827;
     cursor: pointer;
     outline: none;
@@ -1255,14 +1347,13 @@ body {
 }
 
 
-/* ===== LOGOUT (PIXEL POWER) BUTTON ===== */
+/* ===== LOGOUT (PIXEL POWER) BUTTON — с текстом OUT ===== */
 
 .logout-icon-btn {
     position: fixed;
     right: 16px;
     bottom: 16px;
     width: 38px;
-    /* уменьшили */
     height: 38px;
     padding: 0;
     border: none;
@@ -1274,50 +1365,35 @@ body {
     outline: none;
     /* пиксельная рамка */
     box-shadow: inset 0 0 0 2px #fecaca, inset 0 0 0 4px #020617, 3px 3px 0 #020617;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Silkscreen", "Pixelify Sans", system-ui, sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #f9fafb;
 }
-
-
-/* сам значок power */
 
 .logout-icon-btn::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 16px;
-    height: 16px;
-    transform: translate(-50%, -50%);
-    box-sizing: border-box;
-    border-radius: 50%;
-    border: 2px солид #f9fafb;
-    border-top-color: transparent;
-    background: linear-gradient(#f9fafb, #f9fafb) center top 3px / 3px 7px no-repeat;
+    content: none;
 }
-
-
-/* hover — лёгкая яркость */
 
 .logout-icon-btn:hover {
     background: #991b1b;
 }
-
-
-/* active — пиксельное "нажатие" */
 
 .logout-icon-btn:active {
     transform: translate(2px, 2px);
     box-shadow: inset 0 0 0 2px #fecaca, inset 0 0 0 4px #020617, 1px 1px 0 #020617;
 }
 
-
-/* на мобилке ещё компактнее */
-
 @media (max-width: 768px) {
     .logout-icon-btn {
-        width: 22px;
-        height: 22px;
+        width: 32px;
+        height: 32px;
         right: 10px;
         bottom: 10px;
+        font-size: 10px;
     }
 }
 
@@ -1336,7 +1412,7 @@ body {
 
 .custom-scroll::-webkit-scrollbar-track {
     background: #020617;
-    border: 2px solid #38bdf8;
+    border: 2px солид #38bdf8;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {

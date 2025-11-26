@@ -165,6 +165,8 @@
             "TEAM KEVIN": "0",
             "TEAM OF BANDITS": "0",
             TOTAL: "0",
+            ABOUT: "",
+            MODAL_VER: "0"
         };
     }
 
@@ -197,7 +199,7 @@
         return Number.isFinite(n) ? n : 0;
     }
 
-    // === ВАЖНО: просто берём значения ТРЁХ ПОЛЕЙ ИЗ ШИТСА ===
+    // === ВАЖНО: берём нужные поля ИЗ ШИТСА, включая ABOUT и MODAL_VER ===
     function normalizeProfile(row) {
         const rawPlayer = getField(row, "PLAYER") || "GUEST";
         const rawCode = getField(row, "CODE") || "";
@@ -207,13 +209,18 @@
         const rawBandits = getField(row, "TEAM OF BANDITS") || "0";
         const rawTotal = getField(row, "TOTAL") || "0";
 
+        const rawAbout = getField(row, "ABOUT") || "";
+        const rawModalVer = getField(row, "MODAL_VER") || "0";
+
         return {
             name: rawPlayer,
             code: rawCode.trim().toUpperCase(),
             personalAccount: rawPersonal,
             teamKevin: rawKevin,
             teamBandits: rawBandits,
-            total: rawTotal
+            total: rawTotal,
+            about: rawAbout,
+            modalVer: rawModalVer
         };
     }
 
@@ -247,6 +254,162 @@
             };
             photoEl.src = src;
         }
+    }
+
+    // ===== ФЛАГИ ПОКАЗА ONBOARDING ПО MODAL_VER =====
+
+    function getIntroVersion(profile) {
+        const ver = (profile && profile.modalVer != null ? String(profile.modalVer) : "0").trim();
+        return ver === "" ? "0" : ver;
+    }
+
+    function getIntroStorageKey(profile) {
+        if (!profile || !profile.code) return null;
+        return "mbha_intro_" + profile.code;
+    }
+
+    function shouldShowTeamIntro(profile) {
+        if (!profile || !profile.code) return false;
+        if (mbhaRole !== "user") return false;
+
+        const ver = getIntroVersion(profile);
+        const key = getIntroStorageKey(profile);
+        if (!key) return false;
+
+        const stored = localStorage.getItem(key);
+        // если в таблице новая версия (или вообще ничего не было) — показываем
+        return stored !== ver;
+    }
+
+    function markTeamIntroSeen(profile) {
+        try {
+            const key = getIntroStorageKey(profile);
+            if (!key) return;
+            const ver = getIntroVersion(profile);
+            localStorage.setItem(key, ver);
+        } catch (e) {
+            // тихо
+        }
+    }
+
+    // ===== TEAM INTRO MODAL (показ, печатная машинка, звук) =====
+
+    let teamTypeAudio = null;
+
+    function maybeShowTeamIntro(profile) {
+        // показываем только если версия ещё не видена
+        if (!shouldShowTeamIntro(profile)) return;
+
+        const modal = document.getElementById("teamModal");
+        if (!modal) return;
+
+        const aboutEl = document.getElementById("teamAboutText");
+        const msgEl = document.getElementById("teamMessage");
+        const photoEl = modal.querySelector(".team-modal__photo img");
+        const btnKevin = document.getElementById("teamKevinBtn");
+        const btnBandits = document.getElementById("teamBanditsBtn");
+
+        if (!aboutEl || !msgEl || !photoEl || !btnKevin || !btnBandits) {
+            return;
+        }
+
+        // Сброс состояния
+        msgEl.textContent = "";
+        aboutEl.textContent = "";
+        btnKevin.disabled = false;
+        btnBandits.disabled = false;
+
+        // Аватар
+        const avatarSrc = getAvatarSrc(profile);
+        photoEl.onerror = function() {
+            if (!photoEl.src.includes(GUEST_AVATAR)) {
+                photoEl.src = GUEST_AVATAR;
+            }
+        };
+        photoEl.src = avatarSrc;
+
+        // Текст ABOUT
+        const fullText = (profile.about && profile.about.trim()) ?
+            profile.about.trim() :
+            `Name: ${profile.name || "PLAYER"}`;
+
+        // Готовим аудио печатной машинки
+        if (teamTypeAudio) {
+            try {
+                teamTypeAudio.pause();
+            } catch (e) {}
+        }
+        teamTypeAudio = new Audio("audio/typewriter.mp3");
+        teamTypeAudio.loop = false;
+        teamTypeAudio.currentTime = 0;
+
+        let idx = 0;
+        const speed = 35; // мс на символ
+
+        function typeNext() {
+            if (idx === 0) {
+                teamTypeAudio.play().catch(() => {});
+            }
+
+            if (idx < fullText.length) {
+                aboutEl.textContent += fullText.charAt(idx);
+                idx++;
+                setTimeout(typeNext, speed);
+            } else {
+                // закончили печатать — стоп звук
+                if (teamTypeAudio) {
+                    try {
+                        teamTypeAudio.pause();
+                        teamTypeAudio.currentTime = 0;
+                    } catch (e) {}
+                }
+            }
+        }
+
+        typeNext();
+
+        function closeTeamModal() {
+            modal.classList.remove("team-modal--visible");
+            document.body.style.overflow = "";
+            if (teamTypeAudio) {
+                try {
+                    teamTypeAudio.pause();
+                    teamTypeAudio.currentTime = 0;
+                } catch (e) {}
+            }
+        }
+
+        function handleChoice() {
+            if (btnKevin.disabled || btnBandits.disabled) return;
+
+            btnKevin.disabled = true;
+            btnBandits.disabled = true;
+
+            if (teamTypeAudio) {
+                try {
+                    teamTypeAudio.pause();
+                    teamTypeAudio.currentTime = 0;
+                } catch (e) {}
+            }
+
+            // помечаем, что текущую версию онбординга юзер уже видел
+            markTeamIntroSeen(profile);
+
+            msgEl.textContent =
+                "ХАХ! НЕ ВИГАДУЙ ДУРНИЦЬ, СВОЮ КОМАНДУ ДІЗНАЄШСЯ ПРИ ОГОЛОШЕННІ РЕЗУЛЬТАТІВ 🐋💨";
+
+            setTimeout(() => {
+                closeTeamModal();
+            }, 2200);
+        }
+
+        // Назначаем обработчики (перезаписываем onclick, чтобы не плодить слушатели)
+        btnKevin.onclick = handleChoice;
+        btnBandits.onclick = handleChoice;
+
+        // Показываем модал
+        modal.classList.add("team-modal--visible");
+        document.body.style.overflow = "hidden";
     }
 
     // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд (UI остаётся прежним) =====
@@ -361,7 +524,9 @@
         window.MBHA_CURRENT_USER = {
             code: profile.code || null,
             name: profile.name || "GUEST",
-            isGuest: mbhaRole !== "user" || !profile.code
+            isGuest: mbhaRole !== "user" || !profile.code,
+            about: profile.about || "",
+            modalVer: getIntroVersion(profile)
         };
 
         // ==== ОБНОВЛЯЕМ ССЫЛКУ НА ИГРУ ====
@@ -390,6 +555,9 @@
 
         // Подтягиваем ТОП-3 и личный рекорд уже из Firestore
         loadFlappyStatsForCurrentUser();
+
+        // ✅ Показываем онбординг только если MODAL_VER ещё не виден
+        maybeShowTeamIntro(profile);
     }
 
     // =================== DONT PUSH BUTTON (user/guest) ===================
@@ -572,7 +740,9 @@
                 window.MBHA_CURRENT_USER = {
                     code: null,
                     name: "GUEST",
-                    isGuest: true
+                    isGuest: true,
+                    about: "",
+                    modalVer: "0"
                 };
 
                 const params = getUrlParams();
