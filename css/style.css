@@ -1241,3 +1241,94 @@ body {
     opacity: 1;
     pointer-events: auto;
 }
+
+
+/* === LOGOUT BUTTON (PURE CSS / SNES STYLE) === */
+
+.logout-icon-btn {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1600;
+    width: 56px;
+    height: 56px;
+    background: radial-gradient(circle at 30% 30%, #fecaca, #ef4444 55%, #7f1d1d 100%);
+    border: 3px solid #111827;
+    border-radius: 12px;
+    box-shadow: 0 0 0 3px #7f1d1d, 0 0 14px rgba(239, 68, 68, 0.9), 4px 4px 0 #000;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    image-rendering: pixelated;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s ease;
+}
+
+
+/* === ВЕРТИКАЛЬНАЯ ПАЛОЧКА POWER === */
+
+.logout-icon-btn::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    width: 6px;
+    height: 22px;
+    background: #020617;
+    border-radius: 2px;
+    box-shadow: 0 0 0 2px #f87171, 0 0 10px rgba(248, 113, 113, 0.8);
+}
+
+
+/* === ПОЛУКОЛЬЦО POWER === */
+
+.logout-icon-btn::after {
+    content: "";
+    position: absolute;
+    bottom: 10px;
+    width: 26px;
+    height: 26px;
+    border: 5px solid #020617;
+    border-top: none;
+    border-radius: 0 0 999px 999px;
+    box-shadow: 0 0 0 3px #f87171, 0 0 12px rgba(248, 113, 113, 0.8);
+}
+
+
+/* === HOVER === */
+
+.logout-icon-btn:hover {
+    transform: scale(1.08);
+    filter: brightness(1.1);
+}
+
+
+/* === ACTIVE (нажатие) === */
+
+.logout-icon-btn:active {
+    transform: translate(2px, 2px) scale(1.02);
+    box-shadow: 0 0 0 3px #7f1d1d, 0 0 10px rgba(239, 68, 68, 0.7), 1px 1px 0 #000;
+}
+
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 768px) {
+    .logout-icon-btn {
+        width: 44px;
+        height: 44px;
+        right: 12px;
+        bottom: 12px;
+    }
+    .logout-icon-btn::before {
+        width: 4px;
+        height: 16px;
+        top: 8px;
+    }
+    .logout-icon-btn::after {
+        width: 20px;
+        height: 20px;
+        border-width: 4px;
+        bottom: 7px;
+    }
+}
