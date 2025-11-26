@@ -863,6 +863,39 @@ body {
 }
 
 
+/* === ICON LOGOUT BUTTON (выключение в правом нижнем углу) === */
+
+.logout-icon-btn {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1500;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.logout-icon-btn img {
+    width: 64px;
+    height: 64px;
+    image-rendering: pixelated;
+    display: block;
+    transition: transform 0.1s ease, filter 0.15s ease;
+}
+
+.logout-icon-btn:hover img,
+.logout-icon-btn:focus-visible img {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 14px #f97373);
+}
+
+.logout-icon-btn:active img {
+    transform: scale(1.1);
+}
+
+
 /* === ICON MUSIC BUTTON (колонка) === */
 
 .music-icon-btn {
@@ -1032,6 +1065,10 @@ body {
     }
     /* GAME-кнопку можно чуть ниже на мобилке */
     .game-icon-btn img {
+        width: 48px;
+        height: 48px;
+    }
+    .logout-icon-btn img {
         width: 48px;
         height: 48px;
     }

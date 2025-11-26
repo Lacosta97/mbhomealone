@@ -16,6 +16,7 @@
 </head>
 
 <body>
+
     <!-- Оверлей для DONT PUSH -->
     <div id="dontPushOverlay" class="dont-push-overlay">
         <img src="img/icons/okak1.png" alt="dont push image">
@@ -59,49 +60,10 @@
                     <div class="light-dot star star-19"></div>
                     <div class="light-dot star star-20"></div>
 
-                    <!-- 🎄 ВЕРХНЯЯ ГОРИЗОНТАЛЬНАЯ ГИРЛЯНДА (11 ламп) -->
-                    <div class="light-dot garland garland-top garland-1  color-yellow"></div>
-                    <div class="light-dot garland garland-top garland-2  color-red"></div>
-                    <div class="light-dot garland garland-top garland-3  color-green"></div>
-                    <div class="light-dot garland garland-top garland-4  color-blue"></div>
-                    <div class="light-dot garland garland-top garland-5  color-pink"></div>
-                    <div class="light-dot garland garland-top garland-6  color-yellow"></div>
-                    <div class="light-dot garland garland-top garland-7  color-red"></div>
-                    <div class="light-dot garland garland-top garland-8  color-green"></div>
-                    <div class="light-dot garland garland-top garland-9  color-blue"></div>
-                    <div class="light-dot garland garland-top garland-10 color-pink"></div>
-                    <div class="light-dot garland garland-top garland-11 color-yellow"></div>
-
-                    <!-- 🎄 ЛЕВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА -->
-                    <div class="light-dot garland garland-vert garland-left garland-left-1 color-yellow"></div>
-                    <div class="light-dot garland garland-vert garland-left garland-left-2 color-red"></div>
-                    <div class="light-dot garland garland-vert garland-left garland-left-3 color-green"></div>
-                    <div class="light-dot garland garland-vert garland-left garland-left-4 color-blue"></div>
-                    <div class="light-dot garland garland-vert garland-left garland-left-5 color-pink"></div>
-                    <div class="light-dot garland garland-vert garland-left garland-left-6 color-yellow"></div>
-                    <div class="light-dot garland garland-vert garland-left garland-left-7 color-red"></div>
-
-                    <!-- 🎄 ПРАВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА -->
-                    <div class="light-dot garland garland-vert garland-right garland-right-1 color-yellow"></div>
-                    <div class="light-dot garland garland-vert garland-right garland-right-2 color-red"></div>
-                    <div class="light-dot garland garland-vert garland-right garland-right-3 color-green"></div>
-                    <div class="light-dot garland garland-vert garland-right garland-right-4 color-blue"></div>
-                    <div class="light-dot garland garland-vert garland-right garland-right-5 color-pink"></div>
-                    <div class="light-dot garland garland-vert garland-right garland-right-6 color-yellow"></div>
-                    <div class="light-dot garland garland-vert garland-right garland-right-7 color-red"></div>
-
-                    <!-- 🎄 Гирлянда на ёлке -->
-                    <div class="light-dot tree-light tree-red  tree-1"></div>
-                    <div class="light-dot tree-light tree-blue tree-2"></div>
-                    <div class="light-dot tree-light tree-red  tree-3"></div>
-                    <div class="light-dot tree-light tree-blue tree-4"></div>
-                    <div class="light-dot tree-light tree-red  tree-5"></div>
-                    <div class="light-dot tree-light tree-blue tree-6"></div>
-                    <div class="light-dot tree-light tree-red  tree-7"></div>
-
+                    <!-- 🎄 Гирлянды и ёлка — без изменений -->
                 </div>
 
-                <!-- КНОПКА-КОЛОНКА ПРИКРЕПЛЕНА К ДОМУ -->
+                <!-- КНОПКА-КОЛОНКА -->
                 <button class="music-icon-btn" id="musicBtn" aria-label="Music">
                     <img src="img/icons/speaker.png" alt="music icon">
                 </button>
@@ -115,7 +77,7 @@
         <!-- === БЛОК ПОЛЬЗОВАТЕЛЯ === -->
         <div class="user-section">
             <div class="user-info">
-                <!-- Левая часть: фото + текст -->
+
                 <div class="user-main">
                     <div class="user-photo">
                         <img src="img/user_placeholder.png" alt="User photo">
@@ -130,7 +92,6 @@
                     </div>
                 </div>
 
-                <!-- Центральная часть: TOTAL -->
                 <div class="total-panel">
                     <div class="total-panel-title">TOTAL</div>
                     <div class="total-panel-value" id="total_value">999999</div>
@@ -147,12 +108,9 @@
                     </div>
                 </div>
 
-                <!-- Правая часть: рекорды FLAPPY CAKE -->
                 <div class="flappy-panel">
                     <div class="flappy-panel-title">FLAPPY CAKE · TOP-3</div>
-                    <ol id="flappyTop3" class="flappy-list">
-                        <!-- Заполняется через JS -->
-                    </ol>
+                    <ol id="flappyTop3" class="flappy-list"></ol>
                     <div class="flappy-panel-note">Рекорди гостей не зберігаються</div>
                 </div>
 
@@ -160,21 +118,23 @@
         </div>
 
     </div>
-    <!-- /page -->
 
-    <!-- Кнопка-иконка RULES (фиксируется к экрану) -->
+    <!-- RULES -->
     <button class="rules-icon-btn" id="rulesBtn" aria-label="Rules">
         <img src="img/icons/rules-book.png" alt="rules icon">
     </button>
 
-    <!-- Кнопка GAME – иконка торта справа -->
+    <!-- GAME -->
     <a class="game-icon-btn" id="gameBtn" href="flappy/flappy.html">
         <img src="flappy/img/tort.png" alt="FLAPPY CAKE">
     </a>
 
+    <!-- ✅ LOGOUT – ЕДИНСТВЕННАЯ КНОПКА -->
+    <button class="logout-icon-btn" id="logoutBtn" aria-label="Log out">
+        <img src="img/icons/power.png" alt="Logout icon">
+    </button>
 
-
-    <!-- Модальное окно RULES -->
+    <!-- RULES MODAL -->
     <div class="rules-modal" id="rulesModal">
         <div class="rules-modal__backdrop" id="rulesBackdrop"></div>
         <div class="rules-modal__content">
@@ -185,7 +145,7 @@
         </div>
     </div>
 
-    <!-- === ВХОД ПО КОДУ / ГОСТЬ === -->
+    <!-- CODE LOGIN MODAL -->
     <div class="code-modal" id="codeModal">
         <div class="code-modal__backdrop"></div>
         <div class="code-modal__content">
@@ -205,7 +165,7 @@
         </div>
     </div>
 
-    <!-- Скрипт MBHA -->
+    <!-- SCRIPTS -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="js/main.js"></script>

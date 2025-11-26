@@ -63,7 +63,7 @@
         }
     }
 
-    // теперь сохраняем и name тоже
+    // теперь сохраняем и name тоже + lastLogin (для "раз в день")
     function saveAuthToStorage(role, code, name) {
         try {
             const data = {
@@ -75,6 +75,14 @@
             localStorage.setItem("mbhaAuth", JSON.stringify(data));
         } catch (e) {
             // тихо игнорим
+        }
+    }
+
+    function clearAuthStorage() {
+        try {
+            localStorage.removeItem("mbhaAuth");
+        } catch (e) {
+            // ок
         }
     }
 
@@ -493,6 +501,9 @@
 
                     setMbhaRole("user");
 
+                    // сохраняем auth на день
+                    saveAuthToStorage("user", raw, usersDb[raw]["PLAYER"] || null);
+
                     hideCodeModal();
                     initUserProfile();
                 } catch (err) {
@@ -510,6 +521,9 @@
 
                 setMbhaRole("guest");
 
+                // сохраняем что это гость на сегодня
+                saveAuthToStorage("guest", null, null);
+
                 hideCodeModal();
                 initUserProfile();
             });
@@ -525,8 +539,59 @@
         // Запускаем логин/профиль
         initCodeFlow();
 
-        // =================== RULES ===================
+        // =================== LOGOUT ===================
 
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+                // чистим auth
+                clearAuthStorage();
+                setMbhaRole("guest");
+
+                // чистим глобального пользователя
+                window.MBHA_CURRENT_USER = {
+                    code: null,
+                    name: "GUEST",
+                    isGuest: true
+                };
+
+                // чистим URL
+                const params = getUrlParams();
+                params.delete("code");
+                params.delete("guest");
+                const qs = params.toString();
+                const newUrl = window.location.pathname + (qs ? "?" + qs : "");
+                window.history.replaceState(null, "", newUrl);
+
+                // ставим профиль гостя в UI
+                renderProfile(normalizeProfile(makeGuestProfile(null)));
+
+                // чистим отображение FLAPPY
+                const topEl = document.getElementById("flappyTop3");
+                if (topEl) {
+                    topEl.innerHTML = "";
+                    const li = document.createElement("li");
+                    li.textContent = "Поки що немає рекордів";
+                    topEl.appendChild(li);
+                }
+                const userScoreEl = document.getElementById("flappyUserScore");
+                if (userScoreEl) {
+                    userScoreEl.textContent = "FLAPPY CAKE: —";
+                }
+
+                // показываем модалку логина снова
+                const codeModal = document.getElementById("codeModal");
+                if (codeModal) {
+                    // используем уже объявленную функцию
+                    // (она в той же области видимости)
+                    const anyInput = document.getElementById("codeInput");
+                    if (anyInput) anyInput.value = "";
+                    codeModal.classList.add("code-modal--visible");
+                }
+            });
+        }
+
+        // =================== RULES ===================
 
         const rulesBtn = document.getElementById("rulesBtn");
         const rulesModal = document.getElementById("rulesModal");
