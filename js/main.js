@@ -297,7 +297,6 @@
     let teamTypeAudio = null;
 
     function maybeShowTeamIntro(profile) {
-        // показываем только если версия ещё не видена
         if (!shouldShowTeamIntro(profile)) return;
 
         const modal = document.getElementById("teamModal");
@@ -310,13 +309,11 @@
         const btnBandits = document.getElementById("teamBanditsBtn");
         const closeBtn = document.getElementById("teamModalClose");
 
-        if (!aboutEl || !msgEl || !photoEl || !btnKevin || !btnBandits) {
-            return;
-        }
+        if (!aboutEl || !msgEl || !photoEl || !btnKevin || !btnBandits) return;
 
-        // Сброс состояния
-        msgEl.textContent = "";
+        // reset
         aboutEl.textContent = "";
+        msgEl.textContent = "";
         btnKevin.disabled = false;
         btnBandits.disabled = false;
 
@@ -325,7 +322,7 @@
             closeBtn.onclick = null;
         }
 
-        // Аватар
+        // аватар
         const avatarSrc = getAvatarSrc(profile);
         photoEl.onerror = function() {
             if (!photoEl.src.includes(GUEST_AVATAR)) {
@@ -334,23 +331,20 @@
         };
         photoEl.src = avatarSrc;
 
-        // Текст ABOUT
+        // about
         const fullText = (profile.about && profile.about.trim()) ?
             profile.about.trim() :
             `Name: ${profile.name || "PLAYER"}`;
 
-        // Готовим аудио печатной машинки
         if (teamTypeAudio) {
-            try {
-                teamTypeAudio.pause();
-            } catch (e) {}
+            try { teamTypeAudio.pause(); } catch (e) {}
         }
         teamTypeAudio = new Audio("audio/typewriter.mp3");
         teamTypeAudio.loop = false;
         teamTypeAudio.currentTime = 0;
 
         let idx = 0;
-        const speed = 35; // мс на символ
+        const speed = 35;
 
         function typeNext() {
             if (idx === 0) {
@@ -362,7 +356,6 @@
                 idx++;
                 setTimeout(typeNext, speed);
             } else {
-                // закончили печатать — стоп звук
                 if (teamTypeAudio) {
                     try {
                         teamTypeAudio.pause();
@@ -398,27 +391,25 @@
                 } catch (e) {}
             }
 
-            // помечаем, что текущую версию онбординга юзер уже видел
             markTeamIntroSeen(profile);
 
             msgEl.textContent =
                 "ХАХ! НЕ ВИГАДУЙ ДУРНИЦЬ, СВОЮ КОМАНДУ ДІЗНАЄШСЯ ПРИ ОГОЛОШЕННІ РЕЗУЛЬТАТІВ 🐋💨";
 
-            // ❗БОЛЬШЕ НЕ АВТОЗАКРЫВАЕМ — только крестиком
+            // показываем крестик, окно больше само не закрывается
             if (closeBtn) {
                 closeBtn.classList.add("team-modal__close--visible");
                 closeBtn.onclick = closeTeamModal;
             }
         }
 
-        // Назначаем обработчики
         btnKevin.onclick = handleChoice;
         btnBandits.onclick = handleChoice;
 
-        // Показываем модал
         modal.classList.add("team-modal--visible");
         document.body.style.overflow = "hidden";
     }
+
 
 
     // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд (UI остаётся прежним) =====

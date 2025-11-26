@@ -145,13 +145,20 @@
     </div>
 
     <!-- ✅ TEAM INTRO MODAL (аватар + ABOUT + выбор команды) -->
+    <!-- TEAM INTRO MODAL -->
     <div class="team-modal" id="teamModal">
         <div class="team-modal__backdrop"></div>
+
         <div class="team-modal__content">
+            <!-- Крестик: по умолчанию спрятан -->
+            <button class="team-modal__close" id="teamModalClose">✕</button>
+
             <div class="team-modal__user">
                 <div class="team-modal__photo">
-                    <img src="img/user_placeholder.png" alt="User avatar">
+                    <img src="img/user_placeholder.png" alt="User">
                 </div>
+
+                <!-- СЮДА ПЕЧАТАЕМ ABOUT -->
                 <div class="team-modal__about" id="teamAboutText"></div>
             </div>
 
@@ -161,13 +168,14 @@
 
             <div class="team-modal__buttons">
                 <button class="team-modal__btn team-modal__btn--kevin" id="teamKevinBtn">
-                    KEVINS TEAM
-                </button>
+                KEVINS TEAM
+            </button>
                 <button class="team-modal__btn team-modal__btn--bandits" id="teamBanditsBtn">
-                    TEAM OF BANDIT
-                </button>
+                TEAM OF BANDIT
+            </button>
             </div>
 
+            <!-- СЮДА ВЫВОДИМ "ХАХ! НЕ ВИГАДУЙ..." -->
             <div class="team-modal__message" id="teamMessage"></div>
         </div>
     </div>
