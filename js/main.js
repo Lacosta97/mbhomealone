@@ -145,7 +145,7 @@
 
         const dbByCode = {};
         rows.forEach((row) => {
-            const rawCode = row["CODE"] || "";
+            const rawCode = getField(row, "CODE") || "";
             const code = rawCode.trim().toUpperCase();
             if (code) {
                 dbByCode[code] = row;
@@ -168,28 +168,52 @@
         };
     }
 
-    // аккуратно парсим числа из таблицы (убираем всё кроме цифр, точки и минуса)
+    // ===== ХЕЛПЕР ДЛЯ ДОСТУПА К ПОЛЯМ С ЛЮБЫМИ ПРОБЕЛАМИ В ЗАГОЛОВКЕ =====
+    function getField(row, logicalName) {
+        if (!row) return "";
+        const target = logicalName.toUpperCase();
+        for (const key in row) {
+            if (!Object.prototype.hasOwnProperty.call(row, key)) continue;
+            // заменяем любые пробелы / NBSP на обычный, схлопываем
+            const norm = key
+                .replace(/\u00A0/g, " ")
+                .replace(/\s+/g, " ")
+                .trim()
+                .toUpperCase();
+            if (norm === target) {
+                return row[key];
+            }
+        }
+        return "";
+    }
+
+    // аккуратно парсим числа из таблицы (убираем пробелы и т.п.)
     function parseScore(value) {
         if (value == null) return 0;
-        const cleaned = String(value).replace(/[^\d.\-]/g, "");
+        const cleaned = String(value)
+            .replace(/\s/g, "")
+            .replace(/,/g, ".");
         const n = parseFloat(cleaned);
         return Number.isFinite(n) ? n : 0;
     }
 
     function normalizeProfile(row) {
-        const rawKevin = row["TEAM KEVIN"] || "0";
-        const rawBandits = row["TEAM OF BANDITS"] || "0";
+        const rawPlayer = getField(row, "PLAYER") || "GUEST";
+        const rawCode = getField(row, "CODE") || "";
+        const rawPersonal = getField(row, "PERSONAL ACCOUNT") || "-----";
+
+        const rawKevin = getField(row, "TEAM KEVIN") || "0";
+        const rawBandits = getField(row, "TEAM OF BANDITS") || "0";
 
         const kevinNum = parseScore(rawKevin);
         const banditsNum = parseScore(rawBandits);
         const totalNum = kevinNum + banditsNum;
 
         return {
-            name: row["PLAYER"] || "GUEST",
-            code: (row["CODE"] || "").trim().toUpperCase(),
-            personalAccount: row["PERSONAL ACCOUNT"] || "-----",
-
-            // TOTAL = TEAM KEVIN + TEAM OF BANDITS
+            name: rawPlayer,
+            code: rawCode.trim().toUpperCase(),
+            personalAccount: rawPersonal,
+            // TOTAL = Kevin + Bandits
             total: String(totalNum),
             teamKevin: String(kevinNum),
             teamBandits: String(banditsNum),
@@ -216,9 +240,12 @@
         if (kevinEl) kevinEl.textContent = profile.teamKevin;
         if (banditsEl) banditsEl.textContent = profile.teamBandits;
 
-        // === TOTAL берём напрямую из profile.total, он уже посчитан ===
+        // === TOTAL = KEVIN + BANDITS (подстраховка) ===
         if (totalEl) {
-            totalEl.textContent = profile.total;
+            const k = parseScore(profile.teamKevin);
+            const b = parseScore(profile.teamBandits);
+            const total = k + b;
+            totalEl.textContent = total;
         }
 
         if (photoEl) {
@@ -389,19 +416,14 @@
         const dontPushBtn = document.getElementById("dont-push-btn");
         if (dontPushBtn) {
             dontPushBtn.addEventListener("click", () => {
-                // звук один для всех теперь
                 const snd = dontPushGuestSound;
-
                 snd.pause();
                 snd.currentTime = 0;
                 snd.play().catch(() => {});
 
-                // показываем картинку
                 const overlay = document.getElementById("dontPushOverlay");
                 if (overlay) {
                     overlay.classList.add("is-visible");
-
-                    // скрываем через 1 секунду
                     setTimeout(() => {
                         overlay.classList.remove("is-visible");
                     }, 1000);
@@ -447,14 +469,12 @@
             const today = getTodayStr();
 
             if (savedAuth && savedAuth.lastLogin === today) {
-                // Восстанавливаем роль и код без показа модалки
                 if (savedAuth.role === "user") {
                     setMbhaRole("user");
                 } else {
                     setMbhaRole("guest");
                 }
 
-                // Синхронизируем URL
                 const params = getUrlParams();
                 if (savedAuth.role === "user" && savedAuth.code) {
                     params.set("code", savedAuth.code);
@@ -469,12 +489,10 @@
                 return;
             }
 
-            // Если нет сохранённого логина — показываем модалку
             if (codeModal) {
                 showCodeModal();
             }
 
-            // Если вдруг модалки нет — просто грузим профиль и выставляем роль
             if (!codeInput || !codeSubmitBtn || !codeGuestBtn) {
                 const code = getCodeFromUrl();
                 const guestMode = isGuestFromUrl();
@@ -518,8 +536,7 @@
 
                     setMbhaRole("user");
 
-                    // сохраняем auth на день
-                    saveAuthToStorage("user", raw, usersDb[raw]["PLAYER"] || null);
+                    saveAuthToStorage("user", raw, getField(usersDb[raw], "PLAYER") || null);
 
                     hideCodeModal();
                     initUserProfile();
@@ -538,14 +555,12 @@
 
                 setMbhaRole("guest");
 
-                // сохраняем что это гость на сегодня
                 saveAuthToStorage("guest", null, null);
 
                 hideCodeModal();
                 initUserProfile();
             });
 
-            // Enter по инпуту
             codeInput.addEventListener("keydown", (e) => {
                 if (e.key === "Enter") {
                     codeSubmitBtn.click();
@@ -599,7 +614,7 @@
                     codeModal.classList.add("code-modal--visible");
                 }
 
-                // жёсткий ресет страницы после logout
+                // жёсткий ресет (чтоб точно всё сбросилось)
                 location.reload();
             });
         }
