@@ -202,23 +202,21 @@
         const rawCode = getField(row, "CODE") || "";
         const rawPersonal = getField(row, "PERSONAL ACCOUNT") || "-----";
 
+        // просто берём значения из таблицы как есть
         const rawKevin = getField(row, "TEAM KEVIN") || "0";
         const rawBandits = getField(row, "TEAM OF BANDITS") || "0";
-
-        const kevinNum = parseScore(rawKevin);
-        const banditsNum = parseScore(rawBandits);
-        const totalNum = kevinNum + banditsNum;
+        const rawTotal = getField(row, "TOTAL") || "0";
 
         return {
             name: rawPlayer,
             code: rawCode.trim().toUpperCase(),
             personalAccount: rawPersonal,
-            // TOTAL = Kevin + Bandits
-            total: String(totalNum),
-            teamKevin: String(kevinNum),
-            teamBandits: String(banditsNum),
+            total: rawTotal,
+            teamKevin: rawKevin,
+            teamBandits: rawBandits,
         };
     }
+
 
     function getAvatarSrc(profile) {
         if (!profile || !profile.code) {
@@ -240,12 +238,9 @@
         if (kevinEl) kevinEl.textContent = profile.teamKevin;
         if (banditsEl) banditsEl.textContent = profile.teamBandits;
 
-        // === TOTAL = KEVIN + BANDITS (подстраховка) ===
+        // === TOTAL просто переносим из шитса ===
         if (totalEl) {
-            const k = parseScore(profile.teamKevin);
-            const b = parseScore(profile.teamBandits);
-            const total = k + b;
-            totalEl.textContent = total;
+            totalEl.textContent = profile.total;
         }
 
         if (photoEl) {
@@ -258,6 +253,7 @@
             photoEl.src = src;
         }
     }
+
 
     // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд (UI остаётся прежним) =====
     function renderFlappyLeaderboard(data) {
