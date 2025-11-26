@@ -12,7 +12,7 @@ body {
 }
 
 body {
-    font-family: "Jersey 10", "Pixelify Sans", system-ui, sans-serif;
+    font-family: "Silkscreen", "Pixelify Sans", system-ui, sans-serif;
     background: #020617;
     color: #f9fafb;
     overflow-x: hidden;
@@ -985,7 +985,7 @@ body {
 }
 
 .rules-modal__title {
-    font-family: "Jersey 10", "Pixelify Sans", system-ui, sans-serif;
+    font-family: "Silkscreen", "Pixelify Sans", system-ui, sans-serif;
     font-size: 20px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -1114,7 +1114,7 @@ body {
 }
 
 .code-modal__title {
-    font-family: "Jersey 10", "Pixelify Sans", system-ui, sans-serif;
+    font-family: "Silkscreen", "Pixelify Sans", system-ui, sans-serif;
     font-size: 20px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -1129,7 +1129,7 @@ body {
 .code-modal__input {
     margin-top: 4px;
     padding: 10px 12px;
-    font-family: "Jersey 10", "Pixelify Sans", system-ui, sans-serif;
+    font-family: "Silkscreen", "Pixelify Sans", system-ui, sans-serif;
     font-size: 18px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -1149,7 +1149,7 @@ body {
 .code-modal__btn {
     margin-top: 8px;
     padding: 10px 12px;
-    font-family: "Jersey 10", "Pixelify Sans", system-ui, sans-serif;
+    font-family: "Silkscreen", "Pixelify Sans", system-ui, sans-serif;
     font-size: 14px;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -1196,7 +1196,7 @@ body {
     padding: 10px 40px;
     min-width: 180px;
     max-width: 260px;
-    font-family: "Jersey 10", "Pixelify Sans", system-ui, sans-serif;
+    font-family: "Silkscreen", "Pixelify Sans", system-ui, sans-serif;
     font-size: 12px;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -1309,6 +1309,3 @@ body {
         bottom: 10px;
     }
 }
-
-
-/* (Блок про отдельный шрифт TOTAL убран – шрифты берутся глобально) */
