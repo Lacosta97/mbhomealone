@@ -1030,6 +1030,9 @@ body {
     flex-direction: column;
     gap: 12px;
     text-align: center;
+    max-height: 80vh;
+    /* ❗ модалка не вылезает за экран */
+    overflow: hidden;
 }
 
 .team-modal__user {
@@ -1058,6 +1061,9 @@ body {
     text-align: left;
     line-height: 1.35;
     min-height: 3.3em;
+    word-wrap: break-word;
+    /* перенос длинных слов */
+    white-space: normal;
 }
 
 .team-modal__question {
@@ -1108,6 +1114,29 @@ body {
     margin-top: 6px;
     font-size: 13px;
     color: #e5e7eb;
+}
+
+.team-modal__close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    border: none;
+    background: transparent;
+    color: #e5e7eb;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    display: none;
+    /* по умолчанию спрятан */
+}
+
+.team-modal__close--visible {
+    display: block;
+    /* покажем после выбора команды */
+}
+
+.team-modal__close:active {
+    transform: translate(1px, 1px);
 }
 
 
@@ -1173,8 +1202,12 @@ body {
         flex-direction: column;
         align-items: center;
     }
+    /* Мобильная версия — чуть меньше шрифт и скролл, если текст длинный */
     .team-modal__about {
-        text-align: center;
+        font-size: 12px;
+        max-height: 36vh;
+        overflow-y: auto;
+        padding-right: 4px;
     }
 }
 

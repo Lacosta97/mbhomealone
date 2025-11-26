@@ -308,6 +308,7 @@
         const photoEl = modal.querySelector(".team-modal__photo img");
         const btnKevin = document.getElementById("teamKevinBtn");
         const btnBandits = document.getElementById("teamBanditsBtn");
+        const closeBtn = document.getElementById("teamModalClose");
 
         if (!aboutEl || !msgEl || !photoEl || !btnKevin || !btnBandits) {
             return;
@@ -318,6 +319,11 @@
         aboutEl.textContent = "";
         btnKevin.disabled = false;
         btnBandits.disabled = false;
+
+        if (closeBtn) {
+            closeBtn.classList.remove("team-modal__close--visible");
+            closeBtn.onclick = null;
+        }
 
         // Аватар
         const avatarSrc = getAvatarSrc(profile);
@@ -398,12 +404,14 @@
             msgEl.textContent =
                 "ХАХ! НЕ ВИГАДУЙ ДУРНИЦЬ, СВОЮ КОМАНДУ ДІЗНАЄШСЯ ПРИ ОГОЛОШЕННІ РЕЗУЛЬТАТІВ 🐋💨";
 
-            setTimeout(() => {
-                closeTeamModal();
-            }, 2200);
+            // ❗БОЛЬШЕ НЕ АВТОЗАКРЫВАЕМ — только крестиком
+            if (closeBtn) {
+                closeBtn.classList.add("team-modal__close--visible");
+                closeBtn.onclick = closeTeamModal;
+            }
         }
 
-        // Назначаем обработчики (перезаписываем onclick, чтобы не плодить слушатели)
+        // Назначаем обработчики
         btnKevin.onclick = handleChoice;
         btnBandits.onclick = handleChoice;
 
@@ -411,6 +419,7 @@
         modal.classList.add("team-modal--visible");
         document.body.style.overflow = "hidden";
     }
+
 
     // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд (UI остаётся прежним) =====
     function renderFlappyLeaderboard(data) {
