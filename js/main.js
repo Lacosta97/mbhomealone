@@ -168,28 +168,33 @@
         };
     }
 
+    // аккуратно парсим числа из таблицы (убираем пробелы и т.п.)
+    function parseScore(value) {
+        if (value == null) return 0;
+        const cleaned = String(value).replace(/\s/g, "").replace(/,/g, ".");
+        const n = parseFloat(cleaned);
+        return Number.isFinite(n) ? n : 0;
+    }
+
     function normalizeProfile(row) {
-        const name = row["PLAYER"] || "GUEST";
-        const code = (row["CODE"] || "").trim().toUpperCase();
+        const rawKevin = row["TEAM KEVIN"] || "0";
+        const rawBandits = row["TEAM OF BANDITS"] || "0";
 
-        const personalRaw = row["PERSONAL ACCOUNT"] || "-----";
-        const kevinRaw = row["TEAM KEVIN"] || "0";
-        const banditsRaw = row["TEAM OF BANDITS"] || "0";
-
-        const k = parseInt(String(kevinRaw).replace(/[^\d\-]/g, ""), 10) || 0;
-        const b = parseInt(String(banditsRaw).replace(/[^\d\-]/g, ""), 10) || 0;
-
-        const total = String(k + b);
+        const kevinNum = parseScore(rawKevin);
+        const banditsNum = parseScore(rawBandits);
+        const totalNum = kevinNum + banditsNum;
 
         return {
-            name,
-            code,
-            personalAccount: personalRaw,
-            total,
-            teamKevin: kevinRaw,
-            teamBandits: banditsRaw,
+            name: row["PLAYER"] || "GUEST",
+            code: (row["CODE"] || "").trim().toUpperCase(),
+            personalAccount: row["PERSONAL ACCOUNT"] || "-----",
+            // TOTAL теперь = Kevin + Bandits
+            total: String(totalNum),
+            teamKevin: String(kevinNum),
+            teamBandits: String(banditsNum),
         };
     }
+
 
 
 
