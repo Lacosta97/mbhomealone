@@ -1502,3 +1502,102 @@ body {
         font-size: 13px;
     }
 }
+
+
+/* === MBHA: СЦЕНА С КЕВИНОМ И БАНДИТАМИ (PNG-КАДРЫ) === */
+
+
+/* Сцена привязана к дому по ширине и центру */
+
+.ha-scene {
+    position: relative;
+    max-width: 1100px;
+    /* как house-inner */
+    margin: -40px auto 0;
+    /* чуть поднимаем под дом */
+    height: 220px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+
+/* Каждый герой — точное позиционирование по дому */
+
+.ha-character {
+    position: absolute;
+    transform-origin: bottom center;
+}
+
+
+/* размер спрайтов — в 3 раза меньше, чем было */
+
+.ha-character img {
+    width: 48px;
+    height: auto;
+    display: block;
+    image-rendering: pixelated;
+}
+
+
+/* ===== Позиции ===== */
+
+
+/* MARV — перед бусом */
+
+.ha-marv {
+    right: 30%;
+    bottom: 282px;
+}
+
+.ha-harry {
+    right: 36%;
+    bottom: 278px;
+}
+
+.ha-kevin {
+    left: 28%;
+    bottom: 415px;
+}
+
+
+/* Небольшой индивидуальный масштаб для баланса силуэта */
+
+.ha-kevin img {
+    transform: scale(1.0);
+}
+
+.ha-marv img {
+    transform: scale(1.6);
+}
+
+.ha-harry img {
+    transform: scale(1.5);
+}
+
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 768px) {
+    .ha-scene {
+        margin-top: -30px;
+        height: 180px;
+    }
+    .ha-character img {
+        width: 40px;
+    }
+    .ha-marv {
+        right: 38%;
+        bottom: 210px;
+        transform: scale(0.5);
+    }
+    .ha-harry {
+        right: 46%;
+        bottom: 210px;
+        transform: scale(0.33);
+    }
+    .ha-kevin {
+        left: 32%;
+        bottom: 315px;
+        transform: scale(0.33);
+    }
+}

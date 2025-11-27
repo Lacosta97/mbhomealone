@@ -938,4 +938,134 @@
 
         // На этом main.js заканчивается.
     });
+    // =================== MBHA: CHARACTER FRAME ANIMATION ===================
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const kevinImg = document.querySelector(".ha-kevin img");
+        const marvImg = document.querySelector(".ha-marv img");
+        const harryImg = document.querySelector(".ha-harry img");
+        const kevinWrap = document.querySelector(".ha-kevin");
+
+        if (!kevinImg || !marvImg || !harryImg || !kevinWrap) {
+            console.warn("MBHA: персонажи не найдены в DOM");
+            return;
+        }
+
+        // --- Кол-во кадров ---
+        const KEVIN_FRAMES = 10;
+        const MARV_FRAMES = 4;
+        const HARRY_FRAMES = 6;
+
+        // --- Скорости (мс) ---
+        const KEVIN_SPEED = 120; // Кевин — как был
+        const MARV_SPEED = 320; // в 2 раза медленнее
+        const HARRY_SPEED = 280; // в 2 раза медленнее
+
+        // --- Путь к кадрам ---
+        function kevinSrc(i) {
+            return `img/sprites/kevin/kevin_idle_${String(i).padStart(2, "0")}.png`;
+        }
+
+        function marvSrc(i) {
+            return `img/sprites/marv/marv_idle_${String(i).padStart(2, "0")}.png`;
+        }
+
+        function harrySrc(i) {
+            return `img/sprites/harry/harry_idle_${String(i).padStart(2, "0")}.png`;
+        }
+
+        // ================== MARV & HARRY (просто медленнее) ==================
+
+        let marvFrame = 1;
+        setInterval(() => {
+            marvFrame = marvFrame < MARV_FRAMES ? marvFrame + 1 : 1;
+            marvImg.src = marvSrc(marvFrame);
+        }, MARV_SPEED);
+
+        let harryFrame = 1;
+        setInterval(() => {
+            harryFrame = harryFrame < HARRY_FRAMES ? harryFrame + 1 : 1;
+            harryImg.src = harrySrc(harryFrame);
+        }, HARRY_SPEED);
+
+        // ================== KEVIN: ЧЕРДАК, ВПРАВО–ВЛЕВО ==================
+
+        // Состояния: стоит лицом, идёт вправо, опять стоит, идёт влево
+        const PHASE_IDLE_RIGHT = "idle_right";
+        const PHASE_WALK_RIGHT = "walk_right";
+        const PHASE_IDLE_LEFT = "idle_left";
+        const PHASE_WALK_LEFT = "walk_left";
+
+        let kevinPhase = PHASE_IDLE_RIGHT;
+        let phaseTicks = 0;
+
+        // смещение по X (от исходной позиции .ha-kevin)
+        let kevinOffsetX = 0;
+        const STEP_PX = 6; // шаг за тик
+        const MAX_OFFSET = 24; // насколько далеко уходит от центра вправо/влево
+
+        let kevinWalkFrame = 2; // ходьба — кадры 2..10
+
+        function nextKevinWalkFrame() {
+            kevinWalkFrame++;
+            if (kevinWalkFrame > KEVIN_FRAMES) {
+                kevinWalkFrame = 2;
+            }
+            kevinImg.src = kevinSrc(kevinWalkFrame);
+        }
+
+        function applyKevinTransform() {
+            // движение по X, масштабирование оставляем в CSS (на img)
+            kevinWrap.style.transform = `translateX(${kevinOffsetX}px)`;
+        }
+
+        // стартовый кадр — смотрит на зрителя
+        kevinImg.src = kevinSrc(1);
+        applyKevinTransform();
+
+        setInterval(() => {
+            phaseTicks++;
+
+            switch (kevinPhase) {
+                case PHASE_IDLE_RIGHT:
+                    // стоит лицом к зрителю
+                    kevinImg.src = kevinSrc(1);
+                    if (phaseTicks >= 6) { // пауза
+                        phaseTicks = 0;
+                        kevinPhase = PHASE_WALK_RIGHT;
+                    }
+                    break;
+
+                case PHASE_WALK_RIGHT:
+                    nextKevinWalkFrame();
+                    kevinOffsetX = Math.min(kevinOffsetX + STEP_PX, MAX_OFFSET);
+                    applyKevinTransform();
+                    if (phaseTicks >= 4) { // «два шага вправо» (чуть дольше по времени)
+                        phaseTicks = 0;
+                        kevinPhase = PHASE_IDLE_LEFT;
+                    }
+                    break;
+
+                case PHASE_IDLE_LEFT:
+                    kevinImg.src = kevinSrc(1);
+                    if (phaseTicks >= 6) {
+                        phaseTicks = 0;
+                        kevinPhase = PHASE_WALK_LEFT;
+                    }
+                    break;
+
+                case PHASE_WALK_LEFT:
+                    nextKevinWalkFrame();
+                    kevinOffsetX = Math.max(kevinOffsetX - STEP_PX, -MAX_OFFSET);
+                    applyKevinTransform();
+                    if (phaseTicks >= 4) { // «два шага влево»
+                        phaseTicks = 0;
+                        kevinPhase = PHASE_IDLE_RIGHT;
+                    }
+                    break;
+            }
+        }, KEVIN_SPEED);
+    });
+
+
 })();
