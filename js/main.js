@@ -769,7 +769,11 @@
         }
         // =================== SITE LOCK (ONLY CD34 ALLOWED) ===================
 
+        const SITE_LOCK_ENABLED = false; // ← ВОТ ЭТОЙ СТРОКОЙ УПРАВЛЯЕМ
+
         function checkSiteLock() {
+            if (!SITE_LOCK_ENABLED) return true; // 🔓 лок выключен
+
             const ALLOWED_CODE = "CD34";
 
             const saved = loadAuthFromStorage();
@@ -778,10 +782,9 @@
 
             if (activeCode === ALLOWED_CODE) {
                 console.log("MBHA: site unlocked for", ALLOWED_CODE);
-                return true; // пускаем
+                return true;
             }
 
-            // всех остальных блокируем
             const lock = document.getElementById("siteLock");
             if (lock) {
                 lock.classList.add("site-lock--visible");
@@ -790,8 +793,6 @@
             document.body.style.overflow = "hidden";
             return false;
         }
-        // если сайт заблокирован — дальше ничего не инициализируем
-        if (!checkSiteLock()) return;
 
 
 
