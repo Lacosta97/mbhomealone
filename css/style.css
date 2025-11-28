@@ -1714,9 +1714,9 @@ body {
         border-width: 2px;
     }
     .intro-modal__start-label {
-        bottom: 16%;
+        bottom: 15%;
         /* немного выше */
-        right: 5%;
+        right: 4%;
         /* чуть левее центра телика */
         font-size: 11px;
         padding: 6px 22px;
