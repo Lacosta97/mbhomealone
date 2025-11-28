@@ -1707,13 +1707,17 @@ body {
 @media (max-width: 768px) {
     .intro-modal__avatar {
         width: 64px;
-        top: 15%;
-        right: 10%;
+        top: 14%;
+        /* чуть выше */
+        right: 12%;
+        /* чуть левее от текущего */
         border-width: 2px;
     }
     .intro-modal__start-label {
-        bottom: 14%;
-        right: 16%;
+        bottom: 16%;
+        /* немного выше */
+        right: 18%;
+        /* чуть левее центра телика */
         font-size: 11px;
         padding: 6px 22px;
         border-width: 2px;
