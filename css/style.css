@@ -1555,7 +1555,7 @@ body {
 }
 
 .ha-kevin {
-    left: 28%;
+    left: 32%;
     bottom: 415px;
 }
 
@@ -1575,29 +1575,61 @@ body {
 }
 
 
-/* ===== MOBILE ===== */
+/* === MOBILE: ЛОК ПОД IPHONE SE (375px) === */
 
 @media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+    /* Делаем виртуальное полотно 375px и масштабируем его */
+    .page {
+        width: 375px;
+        margin: 0 auto;
+        transform-origin: top center;
+        transform: scale(calc(100vw / 375));
+    }
+    /* Всё, что завязано на дом, тоже фиксируем по ширине 375px */
+    .house-wrap,
+    .house-inner,
+    .user-section,
     .ha-scene {
-        margin-top: -30px;
-        height: 180px;
+        max-width: 375px;
+        margin: 0 auto;
     }
-    .ha-character img {
-        width: 40px;
+}
+
+
+/* ===== MOBILE (FIXED LIKE iPhone SE) ===== */
+
+@media (max-width: 768px) {
+    /* сама сцена */
+    .ha-scene {
+        margin-top: -12px;
+        height: 210px;
     }
+    /* ===== КООРДИНАТЫ ПОД iPHONE SE ===== */
+    /* MARV — у буса */
     .ha-marv {
-        right: 38%;
-        bottom: 210px;
+        right: 28%;
+        bottom: 205px;
+    }
+    .ha-marv img {
+        transform: scale(0.55);
+    }
+    /* HARRY — рядом с Marv */
+    .ha-harry {
+        right: 35%;
+        bottom: 205px;
+    }
+    .ha-harry img {
         transform: scale(0.5);
     }
-    .ha-harry {
-        right: 46%;
-        bottom: 210px;
-        transform: scale(0.33);
-    }
+    /* KEVIN — в комнате с ёлкой */
     .ha-kevin {
-        left: 32%;
-        bottom: 315px;
-        transform: scale(0.33);
+        left: 25%;
+        bottom: 244px;
+    }
+    .ha-kevin img {
+        transform: scale(0.25);
     }
 }

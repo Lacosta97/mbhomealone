@@ -1019,52 +1019,122 @@
             kevinWrap.style.transform = `translateX(${kevinOffsetX}px)`;
         }
 
-        // стартовый кадр — смотрит на зрителя
-        kevinImg.src = kevinSrc(1);
-        applyKevinTransform();
+        // =================== MBHA: KEVIN WALK (01–10 ПО ТВОЕМУ СЦЕНАРИЮ) ===================
+        (function setupKevinWalkProper() {
+            const wrapper = document.querySelector(".ha-kevin");
+            if (!wrapper) return;
 
-        setInterval(() => {
-            phaseTicks++;
+            const img = wrapper.querySelector("img");
+            if (!img) return;
 
-            switch (kevinPhase) {
-                case PHASE_IDLE_RIGHT:
-                    // стоит лицом к зрителю
-                    kevinImg.src = kevinSrc(1);
-                    if (phaseTicks >= 6) { // пауза
-                        phaseTicks = 0;
-                        kevinPhase = PHASE_WALK_RIGHT;
-                    }
-                    break;
-
-                case PHASE_WALK_RIGHT:
-                    nextKevinWalkFrame();
-                    kevinOffsetX = Math.min(kevinOffsetX + STEP_PX, MAX_OFFSET);
-                    applyKevinTransform();
-                    if (phaseTicks >= 4) { // «два шага вправо» (чуть дольше по времени)
-                        phaseTicks = 0;
-                        kevinPhase = PHASE_IDLE_LEFT;
-                    }
-                    break;
-
-                case PHASE_IDLE_LEFT:
-                    kevinImg.src = kevinSrc(1);
-                    if (phaseTicks >= 6) {
-                        phaseTicks = 0;
-                        kevinPhase = PHASE_WALK_LEFT;
-                    }
-                    break;
-
-                case PHASE_WALK_LEFT:
-                    nextKevinWalkFrame();
-                    kevinOffsetX = Math.max(kevinOffsetX - STEP_PX, -MAX_OFFSET);
-                    applyKevinTransform();
-                    if (phaseTicks >= 4) { // «два шага влево»
-                        phaseTicks = 0;
-                        kevinPhase = PHASE_IDLE_RIGHT;
-                    }
-                    break;
+            // Хелпер для пути к кадрам
+            function kevinSrc(n) {
+                return `img/sprites/kevin/kevin_idle_${String(n).padStart(2, "0")}.png`;
             }
-        }, KEVIN_SPEED);
+
+            // Группы кадров по твоей логике
+            const FRAMES_IDLE_CENTER = [1, 2]; // смотрит на зрителя слева/центр
+            const FRAMES_WALK_RIGHT = [3, 4]; // идёт вправо
+            const FRAMES_IDLE_RIGHT = [6, 7]; // смотрит на зрителя справа
+            const FRAMES_WALK_LEFT = [8, 9]; // идёт влево
+
+            // Берём базовый left из CSS (.ha-kevin { left: 28%; ... })
+            const computed = getComputedStyle(wrapper);
+            const baseLeft = parseFloat(computed.left) || 0;
+
+            let offset = 0; // отклонение от базы
+            const STEP_PX = 3; // длина шага
+            const MAX_OFFSET = 22; // насколько далеко уходит от центра
+
+            const SPEED = 120; // мс между тиками
+
+            // Состояния анимации
+            const STATE_IDLE_CENTER = 0;
+            const STATE_WALK_RIGHT = 1;
+            const STATE_IDLE_RIGHT = 2;
+            const STATE_WALK_LEFT = 3;
+
+            let state = STATE_IDLE_CENTER;
+            let tick = 0;
+            let frameIndex = 0;
+
+            // Ставим стартовый кадр
+            img.src = kevinSrc(1);
+            wrapper.style.left = baseLeft + "px";
+
+            function setFrameFrom(list) {
+                img.src = kevinSrc(list[frameIndex % list.length]);
+            }
+
+            function stepWalk(list, direction) {
+                // direction: 1 — вправо, -1 — влево
+                setFrameFrom(list);
+                frameIndex = (frameIndex + 1) % list.length;
+
+                offset += STEP_PX * direction;
+                if (offset > MAX_OFFSET) offset = MAX_OFFSET;
+                if (offset < -MAX_OFFSET) offset = -MAX_OFFSET;
+
+                wrapper.style.left = (baseLeft + offset) + "px";
+            }
+
+            setInterval(() => {
+                tick++;
+
+                switch (state) {
+                    case STATE_IDLE_CENTER:
+                        // 01–02 — немного «дышит» на месте
+                        setFrameFrom(FRAMES_IDLE_CENTER);
+                        if (tick % 2 === 0) {
+                            frameIndex = (frameIndex + 1) % FRAMES_IDLE_CENTER.length;
+                        }
+                        wrapper.style.left = baseLeft + "px";
+                        offset = 0;
+
+                        if (tick >= 10) { // постоял → идём вправо
+                            tick = 0;
+                            frameIndex = 0;
+                            state = STATE_WALK_RIGHT;
+                        }
+                        break;
+
+                    case STATE_WALK_RIGHT:
+                        // 03–04–05 — движение вправо
+                        stepWalk(FRAMES_WALK_RIGHT, 1);
+                        if (tick >= 9) { // чуть походил → остановился справа
+                            tick = 0;
+                            frameIndex = 0;
+                            state = STATE_IDLE_RIGHT;
+                        }
+                        break;
+
+                    case STATE_IDLE_RIGHT:
+                        // 06–07 — стоит справа, смотрит на зрителя
+                        setFrameFrom(FRAMES_IDLE_RIGHT);
+                        if (tick % 2 === 0) {
+                            frameIndex = (frameIndex + 1) % FRAMES_IDLE_RIGHT.length;
+                        }
+
+                        if (tick >= 10) { // постоял → идём влево
+                            tick = 0;
+                            frameIndex = 0;
+                            state = STATE_WALK_LEFT;
+                        }
+                        break;
+
+                    case STATE_WALK_LEFT:
+                        // 08–09–10 — идёт влево обратно
+                        stepWalk(FRAMES_WALK_LEFT, -1);
+                        if (tick >= 9) { // вернулся → снова в центр
+                            tick = 0;
+                            frameIndex = 0;
+                            state = STATE_IDLE_CENTER;
+                        }
+                        break;
+                }
+            }, SPEED);
+        })();
+
     });
 
 
