@@ -418,7 +418,13 @@
                     teamTypeAudio.currentTime = 0;
                 } catch (e) {}
             }
+
+            // ✅ запуск intro-комикса после закрытия выбора команды
+            if (typeof window.openIntroComics === "function") {
+                window.openIntroComics();
+            }
         }
+
 
         function handleChoice() {
             if (btnKevin.disabled || btnBandits.disabled) return;
@@ -1136,6 +1142,92 @@
         })();
 
     });
+    // =================== INTRO COMICS LOGIC ===================
+
+    (function initIntroComics() {
+        const introModal = document.getElementById("introModal");
+        const introImage = document.getElementById("introImage");
+        const introPrevBtn = document.getElementById("introPrevBtn");
+        const introNextBtn = document.getElementById("introNextBtn");
+        const introCloseBtn = document.getElementById("introCloseBtn");
+        const introCounter = document.getElementById("introCounter");
+        const introAvatar = document.getElementById("introAvatar");
+        const introStartBtn = document.getElementById("introStartBtn");
+
+        if (!introModal) return;
+
+        const introPages = [
+            "img/comics/intro/page-1.png",
+            "img/comics/intro/page-2.png",
+            "img/comics/intro/page-3.png",
+        ];
+
+        let introIndex = 0;
+
+        function updateIntroView() {
+            introImage.src = introPages[introIndex];
+            introCounter.textContent = `${introIndex + 1} / ${introPages.length}`;
+
+            // Показываем аватар и START GAME ТОЛЬКО на 3-й странице
+            if (introIndex === 2) {
+                introAvatar.style.display = "block";
+                introStartBtn.style.display = "block";
+            } else {
+                introAvatar.style.display = "none";
+                introStartBtn.style.display = "none";
+            }
+
+            // Кнопки навигации
+            introPrevBtn.style.display = introIndex === 0 ? "none" : "block";
+            introNextBtn.style.display = introIndex === introPages.length - 1 ? "none" : "block";
+        }
+
+        function openIntro() {
+            introIndex = 0;
+            updateIntroView();
+            introModal.classList.add("intro-modal--visible");
+            document.body.style.overflow = "hidden";
+
+            // Подставляем аватар юзера
+            if (window.MBHA_CURRENT_USER && window.MBHA_CURRENT_USER.code) {
+                introAvatar.querySelector("img").src =
+                    `img/avatars/${window.MBHA_CURRENT_USER.code}.png`;
+            } else {
+                introAvatar.querySelector("img").src = "img/avatars/GUEST.png";
+            }
+        }
+
+        function closeIntro() {
+            introModal.classList.remove("intro-modal--visible");
+            document.body.style.overflow = "";
+        }
+
+        introNextBtn.addEventListener("click", () => {
+            if (introIndex < introPages.length - 1) {
+                introIndex++;
+                updateIntroView();
+            }
+        });
+
+        introPrevBtn.addEventListener("click", () => {
+            if (introIndex > 0) {
+                introIndex--;
+                updateIntroView();
+            }
+        });
+
+        introCloseBtn.addEventListener("click", closeIntro);
+
+        introStartBtn.addEventListener("click", () => {
+            closeIntro();
+            if (typeof openRules === "function") {
+                openRules();
+            }
+        });
+
+        // Делаем функцию глобальной, чтобы можно было открыть из teamModal
+        window.openIntroComics = openIntro;
+    })();
 
 
 })();

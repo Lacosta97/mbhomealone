@@ -199,6 +199,44 @@
             <button id="dont-push-btn" class="dont-push-btn">DONT PUSH</button>
         </div>
     </div>
+    <!-- INTRO COMICS MODAL -->
+    <div class="intro-modal" id="introModal">
+        <div class="intro-modal__backdrop"></div>
+
+        <div class="intro-modal__content">
+            <button class="intro-modal__close" id="introCloseBtn">✕</button>
+
+            <!-- Сам комикс -->
+            <div class="intro-modal__comic">
+                <!-- Страница интро (по умолчанию page-1, потом будем менять через JS) -->
+                <img src="img/comics/intro/page-1.png" alt="Intro comics" class="intro-modal__image" id="introImage">
+
+                <!-- КРУГЛЫЙ АВАТАР НА page-3 (пока заглушка, потом подставим аватар юзера) -->
+                <div class="intro-modal__avatar" id="introAvatar">
+                    <img src="img/user_placeholder.png" alt="User avatar">
+                </div>
+
+                <!-- Пульсирующий START GAME (поверх зоны экрана на page-3) -->
+                <button class="intro-modal__start-label" id="introStartBtn" type="button">
+                    START GAME
+                </button>
+
+                <!-- Стрелки листания -->
+                <button class="intro-modal__nav intro-modal__nav--prev" type="button" id="introPrevBtn" aria-label="Previous page">
+                    ‹
+                </button>
+
+                <button class="intro-modal__nav intro-modal__nav--next" type="button" id="introNextBtn" aria-label="Next page">
+                    ›
+                </button>
+
+                <!-- Счётчик страниц -->
+                <div class="intro-modal__counter" id="introCounter">
+                    1 / 3
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- TEAM INTRO MODAL -->
     <div class="team-modal" id="teamModal">

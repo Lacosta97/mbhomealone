@@ -1498,6 +1498,234 @@ body {
 }
 
 
+/* ===== INTRO COMICS MODAL ===== */
+
+.intro-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2200;
+    /* выше RULES (2000), ниже TEAM (2500) */
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.intro-modal--visible {
+    display: flex;
+}
+
+.intro-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(2px);
+}
+
+.intro-modal__content {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    width: 90%;
+    max-height: 90vh;
+    padding: 10px;
+    background: #020617;
+    border: 3px solid #38bdf8;
+    box-shadow: 0 0 0 3px #0f172a, 4px 4px 0 #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Обёртка комикса (для позиционирования всего поверх картинки) */
+
+.intro-modal__comic {
+    position: relative;
+    width: 100%;
+    max-height: 86vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+
+/* Картинка страницы 853x1280 */
+
+.intro-modal__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 86vh;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border-radius: 6px;
+}
+
+
+/* Кнопка закрытия модалки */
+
+.intro-modal__close {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    color: #e5e7eb;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    z-index: 2;
+}
+
+.intro-modal__close:active {
+    transform: translate(1px, 1px);
+}
+
+
+/* Стрелки перелистывания страниц */
+
+.intro-modal__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: rgba(15, 23, 42, 0.9);
+    color: #f9fafb;
+    font-size: 26px;
+    line-height: 1;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 999px;
+    box-shadow: 0 0 0 2px #020617, 0 0 12px rgba(15, 23, 42, 0.9);
+    z-index: 2;
+    opacity: 0.9;
+}
+
+.intro-modal__nav--prev {
+    left: 10px;
+}
+
+.intro-modal__nav--next {
+    right: 10px;
+}
+
+.intro-modal__nav:active {
+    transform: translateY(-50%) translate(1px, 1px);
+}
+
+
+/* Счётчик страниц (1 / 3) */
+
+.intro-modal__counter {
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    font-size: 13px;
+    color: #e5e7eb;
+    text-shadow: 0 0 6px rgba(15, 23, 42, 0.9);
+    z-index: 2;
+}
+
+
+/* КРУГЛЫЙ АВАТАР НА page-3 */
+
+
+/* Позиционирование примерное под макет, можно подправить top/right/size под глаз */
+
+.intro-modal__avatar {
+    position: absolute;
+    /* подгони по месту: это зона иконки юзера на телевизоре */
+    top: 17%;
+    right: 13%;
+    width: 90px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #facc15;
+    box-shadow: 0 0 12px rgba(250, 204, 21, 0.8);
+    z-index: 2;
+}
+
+.intro-modal__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* Пульсирующий START GAME поверх экрана телевизора */
+
+
+/* Это отдельный слой + текст; сама картинка page-3 остаётся фоном */
+
+.intro-modal__start-label {
+    position: absolute;
+    bottom: 15%;
+    right: 15%;
+    transform-origin: center;
+    padding: 6px 18px;
+    border-radius: 999px;
+    border: 2px solid #f97316;
+    background: rgba(15, 23, 42, 0.9);
+    color: #fed7aa;
+    font-family: "FixedsysLocal", system-ui, sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0 0 0 2px #020617, 0 0 16px rgba(249, 115, 22, 0.9);
+    animation: introStartPulse 1.3s ease-in-out infinite;
+}
+
+
+/* Анимация "дыхания" */
+
+@keyframes introStartPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.9;
+        box-shadow: 0 0 0 2px #020617, 0 0 8px rgba(249, 115, 22, 0.6);
+    }
+    45% {
+        transform: scale(1.08);
+        opacity: 1;
+        box-shadow: 0 0 0 2px #020617, 0 0 20px rgba(249, 115, 22, 1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.9;
+        box-shadow: 0 0 0 2px #020617, 0 0 8px rgba(249, 115, 22, 0.6);
+    }
+}
+
+
+/* На мобилке всё то же, только чуть уменьшим кнопки/аватар */
+
+@media (max-width: 768px) {
+    .intro-modal__content {
+        max-width: 380px;
+        padding: 8px;
+    }
+    .intro-modal__nav {
+        font-size: 22px;
+        padding: 4px 8px;
+    }
+    .intro-modal__avatar {
+        width: 70px;
+        top: 18%;
+        right: 12%;
+    }
+    .intro-modal__start-label {
+        bottom: 14%;
+        right: 12%;
+        font-size: 11px;
+        padding: 4px 14px;
+    }
+}
+
+
 /* === MBHA: СЦЕНА С КЕВИНОМ И БАНДИТАМИ === */
 
 .ha-scene {
