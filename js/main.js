@@ -1154,7 +1154,9 @@
         const introAvatar = document.getElementById("introAvatar");
         const introStartBtn = document.getElementById("introStartBtn");
 
-        if (!introModal) return;
+        if (!introModal || !introImage || !introPrevBtn || !introNextBtn || !introCloseBtn || !introCounter || !introAvatar || !introStartBtn) {
+            return;
+        }
 
         const introPages = [
             "img/comics/intro/page-1.png",
@@ -1168,7 +1170,7 @@
             introImage.src = introPages[introIndex];
             introCounter.textContent = `${introIndex + 1} / ${introPages.length}`;
 
-            // Показываем аватар и START GAME ТОЛЬКО на 3-й странице
+            // Аватар и START GAME только на 3-й странице
             if (introIndex === 2) {
                 introAvatar.style.display = "block";
                 introStartBtn.style.display = "block";
@@ -1177,7 +1179,7 @@
                 introStartBtn.style.display = "none";
             }
 
-            // Кнопки навигации
+            // Стрелки
             introPrevBtn.style.display = introIndex === 0 ? "none" : "block";
             introNextBtn.style.display = introIndex === introPages.length - 1 ? "none" : "block";
         }
@@ -1189,11 +1191,13 @@
             document.body.style.overflow = "hidden";
 
             // Подставляем аватар юзера
-            if (window.MBHA_CURRENT_USER && window.MBHA_CURRENT_USER.code) {
-                introAvatar.querySelector("img").src =
-                    `img/avatars/${window.MBHA_CURRENT_USER.code}.png`;
-            } else {
-                introAvatar.querySelector("img").src = "img/avatars/GUEST.png";
+            const avatarImg = introAvatar.querySelector("img");
+            if (avatarImg) {
+                if (window.MBHA_CURRENT_USER && window.MBHA_CURRENT_USER.code) {
+                    avatarImg.src = `img/avatars/${window.MBHA_CURRENT_USER.code}.png`;
+                } else {
+                    avatarImg.src = "img/avatars/GUEST.png";
+                }
             }
         }
 
@@ -1218,16 +1222,19 @@
 
         introCloseBtn.addEventListener("click", closeIntro);
 
+        // START GAME: закрываем интро и открываем RULES
         introStartBtn.addEventListener("click", () => {
             closeIntro();
-            if (typeof openRules === "function") {
-                openRules();
+            const rulesBtn = document.getElementById("rulesBtn");
+            if (rulesBtn) {
+                rulesBtn.click(); // триггерим уже существующую логику открытия модалки правил
             }
         });
 
-        // Делаем функцию глобальной, чтобы можно было открыть из teamModal
+        // Глобалка, чтобы вызывать из teamModal
         window.openIntroComics = openIntro;
     })();
+
 
 
 })();
