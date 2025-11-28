@@ -1707,13 +1707,13 @@ body {
 @media (max-width: 768px) {
     .intro-modal__avatar {
         width: 64px;
-        top: 17%;
-        right: 12%;
+        top: 15%;
+        right: 10%;
         border-width: 2px;
     }
     .intro-modal__start-label {
         bottom: 14%;
-        right: 18%;
+        right: 16%;
         font-size: 11px;
         padding: 6px 22px;
         border-width: 2px;
