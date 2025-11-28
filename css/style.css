@@ -1707,9 +1707,9 @@ body {
 @media (max-width: 768px) {
     .intro-modal__avatar {
         width: 64px;
-        top: 20%;
+        top: 3%;
         /* чуть выше */
-        right: 5%;
+        right: 2%;
         /* чуть левее от текущего */
         border-width: 2px;
     }
