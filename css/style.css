@@ -739,7 +739,7 @@ body {
 }
 
 .total-teams {
-    border-top: 1px солид #14532d;
+    border-top: 1px solid #14532d;
     padding-top: 8px;
     display: flex;
     justify-content: space-between;
@@ -1023,7 +1023,7 @@ body {
     width: 90%;
     padding: 18px 16px 20px;
     background: #020617;
-    border: 3px солид #22c55e;
+    border: 3px solid #22c55e;
     box-shadow: 0 0 0 3px #0f172a, 4px 4px 0 #000;
     color: #e5e7eb;
     display: flex;
@@ -1084,7 +1084,7 @@ body {
     letter-spacing: 1px;
     text-transform: uppercase;
     border-radius: 999px;
-    border: 2px солид #4b5563;
+    border: 2px solid #4b5563;
     background: #020617;
     color: #e5e7eb;
     cursor: pointer;
@@ -1270,7 +1270,7 @@ body {
     text-transform: uppercase;
     text-align: center;
     border-radius: 8px;
-    border: 2px солид #4b5563;
+    border: 2px solid #4b5563;
     background: #020617;
     color: #e5e7eb;
     outline: none;
@@ -1289,7 +1289,7 @@ body {
     letter-spacing: 1px;
     text-transform: uppercase;
     border-radius: 8px;
-    border: 2px солид #4b5563;
+    border: 2px solid #4b5563;
     background: #020617;
     color: #e5e7eb;
     cursor: pointer;
@@ -1339,7 +1339,7 @@ body {
     background: linear-gradient(#fecaca, #f97373, #b91c1c);
     color: #111827;
     border-radius: 999px;
-    border: 3px солид #111827;
+    border: 3px solid #111827;
     box-shadow: 0 0 0 3px #f97316, 0 6px 0 #111827;
     cursor: pointer;
     outline: none;
@@ -1439,7 +1439,7 @@ body {
 
 .custom-scroll::-webkit-scrollbar-track {
     background: #020617;
-    border: 2px солид #38bdf8;
+    border: 2px solid #38bdf8;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
@@ -1630,12 +1630,8 @@ body {
 
 /* КРУГЛЫЙ АВАТАР НА page-3 */
 
-
-/* Позиционирование примерное под макет, можно подправить top/right/size под глаз */
-
 .intro-modal__avatar {
     position: absolute;
-    /* подгони по месту: это зона иконки юзера на телевизоре */
     top: 17%;
     right: 13%;
     width: 90px;
@@ -1655,9 +1651,6 @@ body {
 
 
 /* Пульсирующий START GAME поверх экрана телевизора */
-
-
-/* Это отдельный слой + текст; сама картинка page-3 остаётся фоном */
 
 .intro-modal__start-label {
     position: absolute;
