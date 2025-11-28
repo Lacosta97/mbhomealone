@@ -1656,17 +1656,16 @@ body {
 .intro-modal__start-label {
     position: absolute;
     bottom: 15%;
-    right: 25%;
+    right: 20%;
+    /* аккуратно по центру телика на компе */
     transform-origin: center;
     padding: 7px 28px;
-    /* чуть компактнее */
     border-radius: 999px;
     border: 3px solid #f97316;
     background: linear-gradient(#fed7aa, #fb923c, #ea580c);
     color: #111827;
     font-family: "FixedsysLocal", system-ui, sans-serif;
     font-size: 12px;
-    /* чуть меньше */
     letter-spacing: 3px;
     text-transform: uppercase;
     cursor: pointer;
@@ -1694,7 +1693,6 @@ body {
     }
     50% {
         transform: scale(1.08);
-        /* мягче, чем 1.12 */
         opacity: 1;
     }
     100% {
@@ -1704,19 +1702,24 @@ body {
 }
 
 
-/* мобилка — чуть меньше */
+/* ✅ МОБИЛКА — ОТДЕЛЬНО ПОД ТВ-ЭКРАН */
 
 @media (max-width: 768px) {
     .intro-modal__avatar {
-        width: 68px;
-        top: 25%;
-        right: 18%;
+        width: 64px;
+        top: 17%;
+        right: 12%;
+        border-width: 2px;
     }
     .intro-modal__start-label {
-        bottom: 9%;
-        right: 24%;
+        bottom: 14%;
+        right: 18%;
         font-size: 11px;
         padding: 6px 22px;
+        border-width: 2px;
+    }
+    .intro-modal__start-label span {
+        animation-duration: 1.5s;
     }
 }
 
