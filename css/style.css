@@ -1707,7 +1707,7 @@ body {
 @media (max-width: 768px) {
     .intro-modal__avatar {
         width: 64px;
-        top: 3%;
+        top: 23%;
         /* чуть выше */
         right: 2%;
         /* чуть левее от текущего */
@@ -1716,7 +1716,7 @@ body {
     .intro-modal__start-label {
         bottom: 16%;
         /* немного выше */
-        right: 6%;
+        right: 5%;
         /* чуть левее центра телика */
         font-size: 11px;
         padding: 6px 22px;
