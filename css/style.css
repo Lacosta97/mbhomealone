@@ -629,7 +629,8 @@ body {
 .user-section {
     padding: 24px 16px 80px;
     max-width: 1100px;
-    margin: 0 auto;
+    margin: -12px auto 0;
+    /* подтянули блок ближе к дому на десктопе */
 }
 
 .user-info {
@@ -702,7 +703,7 @@ body {
 }
 
 
-/* автоматом добавляем знак гривны — ГЛИФ БЕРЁМ ИЗ СИСТЕМНОГО ШРИФТА */
+/* автоматом добавляем знак гривны */
 
 .user-account span::after {
     content: " ₴";
@@ -879,7 +880,6 @@ body {
 
 .music-icon-btn {
     position: absolute;
-    /* фиксированные координаты */
     top: 70%;
     left: 76%;
     transform: translate(-50%, -50%);
@@ -994,7 +994,7 @@ body {
 }
 
 
-/* ===== TEAM INTRO MODAL (аватар + ABOUT + выбор команды) ===== */
+/* ===== TEAM INTRO MODAL ===== */
 
 .team-modal {
     position: fixed;
@@ -1023,7 +1023,7 @@ body {
     width: 90%;
     padding: 18px 16px 20px;
     background: #020617;
-    border: 3px solid #22c55e;
+    border: 3px солид #22c55e;
     box-shadow: 0 0 0 3px #0f172a, 4px 4px 0 #000;
     color: #e5e7eb;
     display: flex;
@@ -1031,7 +1031,6 @@ body {
     gap: 12px;
     text-align: center;
     max-height: 80vh;
-    /* ❗ модалка не вылезает за экран */
     overflow: hidden;
 }
 
@@ -1062,7 +1061,6 @@ body {
     line-height: 1.35;
     min-height: 3.3em;
     word-wrap: break-word;
-    /* перенос длинных слов */
     white-space: normal;
 }
 
@@ -1127,12 +1125,10 @@ body {
     cursor: pointer;
     padding: 4px;
     display: none;
-    /* по умолчанию спрятан */
 }
 
 .team-modal__close--visible {
     display: block;
-    /* покажем после выбора команды */
 }
 
 .team-modal__close:active {
@@ -1149,6 +1145,11 @@ body {
     }
     .house-inner {
         padding: 8px 8px 0;
+    }
+    .user-section {
+        padding: 8px 12px 64px;
+        margin-top: -5px;
+        /* убрали провал под домом на мобилке */
     }
     .garland,
     .tree-light {
@@ -1171,16 +1172,16 @@ body {
         align-items: flex-start;
         gap: 16px;
     }
-    /* фото сверху, текст под фото */
+    /* фото слева, имя+очки справа */
     .user-main {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
     }
     .total-panel {
         width: 100%;
         margin-top: 8px;
     }
-    /* FLAPPY-панель под TOTAL на мобилке */
     .flappy-panel {
         width: 100%;
         max-width: 100%;
@@ -1193,7 +1194,6 @@ body {
         width: 28px;
         height: 28px;
     }
-    /* GAME-кнопку можно чуть ниже на мобилке */
     .game-icon-btn img {
         width: 48px;
         height: 48px;
@@ -1202,7 +1202,6 @@ body {
         flex-direction: column;
         align-items: center;
     }
-    /* Мобильная версия — чуть меньше шрифт и скролл, если текст длинный */
     .team-modal__about {
         font-size: 12px;
         max-height: 36vh;
@@ -1212,7 +1211,7 @@ body {
 }
 
 
-/* ===== CODE MODAL (вход по коду) ===== */
+/* ===== CODE MODAL ===== */
 
 .code-modal {
     position: fixed;
@@ -1380,7 +1379,7 @@ body {
 }
 
 
-/* ===== LOGOUT (PIXEL POWER) BUTTON — с текстом OUT ===== */
+/* ===== LOGOUT BUTTON ===== */
 
 .logout-icon-btn {
     position: fixed;
@@ -1391,12 +1390,10 @@ body {
     padding: 0;
     border: none;
     background: #7f1d1d;
-    /* тёмно-красная база */
     border-radius: 10px;
     cursor: pointer;
     z-index: 1600;
     outline: none;
-    /* пиксельная рамка */
     box-shadow: inset 0 0 0 2px #fecaca, inset 0 0 0 4px #020617, 3px 3px 0 #020617;
     display: flex;
     align-items: center;
@@ -1435,9 +1432,6 @@ body {
     overflow-y: auto;
     padding-right: 6px;
 }
-
-
-/* Пиксельный кастом-скролл */
 
 .custom-scroll::-webkit-scrollbar {
     width: 8px;
@@ -1504,32 +1498,22 @@ body {
 }
 
 
-/* === MBHA: СЦЕНА С КЕВИНОМ И БАНДИТАМИ (PNG-КАДРЫ) === */
-
-
-/* Сцена привязана к дому по ширине и центру */
+/* === MBHA: СЦЕНА С КЕВИНОМ И БАНДИТАМИ === */
 
 .ha-scene {
     position: relative;
     max-width: 1100px;
-    /* как house-inner */
-    margin: -40px auto 0;
-    /* чуть поднимаем под дом */
-    height: 220px;
+    margin: -70px auto -20px;
+    /* сильнее подняли + убрали запас снизу */
+    height: 140px;
     pointer-events: none;
     z-index: 5;
 }
-
-
-/* Каждый герой — точное позиционирование по дому */
 
 .ha-character {
     position: absolute;
     transform-origin: bottom center;
 }
-
-
-/* размер спрайтов — в 3 раза меньше, чем было */
 
 .ha-character img {
     width: 48px;
@@ -1539,28 +1523,22 @@ body {
 }
 
 
-/* ===== Позиции ===== */
-
-
-/* MARV — перед бусом */
+/* Позиции (десктоп) */
 
 .ha-marv {
     right: 30%;
-    bottom: 282px;
+    bottom: 190px;
 }
 
 .ha-harry {
     right: 36%;
-    bottom: 278px;
+    bottom: 190px;
 }
 
 .ha-kevin {
     left: 32%;
-    bottom: 415px;
+    bottom: 305px;
 }
-
-
-/* Небольшой индивидуальный масштаб для баланса силуэта */
 
 .ha-kevin img {
     transform: scale(1.0);
@@ -1575,26 +1553,28 @@ body {
 }
 
 
-/* === MOBILE: ЛОК ПОД IPHONE SE (375px) === */
+/* === MOBILE: ЛОК ПОД iPHONE SE (375px) === */
 
 @media (max-width: 768px) {
     body {
         overflow-x: hidden;
     }
-    /* Делаем виртуальное полотно 375px и масштабируем его */
     .page {
         width: 375px;
         margin: 0 auto;
         transform-origin: top center;
         transform: scale(calc(100vw / 375));
     }
-    /* Всё, что завязано на дом, тоже фиксируем по ширине 375px */
     .house-wrap,
     .house-inner,
-    .user-section,
     .ha-scene {
         max-width: 375px;
         margin: 0 auto;
+    }
+    /* user-section — только ширина, margin сохраняем из предыдущего блока */
+    .user-section {
+        max-width: 375px;
+        margin: -5px auto 0;
     }
 }
 
@@ -1605,13 +1585,15 @@ body {
     /* сама сцена */
     .ha-scene {
         margin-top: -12px;
-        height: 210px;
+        height: 25px;
+        /* было 210px — убираем лишний низ */
     }
     /* ===== КООРДИНАТЫ ПОД iPHONE SE ===== */
     /* MARV — у буса */
     .ha-marv {
         right: 28%;
-        bottom: 205px;
+        bottom: 25px;
+        /* было 205px */
     }
     .ha-marv img {
         transform: scale(0.55);
@@ -1619,7 +1601,8 @@ body {
     /* HARRY — рядом с Marv */
     .ha-harry {
         right: 35%;
-        bottom: 205px;
+        bottom: 25px;
+        /* было 205px */
     }
     .ha-harry img {
         transform: scale(0.5);
@@ -1627,7 +1610,8 @@ body {
     /* KEVIN — в комнате с ёлкой */
     .ha-kevin {
         left: 25%;
-        bottom: 244px;
+        bottom: 60px;
+        /* было 244px */
     }
     .ha-kevin img {
         transform: scale(0.25);
