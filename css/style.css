@@ -1656,7 +1656,7 @@ body {
 .intro-modal__start-label {
     position: absolute;
     bottom: 15%;
-    right: 20%;
+    right: 25%;
     transform-origin: center;
     padding: 7px 28px;
     /* чуть компактнее */
