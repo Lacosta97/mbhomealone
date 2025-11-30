@@ -297,6 +297,86 @@
             photoEl.src = src;
         }
     }
+    // ===== MBHA: SCENE SWITCH + 400K COMIC =====
+
+    const MBHA_SCENE_THRESHOLD = 400000;
+
+    function mbhaUpdateScenesByTotal(totalNumber) {
+        const idleScene = document.querySelector(".ha-scene--idle");
+        const scene1 = document.querySelector(".ha-scene--scene1");
+
+        if (!idleScene && !scene1) return;
+
+        if (totalNumber >= MBHA_SCENE_THRESHOLD) {
+            if (idleScene) idleScene.style.display = "none";
+            if (scene1) scene1.style.display = "block";
+        } else {
+            if (idleScene) idleScene.style.display = "block";
+            if (scene1) scene1.style.display = "none";
+        }
+    }
+
+    function mbhaGetScene400Key(profile) {
+        const code = profile && profile.code ? String(profile.code).trim().toUpperCase() : "GUEST";
+        return "mbha_scene400_" + code;
+    }
+
+    function mbhaHasScene400Seen(profile) {
+        try {
+            return localStorage.getItem(mbhaGetScene400Key(profile)) === "1";
+        } catch {
+            return false;
+        }
+    }
+
+    function mbhaMarkScene400Seen(profile) {
+        try {
+            localStorage.setItem(mbhaGetScene400Key(profile), "1");
+        } catch {}
+    }
+
+    function mbhaShouldShowScene400(profile, totalNumber) {
+        return totalNumber >= MBHA_SCENE_THRESHOLD && !mbhaHasScene400Seen(profile);
+    }
+
+    function mbhaOpenScene400Modal(profile, onClose) {
+        const modal = document.getElementById("scene400Modal");
+        const closeBtn = document.getElementById("scene400CloseBtn");
+        if (!modal || !closeBtn) return;
+
+        function cleanup() {
+            document.body.style.overflow = "";
+            closeBtn.removeEventListener("click", onClickClose);
+            modal.removeEventListener("click", onBackdropClick);
+        }
+
+        function onClickClose() {
+            modal.classList.remove("scene400-modal--visible");
+            cleanup();
+            if (typeof onClose === "function") onClose();
+        }
+
+        function onBackdropClick(e) {
+            if (e.target === modal) onClickClose();
+        }
+
+        modal.classList.add("scene400-modal--visible");
+        document.body.style.overflow = "hidden";
+
+        closeBtn.addEventListener("click", onClickClose);
+        modal.addEventListener("click", onBackdropClick);
+
+        mbhaMarkScene400Seen(profile);
+    }
+
+    window.MBHA_SCENE400_CAN_TRIGGER = false;
+    window.MBHA_SCENE400_PROFILE = null;
+
+    window.mbhaOpenScene400ForCurrentProfile = function(onClose) {
+        const profile = window.MBHA_SCENE400_PROFILE || { code: null };
+        mbhaOpenScene400Modal(profile, onClose);
+    };
+
 
     // ===== ФЛАГИ ПОКАЗА ONBOARDING ПО MODAL_VER =====
 
@@ -600,6 +680,22 @@
         // ==== КОНЕЦ ОБНОВЛЕНИЯ ССЫЛКИ НА ИГРУ ====
 
         renderProfile(profile);
+
+        // === SCENE 1 + COMIC 400K ===
+        window.MBHA_SCENE400_PROFILE = { code: profile.code || null };
+
+        const numericTotal = parseScore(profile.total || 0);
+
+        // переключаем idle / scene1
+        mbhaUpdateScenesByTotal(numericTotal);
+
+        const willShowTeamIntro = shouldShowTeamIntro(profile);
+        window.MBHA_SCENE400_CAN_TRIGGER = mbhaShouldShowScene400(profile, numericTotal);
+
+        // если интро уже показывали – можно сразу показать комикс сцены
+        if (!willShowTeamIntro && window.MBHA_SCENE400_CAN_TRIGGER) {
+            mbhaOpenScene400Modal({ code: profile.code || null });
+        }
 
         // Подтягиваем ТОП-3 и личный рекорд уже из Firestore
         loadFlappyStatsForCurrentUser();
@@ -1142,6 +1238,72 @@
         })();
 
     });
+    // =================== MBHA: CHARACTER FRAME ANIMATION · SCENE 1 ===================
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const kevinScene1Img = document.querySelector(".ha-kevin-scene1 img");
+        const marvScene1Img = document.querySelector(".ha-marv-scene1 img");
+        const harryScene1Img = document.querySelector(".ha-harry-scene1 img");
+
+        if (!kevinScene1Img || !marvScene1Img || !harryScene1Img) {
+            console.warn("MBHA: scene1 персонажи не найдены в DOM");
+            return;
+        }
+
+        // --- Кол-во кадров SCENE 1 ---
+        const KEVIN_SCENE1_FRAMES = 3; // kevin_scene1_01...03
+        const MARV_SCENE1_FRAMES = 3; // marv_scene1_01...03
+        const HARRY_SCENE1_FRAMES = 7; // harry_scene1_01...07
+
+        // --- Пути к кадрам SCENE 1 ---
+        function kevinScene1Src(i) {
+            return `img/sprites/kevin/kevin_scene1_${String(i).padStart(2, "0")}.png`;
+        }
+
+        function marvScene1Src(i) {
+            return `img/sprites/marv/marv_scene1_${String(i).padStart(2, "0")}.png`;
+        }
+
+        function harryScene1Src(i) {
+            return `img/sprites/harry/harry_scene1_${String(i).padStart(2, "0")}.png`;
+        }
+
+        // --- Скорости анимации (играешься потом, как по ощущениям) ---
+        const KEVIN_SCENE1_SPEED = 500; // мс между кадрами
+        const MARV_SCENE1_SPEED = 220;
+        const HARRY_SCENE1_SPEED = 250;
+
+        // ========== KEVIN SCENE 1 ==========
+        let kevinScene1Frame = 1;
+        kevinScene1Img.src = kevinScene1Src(kevinScene1Frame);
+
+        setInterval(() => {
+            kevinScene1Frame =
+                kevinScene1Frame < KEVIN_SCENE1_FRAMES ? kevinScene1Frame + 1 : 1;
+            kevinScene1Img.src = kevinScene1Src(kevinScene1Frame);
+        }, KEVIN_SCENE1_SPEED);
+
+        // ========== MARV SCENE 1 ==========
+        let marvScene1Frame = 1;
+        marvScene1Img.src = marvScene1Src(marvScene1Frame);
+
+        setInterval(() => {
+            marvScene1Frame =
+                marvScene1Frame < MARV_SCENE1_FRAMES ? marvScene1Frame + 1 : 1;
+            marvScene1Img.src = marvScene1Src(marvScene1Frame);
+        }, MARV_SCENE1_SPEED);
+
+        // ========== HARRY SCENE 1 ==========
+        let harryScene1Frame = 1;
+        harryScene1Img.src = harryScene1Src(harryScene1Frame);
+
+        setInterval(() => {
+            harryScene1Frame =
+                harryScene1Frame < HARRY_SCENE1_FRAMES ? harryScene1Frame + 1 : 1;
+            harryScene1Img.src = harryScene1Src(harryScene1Frame);
+        }, HARRY_SCENE1_SPEED);
+    });
+
     // =================== INTRO COMICS LOGIC ===================
 
     (function initIntroComics() {
@@ -1226,10 +1388,19 @@
         introStartBtn.addEventListener("click", () => {
             closeIntro();
             const rulesBtn = document.getElementById("rulesBtn");
-            if (rulesBtn) {
-                rulesBtn.click(); // триггерим уже существующую логику открытия модалки правил
+
+            if (window.MBHA_SCENE400_CAN_TRIGGER &&
+                typeof window.mbhaOpenScene400ForCurrentProfile === "function") {
+
+                window.mbhaOpenScene400ForCurrentProfile(() => {
+                    if (rulesBtn) rulesBtn.click();
+                });
+
+            } else {
+                if (rulesBtn) rulesBtn.click();
             }
         });
+
 
         // Глобалка, чтобы вызывать из teamModal
         window.openIntroComics = openIntro;

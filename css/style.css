@@ -1728,6 +1728,88 @@ body {
 }
 
 
+/* ===== SCENE-01 (400K) COMIC MODAL ===== */
+
+.scene400-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.scene400-modal--visible {
+    display: flex;
+}
+
+.scene400-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(2px);
+}
+
+.scene400-modal__content {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    width: 90%;
+    max-height: 90vh;
+    padding: 10px;
+    background: #020617;
+    border: 3px solid #facc15;
+    box-shadow: 0 0 0 3px #0f172a, 4px 4px 0 #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.scene400-modal__comic {
+    position: relative;
+    width: 100%;
+    max-height: 86vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.scene400-modal__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 86vh;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border-radius: 6px;
+}
+
+.scene400-modal__close {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    color: #e5e7eb;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    z-index: 2;
+}
+
+.scene400-modal__close:active {
+    transform: translate(1px, 1px);
+}
+
+@media (max-width: 768px) {
+    .scene400-modal__content {
+        max-width: 420px;
+        width: 92%;
+    }
+}
+
+
 /* === MBHA: СЦЕНА С КЕВИНОМ И БАНДИТАМИ === */
 
 .ha-scene {
@@ -1780,6 +1862,73 @@ body {
 
 .ha-harry img {
     transform: scale(1.5);
+}
+
+
+/* === MBHA: SCENE 1 (отдельные позиции и размеры) === */
+
+
+/* сама сцена использует те же общие правила .ha-scene */
+
+
+/* базовые обёртки персонажей сцены 1 */
+
+.ha-kevin-scene1,
+.ha-marv-scene1,
+.ha-harry-scene1 {
+    position: absolute;
+    transform-origin: bottom center;
+}
+
+
+/* базовые размеры спрайтов сцены 1 (как idle, ты потом подправишь) */
+
+.ha-kevin-scene1 img,
+.ha-marv-scene1 img,
+.ha-harry-scene1 img {
+    width: 48px;
+    height: auto;
+    display: block;
+    image-rendering: pixelated;
+}
+
+
+/* Позиции SCENE 1 на десктопе (внизу по центру, как просил) */
+
+
+/* — это стартовые значения, дальше можешь двигать как хочешь */
+
+.ha-kevin-scene1 {
+    left: 50%;
+    bottom: 400px;
+    transform: translateX(-50%);
+}
+
+.ha-marv-scene1 {
+    left: 72%;
+    bottom: 250px;
+    transform: translateX(-50%);
+}
+
+.ha-harry-scene1 {
+    left: 55%;
+    bottom: 280px;
+    transform: translateX(-50%);
+}
+
+
+/* при желании можешь сразу задать разный scale героям */
+
+.ha-kevin-scene1 img {
+    transform: scale(1.0);
+}
+
+.ha-marv-scene1 img {
+    transform: scale(1.7);
+}
+
+.ha-harry-scene1 img {
+    transform: scale(2);
 }
 
 
@@ -1845,5 +1994,30 @@ body {
     }
     .ha-kevin img {
         transform: scale(0.25);
+    }
+    /* === SCENE 1: позиции под iPhone SE === */
+    .ha-kevin-scene1 {
+        left: 50%;
+        bottom: 90px;
+        transform: translateX(-50%);
+    }
+    .ha-kevin-scene1 img {
+        transform: scale(0.4);
+    }
+    .ha-marv-scene1 {
+        left: 74%;
+        bottom: 35px;
+        transform: translateX(-50%);
+    }
+    .ha-marv-scene1 img {
+        transform: scale(0.55);
+    }
+    .ha-harry-scene1 {
+        left: 48%;
+        bottom: 55px;
+        transform: translateX(-50%);
+    }
+    .ha-harry-scene1 img {
+        transform: scale(0.85);
     }
 }
