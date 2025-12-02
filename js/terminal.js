@@ -300,7 +300,10 @@ function runVerifyAnimation() {
     logBox.appendChild(connectingLine);
 
     let dots = 0;
+    let connectingDone = false;
+
     const dotsTimer = setInterval(function() {
+        if (connectingDone) return;
         dots = (dots + 1) % 4; // 0,1,2,3
         const tail = ".".repeat(dots);
         connectingLine.textContent = "> CONNECTING" + tail;
@@ -316,6 +319,12 @@ function runVerifyAnimation() {
     }
 
     const modemDuration = 6000; // 6 секунд
+
+    // ⏱ На 5.5 секунде показываем SUCCESSFUL
+    setTimeout(function() {
+        connectingDone = true;
+        connectingLine.textContent = "> CONNECTING... SUCCESSFUL";
+    }, 5500);
 
     // после модема запускаем основной лог
     setTimeout(function() {
@@ -367,6 +376,7 @@ function runVerifyAnimation() {
         });
     }, modemDuration);
 }
+
 
 // ========== INIT ==========
 (async function() {
