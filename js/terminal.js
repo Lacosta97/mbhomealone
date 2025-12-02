@@ -8,6 +8,7 @@ import {
     onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// ========== FIREBASE ==========
 const firebaseConfig = {
     apiKey: "AIzaSyCLbWp6Fl2covgchvupY5H7leUCmlXFAwE",
     authDomain: "mbha-flappy.firebaseapp.com",
@@ -21,11 +22,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const accessRef = doc(db, "mbha_access", "state");
 
-const CODES = {
-    bar: "7",
-    waiters: "7",
-    management: "7"
-};
+// ========== DOM ==========
+const CODES = { bar: "7", waiters: "7", management: "7" };
 
 const sysStatus = document.getElementById("sysStatus");
 const logBox = document.getElementById("log");
@@ -38,6 +36,174 @@ let allDone = false;
 let verified = false;
 let isVerifying = false;
 
+// ========== AUDIO CORE (Web Audio) ==========
+let audioCtx = null;
+
+function getAudioCtx() {
+    if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC();
+    }
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+    }
+    return audioCtx;
+}
+
+function playBeep(type, freq, duration, volume) {
+    try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = type || "square";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+        gain.gain.setValueAtTime(volume, ctx.currentTime);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+        osc.start(now);
+        gain.gain.linearRampToValueAtTime(0, now + duration);
+        osc.stop(now + duration + 0.05);
+    } catch (e) {
+        // если аудио заблокировано системой - просто игнорируем
+        console.warn("Audio error:", e);
+    }
+}
+
+// dial-up / adsl style
+function playDialup() {
+    try {
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
+
+        function tone(f1, f2, tStart, tEnd, vol) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "square";
+            osc.frequency.setValueAtTime(f1, now + tStart);
+            osc.frequency.linearRampToValueAtTime(f2, now + tEnd);
+            gain.gain.setValueAtTime(vol, now + tStart);
+            gain.gain.linearRampToValueAtTime(0, now + tEnd);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + tStart);
+            osc.stop(now + tEnd + 0.05);
+        }
+
+        tone(300, 900, 0.0, 0.5, 0.06);
+        tone(1000, 1500, 0.5, 1.0, 0.05);
+        tone(400, 2000, 1.0, 2.0, 0.04);
+    } catch (e) {
+        console.warn("Dialup audio error:", e);
+    }
+}
+
+function playTick() {
+    playBeep("triangle", 1400, 0.04, 0.12);
+}
+
+function playErrorBeep() {
+    try {
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(120, now + 0.2);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.2);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+    } catch (e) {
+        console.warn("Error beep audio error:", e);
+    }
+}
+
+function playSuccess() {
+    try {
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(700, now);
+        osc.frequency.linearRampToValueAtTime(1100, now + 0.4);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.05);
+        gain.gain.linearRampToValueAtTime(0, now + 0.4);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.45);
+    } catch (e) {
+        console.warn("Success audio error:", e);
+    }
+}
+
+function playStart() {
+    try {
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.linearRampToValueAtTime(600, now + 0.5);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+        gain.gain.linearRampToValueAtTime(0, now + 0.5);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.55);
+    } catch (e) {
+        console.warn("Start audio error:", e);
+    }
+}
+
+function playEaster() {
+    try {
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.linearRampToValueAtTime(140, now + 0.8);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.1);
+        gain.gain.linearRampToValueAtTime(0, now + 0.8);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.85);
+    } catch (e) {
+        console.warn("Easter audio error:", e);
+    }
+}
+
+// ========== FIRESTORE LOGIC ==========
 async function ensureDoc() {
     const snap = await getDoc(accessRef);
     if (!snap.exists()) {
@@ -62,7 +228,11 @@ function refreshButtons() {
     if (allDone && verified) {
         goBtn.classList.add("active");
         goBtn.onclick = function() {
-            window.location.href = "main.html";
+            // звук старта перед переходом
+            playStart();
+            setTimeout(function() {
+                window.location.href = "main.html";
+            }, 700);
         };
     } else {
         goBtn.classList.remove("active");
@@ -96,6 +266,9 @@ function bindInput(key) {
     const status = document.getElementById(key + "Status");
 
     input.addEventListener("input", async function() {
+        // первый юзер-жест - можно безопасно создать audioCtx
+        getAudioCtx();
+
         if (input.value === CODES[key]) {
             input.disabled = true;
             status.textContent = "UPDATING";
@@ -107,6 +280,7 @@ function bindInput(key) {
         } else {
             status.textContent = "WRONG CODE";
             status.className = "status err";
+            playErrorBeep();
             input.value = "";
             setTimeout(function() {
                 status.textContent = "WAITING INPUT";
@@ -121,6 +295,12 @@ function appendLogLine(text) {
     line.className = "line";
     line.textContent = text;
     logBox.appendChild(line);
+    // звук тик на строку
+    if (text.indexOf("ACCESS GRANTED") === -1) {
+        playTick();
+    } else {
+        playSuccess();
+    }
 }
 
 function runVerifyAnimation() {
@@ -139,7 +319,10 @@ function runVerifyAnimation() {
     logBox.innerHTML = "";
     sysStatus.textContent = "> STATUS: RUNNING CHECK";
 
-    const lines = [
+    // запуск dial-up звука
+    playDialup();
+
+    const baseLines = [
         "> CHECKING DIVISION CODES...",
         "> BAR OK",
         "> WAITERS OK",
@@ -158,9 +341,22 @@ function runVerifyAnimation() {
         "> ACCESS GRANTED"
     ];
 
+    const lines = baseLines.slice();
+
+    // пасхалка: KEVIN IS WATCHING YOU...
+    const isEaster = Math.random() < 0.07;
+    if (isEaster) {
+        lines.unshift("> KEVIN IS WATCHING YOU...");
+    }
+
     lines.forEach(function(text, index) {
         setTimeout(function() {
             appendLogLine(text);
+
+            if (text.indexOf("KEVIN IS WATCHING YOU") !== -1) {
+                playEaster();
+            }
+
             if (index === lines.length - 1) {
                 sysStatus.textContent = "> STATUS: READY";
                 verified = true;
@@ -171,6 +367,7 @@ function runVerifyAnimation() {
     });
 }
 
+// ========== INIT ==========
 (async function() {
     try {
         await ensureDoc();
@@ -183,7 +380,11 @@ function runVerifyAnimation() {
         });
 
         FIELDS.forEach(bindInput);
-        verifyBtn.addEventListener("click", runVerifyAnimation);
+        verifyBtn.addEventListener("click", function() {
+            // гарантируем создание AudioContext по клику
+            getAudioCtx();
+            runVerifyAnimation();
+        });
     } catch (e) {
         sysStatus.textContent = "> STATUS: ERROR";
         console.error(e);
