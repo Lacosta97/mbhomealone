@@ -69,36 +69,7 @@ function playBeep(type, freq, duration, volume) {
         gain.gain.linearRampToValueAtTime(0, now + duration);
         osc.stop(now + duration + 0.05);
     } catch (e) {
-        // если аудио заблокировано системой - просто игнорируем
         console.warn("Audio error:", e);
-    }
-}
-
-// dial-up / adsl style
-function playDialup() {
-    try {
-        const ctx = getAudioCtx();
-        const now = ctx.currentTime;
-
-        function tone(f1, f2, tStart, tEnd, vol) {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = "square";
-            osc.frequency.setValueAtTime(f1, now + tStart);
-            osc.frequency.linearRampToValueAtTime(f2, now + tEnd);
-            gain.gain.setValueAtTime(vol, now + tStart);
-            gain.gain.linearRampToValueAtTime(0, now + tEnd);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now + tStart);
-            osc.stop(now + tEnd + 0.05);
-        }
-
-        tone(300, 900, 0.0, 0.5, 0.06);
-        tone(1000, 1500, 0.5, 1.0, 0.05);
-        tone(400, 2000, 1.0, 2.0, 0.04);
-    } catch (e) {
-        console.warn("Dialup audio error:", e);
     }
 }
 
@@ -203,6 +174,10 @@ function playEaster() {
     }
 }
 
+// ===== ТВОЙ ЗВУК МОДЕМА ИЗ ФАЙЛА =====
+const modemAudio = new Audio("audio/modem.mp3");
+modemAudio.preload = "auto";
+
 // ========== FIRESTORE LOGIC ==========
 async function ensureDoc() {
     const snap = await getDoc(accessRef);
@@ -228,7 +203,6 @@ function refreshButtons() {
     if (allDone && verified) {
         goBtn.classList.add("active");
         goBtn.onclick = function() {
-            // звук старта перед переходом
             playStart();
             setTimeout(function() {
                 window.location.href = "main.html";
@@ -266,8 +240,7 @@ function bindInput(key) {
     const status = document.getElementById(key + "Status");
 
     input.addEventListener("input", async function() {
-        // первый юзер-жест - можно безопасно создать audioCtx
-        getAudioCtx();
+        getAudioCtx(); // первый жест — активируем аудио
 
         if (input.value === CODES[key]) {
             input.disabled = true;
@@ -295,7 +268,7 @@ function appendLogLine(text) {
     line.className = "line";
     line.textContent = text;
     logBox.appendChild(line);
-    // звук тик на строку
+
     if (text.indexOf("ACCESS GRANTED") === -1) {
         playTick();
     } else {
@@ -303,6 +276,7 @@ function appendLogLine(text) {
     }
 }
 
+// ========== SYSTEM CHECK + МОДЕМ ==========
 function runVerifyAnimation() {
     if (!allDone) {
         logBox.innerHTML = "";
@@ -317,54 +291,81 @@ function runVerifyAnimation() {
     verifyBtn.classList.remove("active");
 
     logBox.innerHTML = "";
-    sysStatus.textContent = "> STATUS: RUNNING CHECK";
+    sysStatus.textContent = "> STATUS: CONNECTING";
 
-    // запуск dial-up звука
-    playDialup();
+    // строка CONNECTING с бегущими точками
+    const connectingLine = document.createElement("div");
+    connectingLine.className = "line";
+    connectingLine.textContent = "> CONNECTING";
+    logBox.appendChild(connectingLine);
 
-    const baseLines = [
-        "> CHECKING DIVISION CODES...",
-        "> BAR OK",
-        "> WAITERS OK",
-        "> MANAGEMENT OK",
-        "> LOADING PROFILE HOME_ALONE",
-        "> ENABLE CHRISTMAS MODE OK",
-        "> SYNC TOTAL SALES OK",
-        "> INJECTING CHRISTMAS KERNEL OK",
-        "> VALIDATING QR SESSION OK",
-        "> OVERRIDE SECURITY PROTOCOL OK",
-        "> ACCESS LEVEL ROOT",
-        "> VENTILATE THE AIR ON TAKEAWAY OK",
-        "> POPI PISI KAKI OK",
-        "> POUR PROSECCO OK",
-        "> BUY TICKETS FOR THE BARCELONA GAME OK",
-        "> ACCESS GRANTED"
-    ];
+    let dots = 0;
+    const dotsTimer = setInterval(function() {
+        dots = (dots + 1) % 4; // 0,1,2,3
+        const tail = ".".repeat(dots);
+        connectingLine.textContent = "> CONNECTING" + tail;
+    }, 400);
 
-    const lines = baseLines.slice();
-
-    // пасхалка: KEVIN IS WATCHING YOU...
-    const isEaster = Math.random() < 0.07;
-    if (isEaster) {
-        lines.unshift("> KEVIN IS WATCHING YOU...");
+    // запускаем твой модемный звук
+    try {
+        getAudioCtx();
+        modemAudio.currentTime = 0;
+        modemAudio.play().catch(function() {});
+    } catch (e) {
+        console.warn("Modem audio error:", e);
     }
 
-    lines.forEach(function(text, index) {
-        setTimeout(function() {
-            appendLogLine(text);
+    const modemDuration = 6000; // 6 секунд
 
-            if (text.indexOf("KEVIN IS WATCHING YOU") !== -1) {
-                playEaster();
-            }
+    // после модема запускаем основной лог
+    setTimeout(function() {
+        clearInterval(dotsTimer);
+        sysStatus.textContent = "> STATUS: RUNNING CHECK";
 
-            if (index === lines.length - 1) {
-                sysStatus.textContent = "> STATUS: READY";
-                verified = true;
-                isVerifying = false;
-                refreshButtons();
-            }
-        }, 500 * index);
-    });
+        const baseLines = [
+            "> CHECKING DIVISION CODES...",
+            "> BAR .............. OK",
+            "> WAITERS .......... OK",
+            "> MANAGEMENT ....... OK",
+            "> LOADING PROFILE: HOME_ALONE",
+            "> ENABLE CHRISTMAS_MODE....... OK",
+            "> SYNC TOTAL.SALES ........... OK",
+            "> INJECTING CHRISTMAS_KERNEL.. OK",
+            "> VALIDATING QR_SESSION....... OK",
+            "> OVERRIDE SECURITY PROTOCOL.. OK",
+            "> ACCESS LEVEL: ROOT",
+            "> VENTILATE THE AIR ON TAKEAWAY... OK",
+            "> POPI.PISI.KAKI... OK",
+            "> POUR PROSECCO... OK",
+            "> BUY TICKETS FOR THE BARCELONA GAME... OK",
+            "> ACCESS GRANTED"
+        ];
+
+        const lines = baseLines.slice();
+
+        // пасхалка KEVIN IS WATCHING YOU...
+        const isEaster = Math.random() < 0.07;
+        if (isEaster) {
+            lines.unshift("> KEVIN IS WATCHING YOU...");
+        }
+
+        lines.forEach(function(text, index) {
+            setTimeout(function() {
+                appendLogLine(text);
+
+                if (text.indexOf("KEVIN IS WATCHING YOU") !== -1) {
+                    playEaster();
+                }
+
+                if (index === lines.length - 1) {
+                    sysStatus.textContent = "> STATUS: READY";
+                    verified = true;
+                    isVerifying = false;
+                    refreshButtons();
+                }
+            }, 500 * index);
+        });
+    }, modemDuration);
 }
 
 // ========== INIT ==========
@@ -380,9 +381,9 @@ function runVerifyAnimation() {
         });
 
         FIELDS.forEach(bindInput);
+
         verifyBtn.addEventListener("click", function() {
-            // гарантируем создание AudioContext по клику
-            getAudioCtx();
+            getAudioCtx(); // первый клик — активируем звук
             runVerifyAnimation();
         });
     } catch (e) {
