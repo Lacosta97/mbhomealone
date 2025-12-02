@@ -171,15 +171,16 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"; import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"; // ✅ ТВОЙ РЕАЛЬНЫЙ FIREBASE
         CONFIG const firebaseConfig = { apiKey: "AIzaSyCLbWp6Fl2covgchvupY5H7leUCmlXFAwE", authDomain: "mbha-flappy.firebaseapp.com", projectId: "mbha-flappy", storageBucket: "mbha-flappy.firebasestorage.app", messagingSenderId: "800643993606", appId:
-        "1:800643993606:web:571b10108b0122ed383387" }; const app = initializeApp(firebaseConfig); const db = getFirestore(app); const accessRef = doc(db, "mbha_access", "state"); // ✅ ЦИФРЫ (ПОСТАВЬ НУЖНЫЕ ЗДЕСЬ ПРЯМО В ПРОЕКТЕ, ЕСЛИ НУЖНО ПОМЕНЯТЬ) const
-        CODES = { bar: "7", kitchen: "7", hall: "7" }; const sysStatus = document.getElementById("sysStatus"); const goBtn = document.getElementById("goBtn"); const FIELDS = ["bar", "kitchen", "hall"]; async function ensureDoc() { const snap = await getDoc(accessRef);
-        if (!snap.exists()) { await setDoc(accessRef, { barDone: false, kitchenDone: false, hallDone: false, barCode: "", kitchenCode: "", hallCode: "" }); } } function updateGo(data) { const allDone = data.barDone && data.kitchenDone && data.hallDone;
-        if (allDone) { goBtn.classList.add("active"); goBtn.onclick = () => { window.location.href = "main.html"; }; } } function applyState(data) { FIELDS.forEach((key) => { const input = document.getElementById(key + "Input"); const status = document.getElementById(key
-        + "Status"); if (data[key + "Done"]) { input.disabled = true; input.value = data[key + "Code"]; status.textContent = "LOCKED · DONE"; status.className = "status done"; } }); updateGo(data); } function bindInput(key) { const input = document.getElementById(key
-        + "Input"); const status = document.getElementById(key + "Status"); input.addEventListener("input", async () => { if (input.value === CODES[key]) { input.disabled = true; status.textContent = "UPDATING…"; await updateDoc(accessRef, { [key + "Done"]:
-        true, [key + "Code"]: input.value }); } else { status.textContent = "WRONG"; status.className = "status err"; input.value = ""; setTimeout(() => { status.textContent = "WAITING INPUT…"; status.className = "status wait"; }, 700); } }); } (async
-        () => { await ensureDoc(); sysStatus.textContent = "> STATUS: ONLINE · AWAITING INPUT"; onSnapshot(accessRef, snap => snap.exists() && applyState(snap.data())); FIELDS.forEach(bindInput); })();
+        "1:800643993606:web:571b10108b0122ed383387" }; const app = initializeApp(firebaseConfig); const db = getFirestore(app); const accessRef = doc(db, "mbha_access", "state"); // ✅ ЦИФРЫ 7-7-7 const CODES = { bar: "7", kitchen: "7", hall: "7" }; const
+        sysStatus = document.getElementById("sysStatus"); const goBtn = document.getElementById("goBtn"); const FIELDS = ["bar", "kitchen", "hall"]; async function ensureDoc() { const snap = await getDoc(accessRef); if (!snap.exists()) { await setDoc(accessRef,
+        { barDone: false, kitchenDone: false, hallDone: false, barCode: "", kitchenCode: "", hallCode: "" }); } } function updateGo(data) { const allDone = data.barDone && data.kitchenDone && data.hallDone; if (allDone) { goBtn.classList.add("active");
+        goBtn.onclick = () => { window.location.href = "main.html"; }; } } function applyState(data) { FIELDS.forEach((key) => { const input = document.getElementById(key + "Input"); const status = document.getElementById(key + "Status"); if (data[key
+        + "Done"]) { input.disabled = true; input.value = data[key + "Code"]; status.textContent = "LOCKED · DONE"; status.className = "status done"; } }); updateGo(data); } function bindInput(key) { const input = document.getElementById(key + "Input");
+        const status = document.getElementById(key + "Status"); input.addEventListener("input", async () => { if (input.value === CODES[key]) { input.disabled = true; status.textContent = "UPDATING…"; await updateDoc(accessRef, { [key + "Done"]: true,
+        [key + "Code"]: input.value }); } else { status.textContent = "WRONG"; status.className = "status err"; input.value = ""; setTimeout(() => { status.textContent = "WAITING INPUT…"; status.className = "status wait"; }, 700); } }); } (async () =>
+        { await ensureDoc(); sysStatus.textContent = "> STATUS: ONLINE · AWAITING INPUT"; onSnapshot(accessRef, (snap) => { if (snap.exists()) applyState(snap.data()); }); FIELDS.forEach(bindInput); })();
     </script>
+
 </body>
 
 </html>
