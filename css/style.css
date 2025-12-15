@@ -1834,6 +1834,139 @@ body {
 }
 
 
+/* ===== SCENE-02 (1 100 000) COMIC MODAL ===== */
+
+.scene1100-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2350;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.scene1100-modal--visible {
+    display: flex;
+}
+
+.scene1100-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(2px);
+}
+
+.scene1100-modal__content {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    width: 90%;
+    max-height: 90vh;
+    padding: 10px;
+    background: #020617;
+    border: 3px solid #f97316;
+    box-shadow: 0 0 0 3px #0f172a, 4px 4px 0 #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.scene1100-modal__comic {
+    position: relative;
+    width: 100%;
+    max-height: 86vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.scene1100-modal__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 86vh;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border-radius: 6px;
+}
+
+.scene1100-modal__close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 3px solid #f97316;
+    background: #020617;
+    color: #f97316;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 5;
+    box-shadow: 0 0 0 3px #0f172a, 0 0 12px rgba(249, 115, 22, 0.8);
+}
+
+.scene1100-modal__close:hover {
+    background: #f97316;
+    color: #020617;
+}
+
+.scene1100-modal__close:active {
+    transform: scale(0.95);
+}
+
+.scene1100-modal__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: rgba(15, 23, 42, 0.9);
+    color: #f9fafb;
+    font-size: 26px;
+    line-height: 1;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 999px;
+    box-shadow: 0 0 0 2px #020617, 0 0 12px rgba(15, 23, 42, 0.9);
+    z-index: 6;
+    opacity: 0.9;
+}
+
+.scene1100-modal__nav--prev {
+    left: 10px;
+}
+
+.scene1100-modal__nav--next {
+    right: 10px;
+}
+
+.scene1100-modal__nav:active {
+    transform: translateY(-50%) translate(1px, 1px);
+}
+
+.scene1100-modal__counter {
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    font-size: 13px;
+    color: #e5e7eb;
+    text-shadow: 0 0 6px rgba(15, 23, 42, 0.9);
+    z-index: 6;
+}
+
+@media (max-width: 768px) {
+    .scene1100-modal__content {
+        max-width: 420px;
+        width: 92%;
+    }
+}
+
+
 /* === MBHA: СЦЕНА С КЕВИНОМ И БАНДИТАМИ === */
 
 .ha-scene {
