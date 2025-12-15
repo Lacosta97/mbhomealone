@@ -1,164 +1,345 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8" />
-    <title>MBHA ACCESS TERMINAL</title>
+    <title>MB Home Alone · MBHA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            background: #000000;
-            color: #ff2b2b;
-            font-family: monospace;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .term {
-            width: 100%;
-            max-width: 420px;
-            border: 2px solid #ff2b2b;
-            padding: 16px 14px 18px;
-        }
-        
-        .title {
-            font-size: 14px;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-        
-        .line {
-            font-size: 12px;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-        
-        .rows {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            border-top: 1px solid #ff2b2b;
-            border-bottom: 1px solid #ff2b2b;
-            padding: 8px 0;
-        }
-        
-        .row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            gap: 6px;
-        }
-        
-        .row:last-child {
-            margin-bottom: 0;
-        }
-        
-        .label {
-            width: 120px;
-            font-size: 12px;
-        }
-        
-        input.code-input {
-            width: 52px;
-            padding: 3px 2px;
-            background: #000000;
-            border: 1px solid #ff2b2b;
-            color: #ff2b2b;
-            font-family: monospace;
-            font-size: 16px;
-            text-align: center;
-        }
-        
-        input.code-input:disabled {
-            opacity: 0.45;
-        }
-        
-        .status {
-            flex: 1 1 auto;
-            font-size: 11px;
-        }
-        
-        .status.done {
-            color: #ff2b2b;
-        }
-        
-        .status.err {
-            color: #ff4444;
-        }
-        
-        .status.wait {
-            color: #aaaaaa;
-        }
-        
-        .btn {
-            margin-top: 10px;
-            width: 100%;
-            padding: 9px 0;
-            font-family: monospace;
-            font-size: 13px;
-            border: 1px solid #ff2b2b;
-            background: #000000;
-            color: #ff2b2b;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.35;
-        }
-        
-        .btn.active {
-            opacity: 1;
-            cursor: pointer;
-        }
-        
-        .log {
-            margin-top: 8px;
-            min-height: 80px;
-        }
-    </style>
+    <!-- Стили -->
+    <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body>
-    <div class="term">
-        <div class="title">MBHA ACCESS TERMINAL v1.0</div>
 
-        <div class="line" id="sysStatus">&gt; STATUS: CONNECTING</div>
-        <div class="log" id="log"></div>
+    <!-- Оверлей для DONT PUSH -->
+    <div id="dontPushOverlay" class="dont-push-overlay">
+        <img src="img/icons/okak1.png" alt="dont push image">
+    </div>
 
-        <div class="rows">
-            <div class="row">
-                <div class="label">[BAR]</div>
-                <input id="barInput" class="code-input" maxlength="1" />
-                <div class="status wait" id="barStatus">WAITING INPUT</div>
+    <div class="page">
+
+        <!-- === ДОМ === -->
+        <div class="house-wrap">
+            <div class="house-inner">
+
+                <!-- === СНЕГ ВОКРУГ ДОМА === -->
+                <div class="snow-layer">
+                    <div class="snow-layer__layer snow-layer--far"></div>
+                    <div class="snow-layer__layer snow-layer--mid"></div>
+                    <div class="snow-layer__layer snow-layer--near"></div>
+                </div>
+
+                <!-- === ОГОНЬКИ (звёзды, гирлянды, ёлка) === -->
+                <div class="lights-layer">
+
+                    <!-- ⭐ 20 звёзд -->
+                    <div class="light-dot star star-1"></div>
+                    <div class="light-dot star star-2"></div>
+                    <div class="light-dot star star-3"></div>
+                    <div class="light-dot star star-4"></div>
+                    <div class="light-dot star star-5"></div>
+                    <div class="light-dot star star-6"></div>
+                    <div class="light-dot star star-7"></div>
+                    <div class="light-dot star star-8"></div>
+                    <div class="light-dot star star-9"></div>
+                    <div class="light-dot star star-10"></div>
+                    <div class="light-dot star star-11"></div>
+                    <div class="light-dot star star-12"></div>
+                    <div class="light-dot star star-13"></div>
+                    <div class="light-dot star star-14"></div>
+                    <div class="light-dot star star-15"></div>
+                    <div class="light-dot star star-16"></div>
+                    <div class="light-dot star star-17"></div>
+                    <div class="light-dot star star-18"></div>
+                    <div class="light-dot star star-19"></div>
+                    <div class="light-dot star star-20"></div>
+
+                    <!-- 🎄 ВЕРХНЯЯ ГИРЛЯНДА -->
+                    <div class="garland garland-top garland-1 color-yellow"></div>
+                    <div class="garland garland-top garland-2 color-red"></div>
+                    <div class="garland garland-top garland-3 color-green"></div>
+                    <div class="garland garland-top garland-4 color-blue"></div>
+                    <div class="garland garland-top garland-5 color-pink"></div>
+                    <div class="garland garland-top garland-6 color-yellow"></div>
+                    <div class="garland garland-top garland-7 color-red"></div>
+                    <div class="garland garland-top garland-8 color-green"></div>
+                    <div class="garland garland-top garland-9 color-blue"></div>
+                    <div class="garland garland-top garland-10 color-pink"></div>
+                    <div class="garland garland-top garland-11 color-yellow"></div>
+
+                    <!-- 🎄 ЛЕВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА -->
+                    <div class="garland garland-vert garland-left garland-left-1 color-red"></div>
+                    <div class="garland garland-vert garland-left garland-left-2 color-yellow"></div>
+                    <div class="garland garland-vert garland-left garland-left-3 color-green"></div>
+                    <div class="garland garland-vert garland-left garland-left-4 color-blue"></div>
+                    <div class="garland garland-vert garland-left garland-left-5 color-pink"></div>
+                    <div class="garland garland-vert garland-left garland-left-6 color-yellow"></div>
+                    <div class="garland garland-vert garland-left garland-left-7 color-red"></div>
+
+                    <!-- 🎄 ПРАВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА -->
+                    <div class="garland garland-vert garland-right garland-right-1 color-red"></div>
+                    <div class="garland garland-vert garland-right garland-right-2 color-yellow"></div>
+                    <div class="garland garland-vert garland-right garland-right-3 color-green"></div>
+                    <div class="garland garland-vert garland-right garland-right-4 color-blue"></div>
+                    <div class="garland garland-vert garland-right garland-right-5 color-pink"></div>
+                    <div class="garland garland-vert garland-right garland-right-6 color-yellow"></div>
+                    <div class="garland garland-vert garland-right garland-right-7 color-red"></div>
+
+                    <!-- 🎄 ОГОНЬКИ НА ЁЛКЕ -->
+                    <div class="tree-light tree-red tree-1"></div>
+                    <div class="tree-light tree-blue tree-2"></div>
+                    <div class="tree-light tree-red tree-3"></div>
+                    <div class="tree-light tree-blue tree-4"></div>
+                    <div class="tree-light tree-red tree-5"></div>
+                    <div class="tree-light tree-blue tree-6"></div>
+                    <div class="tree-light tree-red tree-7"></div>
+                </div>
+
+
+                <!-- КНОПКА-КОЛОНКА -->
+                <button class="music-icon-btn" id="musicBtn" aria-label="Music">
+                    <img src="img/icons/speaker.png" alt="music icon">
+                </button>
+
+                <!-- === КАРТИНКА ДОМА === -->
+                <img src="img/bg2.jpg" alt="MBHA Home Alone" class="house-img" />
+
+
+            </div>
+        </div>
+        <!-- === ✅ СЦЕНА С КЕВИНОМ И БАНДИТАМИ === -->
+        <div class="ha-scene ha-scene--idle">
+
+            <div class="ha-character ha-kevin">
+                <img src="img/sprites/kevin/kevin_idle_01.png" alt="Kevin">
             </div>
 
-            <div class="row">
-                <div class="label">[WAITERS]</div>
-                <input id="waitersInput" class="code-input" maxlength="1" />
-                <div class="status wait" id="waitersStatus">WAITING INPUT</div>
+            <div class="ha-character ha-marv">
+                <img src="img/sprites/marv/marv_idle_01.png" alt="Marv">
             </div>
 
-            <div class="row">
-                <div class="label">[MANAGEMENT]</div>
-                <input id="managementInput" class="code-input" maxlength="1" />
-                <div class="status wait" id="managementStatus">WAITING INPUT</div>
+            <div class="ha-character ha-harry">
+                <img src="img/sprites/harry/harry_idle_01.png" alt="Harry">
+            </div>
+        </div>
+        <!-- === ✅ КОНЕЦ СЦЕНЫ === -->
+        <!-- === ✅ СЦЕНА 1: КЕВИН + ГАРРИ + МАРВ (SCENE 1) === -->
+        <div class="ha-scene ha-scene--scene1">
+            <div class="ha-character ha-kevin-scene1">
+                <img src="img/sprites/kevin/kevin_scene1_01.png" alt="Kevin scene 1">
+            </div>
+
+            <div class="ha-character ha-marv-scene1">
+                <img src="img/sprites/marv/marv_scene1_01.png" alt="Marv scene 1">
+            </div>
+
+            <div class="ha-character ha-harry-scene1">
+                <img src="img/sprites/harry/harry_scene1_01.png" alt="Harry scene 1">
+            </div>
+        </div>
+        <!-- === ✅ КОНЕЦ СЦЕН MBHA === -->
+
+
+        <!-- === БЛОК ПОЛЬЗОВАТЕЛЯ === -->
+        <div class="user-section">
+            <div class="user-info">
+
+                <div class="user-main">
+                    <div class="user-photo">
+                        <img src="img/user_placeholder.png" alt="User photo">
+                    </div>
+
+                    <div class="user-text">
+                        <div class="username">USERNAME</div>
+                        <div class="user-flappy-score" id="flappyUserScore">FLAPPY CAKE: —</div>
+                        <div class="user-account">
+                            PERSONAL ACCOUNT: <span id="personal_value">12345</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="total-panel">
+                    <div class="total-panel-title">TOTAL</div>
+                    <div class="total-panel-value" id="total_value">999999</div>
+
+                    <div class="total-teams">
+                        <div class="team team-kevin">
+                            TEAM KEVIN<br>
+                            <span id="kevin_value">100000</span>
+                        </div>
+                        <div class="team team-bandits">
+                            TEAM OF BANDITS<br>
+                            <span id="bandits_value">80000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flappy-panel">
+                    <div class="flappy-panel-title">FLAPPY CAKE · TOP-3</div>
+                    <ol id="flappyTop3" class="flappy-list"></ol>
+                    <div class="flappy-panel-note">Рекорди гостей не зберігаються</div>
+                </div>
+
             </div>
         </div>
 
-        <button id="verifyBtn" class="btn">SYSTEM CHECK</button>
-        <button id="goBtn" class="btn">READY STEADY GO</button>
     </div>
 
-    <!-- ВЕСЬ JS В ОТДЕЛЬНОМ ФАЙЛЕ -->
-    <script type="module" src="js/terminal.js"></script>
+    <!-- RULES -->
+    <button class="rules-icon-btn" id="rulesBtn" aria-label="Rules">
+        <img src="img/icons/rules-book.png" alt="rules icon">
+    </button>
+
+    <!-- GAME -->
+    <a class="game-icon-btn" id="gameBtn" href="flappy/flappy.html">
+        <img src="flappy/img/tort.png" alt="FLAPPY CAKE">
+    </a>
+
+    <!-- ✅ LOGOUT -->
+    <button class="logout-icon-btn" id="logoutBtn" aria-label="Logout">OUT</button>
+
+    <!-- RULES MODAL -->
+    <div class="rules-modal" id="rulesModal">
+        <div class="rules-modal__backdrop" id="rulesBackdrop"></div>
+        <div class="rules-modal__content">
+            <button class="rules-modal__close" id="rulesCloseBtn">✕</button>
+            <h2 class="rules-modal__title">RULES</h2>
+            <div class="rules-modal__text custom-scroll">
+                Привіт! Раз ти читаєш це повідомлення — значить, ти став учасником нашої зимової гри, створеної у атмосфері “Home Alone” та святкового хаосу, який переслідує нас протягом усього грудня, Нового року та зимових свят. Ти — безпосередній учасник всього, що
+                тут відбувається. За кулісами вже планують своє пограбування бандити, а Кевін готує свої пастки. І саме ти впливаєш на розвиток цієї історії. Твої продажі новорічної продукції — це твій реальний вплив на сюжет. Все, що ти робиш, просуває
+                одну зі сторін вперед. І ВСЕ ЦЕ ти побачиш на власні очі ТУТ. Команду ресторану таємно поділено на дві групи, але ніхто не знає, до якої належить. Інтрига збережеться до самого фіналу. На сайті ти зможеш: • бачити свій особистий прогрес,
+                • бачити прогрес команди. А якщо ти уважний — то знайдеш тут багато того, що ретельно сховано. Коли команда досягає певної суми — тебе чекає новий цікавий поворот сюжету. У фіналі переможе та група, яка набере більше. І саме вона отримає
+                закриту святкову вечірку, де можна буде розслабитись, посміятись та відпочити. Ти тут не випадково. Ти — частина історії, що розгортається прямо зараз. І все залежить від тебе. Гра почалась 🎄
+            </div>
+
+            <button id="dont-push-btn" class="dont-push-btn">DONT PUSH</button>
+        </div>
+    </div>
+    <!-- INTRO COMICS MODAL -->
+    <div class="intro-modal" id="introModal">
+        <div class="intro-modal__backdrop"></div>
+
+        <div class="intro-modal__content">
+            <button class="intro-modal__close" id="introCloseBtn">✕</button>
+
+            <!-- Сам комикс -->
+            <div class="intro-modal__comic">
+                <!-- Страница интро (по умолчанию page-1, потом будем менять через JS) -->
+                <img src="img/comics/intro/page-1.png" alt="Intro comics" class="intro-modal__image" id="introImage">
+
+                <!-- КРУГЛЫЙ АВАТАР НА page-3 (пока заглушка, потом подставим аватар юзера) -->
+                <div class="intro-modal__avatar" id="introAvatar">
+                    <img src="img/user_placeholder.png" alt="User avatar">
+                </div>
+
+                <!-- Пульсирующий START GAME (поверх зоны экрана на page-3) -->
+                <div id="introStartBtn" class="intro-modal__start-label">
+                    <span>START GAME</span>
+                </div>
+
+
+
+                <!-- Стрелки листания -->
+                <button class="intro-modal__nav intro-modal__nav--prev" type="button" id="introPrevBtn" aria-label="Previous page">
+                    ‹
+                </button>
+
+                <button class="intro-modal__nav intro-modal__nav--next" type="button" id="introNextBtn" aria-label="Next page">
+                    ›
+                </button>
+
+                <!-- Счётчик страниц -->
+                <div class="intro-modal__counter" id="introCounter">
+                    1 / 3
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- SCENE-01 (400K TOTAL) COMIC MODAL -->
+    <div class="scene400-modal" id="scene400Modal">
+        <div class="scene400-modal__backdrop"></div>
+
+        <div class="scene400-modal__content">
+            <button class="scene400-modal__close" id="scene400CloseBtn">✕</button>
+
+            <div class="scene400-modal__comic">
+                <img src="img/comics/scene-01/page-1.png" alt="MBHA Scene 01" class="scene400-modal__image">
+            </div>
+        </div>
+    </div>
+
+
+    <!-- TEAM INTRO MODAL -->
+    <div class="team-modal" id="teamModal">
+        <div class="team-modal__backdrop"></div>
+
+        <div class="team-modal__content">
+            <button class="team-modal__close" id="teamModalClose">✕</button>
+
+            <div class="team-modal__user">
+                <div class="team-modal__photo">
+                    <img src="img/user_placeholder.png" alt="User">
+                </div>
+                <div class="team-modal__about" id="teamAboutText"></div>
+            </div>
+
+            <div class="team-modal__question">
+                Яку команду обираєш?
+            </div>
+
+            <div class="team-modal__buttons">
+                <button class="team-modal__btn team-modal__btn--kevin" id="teamKevinBtn">
+                    KEVINS TEAM
+                </button>
+                <button class="team-modal__btn team-modal__btn--bandits" id="teamBanditsBtn">
+                    TEAM OF BANDIT
+                </button>
+            </div>
+
+            <div class="team-modal__message" id="teamMessage"></div>
+        </div>
+    </div>
+
+    <!-- CODE LOGIN MODAL -->
+    <div class="code-modal" id="codeModal">
+        <div class="code-modal__backdrop"></div>
+        <div class="code-modal__content">
+            <h2 class="code-modal__title">ENTER YOUR CODE</h2>
+
+            <input type="text" id="codeInput" class="code-modal__input" maxlength="4" autocomplete="off" placeholder="XXXX">
+
+            <button id="codeSubmitBtn" class="code-modal__btn code-modal__btn--primary">
+                ENTER
+            </button>
+
+            <button id="codeGuestBtn" class="code-modal__btn code-modal__btn--ghost">
+                I DON'T HAVE A CODE, I'M CURIOUS
+            </button>
+
+            <p class="code-modal__error" id="codeError"></p>
+            <div class="code-modal__browser-note">
+                Best viewed in Safari. Other browsers may display visuals incorrectly.
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SITE LOCK -->
+    <div class="site-lock" id="siteLock">
+        <div class="site-lock__content">
+            <div class="site-lock__title">MBHA</div>
+            <div class="site-lock__text">
+                Сайт ще не запущено.<br> Технічні роботи тривають ⚙️
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/main.js"></script>
+
 </body>
 
 </html>
