@@ -1,7 +1,149 @@
 (function() {
+    // =========================
+    // CONFIG
+    // =========================
     var SIZE = 10;
     var MINES = 17;
 
+    // Firebase config (твой)
+    var firebaseConfig = {
+        apiKey: "AIzaSyCLbWp6Fl2covgchvupY5H7leUCmlXFAwE",
+        authDomain: "mbha-flappy.firebaseapp.com",
+        projectId: "mbha-flappy",
+        storageBucket: "mbha-flappy.firebasestorage.app",
+        messagingSenderId: "800643993606",
+        appId: "1:800643993606:web:571b10108b0122ed383387"
+    };
+
+    // Как во flappy, только другая коллекция
+    var COL = "sapperScores";
+
+    // =========================
+    // DOM
+    // =========================
+    function $(id) { return document.getElementById(id); }
+
+    var boardEl, timerEl, statusEl, scoreEl, restartBtn;
+    var top1Name, top2Name, top3Name, top1Score, top2Score, top3Score;
+
+    // =========================
+    // Firebase
+    // =========================
+    var db = null;
+    var top3Unsub = null;
+
+    function initFirebase() {
+        try {
+            if (!window.firebase) return;
+            if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch (e) {
+            console.warn("[SAPPER] Firebase init error:", e);
+            db = null;
+        }
+    }
+
+    // Пытаемся достать как в твоём проекте (под разные ключи)
+    function getUserContext() {
+        var code =
+            localStorage.getItem("mbha_code") ||
+            localStorage.getItem("MBHA_CODE") ||
+            localStorage.getItem("code") ||
+            localStorage.getItem("userCode") ||
+            "";
+
+        var name =
+            localStorage.getItem("mbha_name") ||
+            localStorage.getItem("MBHA_NAME") ||
+            localStorage.getItem("username") ||
+            localStorage.getItem("userName") ||
+            "";
+
+        var isGuestRaw =
+            localStorage.getItem("mbha_isGuest") ||
+            localStorage.getItem("MBHA_IS_GUEST") ||
+            localStorage.getItem("isGuest") ||
+            "";
+
+        var isGuest = (isGuestRaw === "1" || isGuestRaw === "true" || isGuestRaw === "yes");
+        if (!code) isGuest = true;
+        if (!name) name = isGuest ? "GUEST" : code;
+
+        return { code: code, name: name, isGuest: isGuest };
+    }
+
+    function setTopRow(n, nm, sc) {
+        if (!nm) nm = "—";
+        if (sc === undefined || sc === null || sc === "") sc = "—";
+
+        if (n === 1) { if (top1Name) top1Name.textContent = nm; if (top1Score) top1Score.textContent = String(sc); }
+        if (n === 2) { if (top2Name) top2Name.textContent = nm; if (top2Score) top2Score.textContent = String(sc); }
+        if (n === 3) { if (top3Name) top3Name.textContent = nm; if (top3Score) top3Score.textContent = String(sc); }
+    }
+
+    function listenTop3() {
+        // заглушки
+        setTopRow(1, "—", "—");
+        setTopRow(2, "—", "—");
+        setTopRow(3, "—", "—");
+
+        if (!db) return;
+
+        // чтобы не плодить подписки
+        if (typeof top3Unsub === "function") top3Unsub();
+
+        try {
+            top3Unsub = db.collection(COL)
+                .orderBy("bestScore", "desc")
+                .limit(3)
+                .onSnapshot(function(snap) {
+                    var rows = [];
+                    snap.forEach(function(doc) { rows.push(doc.data() || {}); });
+
+                    setTopRow(1, rows[0] ? rows[0].name : "—", rows[0] ? rows[0].bestScore : "—");
+                    setTopRow(2, rows[1] ? rows[1].name : "—", rows[1] ? rows[1].bestScore : "—");
+                    setTopRow(3, rows[2] ? rows[2].name : "—", rows[2] ? rows[2].bestScore : "—");
+                }, function(err) {
+                    console.warn("[SAPPER] top3 listen error:", err);
+                });
+        } catch (e) {
+            console.warn("[SAPPER] listenTop3 error:", e);
+        }
+    }
+
+    async function saveBestScoreIfBetter(finalScore) {
+        var u = getUserContext();
+        if (u.isGuest) return; // как во flappy: гостей не пишем
+        if (!db) return;
+
+        try {
+            var ref = db.collection(COL).doc(u.code);
+            var doc = await ref.get();
+
+            var prev = 0;
+            if (doc.exists) {
+                var d = doc.data() || {};
+                prev = Number(d.bestScore || 0);
+            }
+
+            // как во flappy — сохраняем только если больше
+            if (finalScore <= prev) return;
+
+            await ref.set({
+                code: u.code,
+                name: u.name,
+                bestScore: finalScore,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+        } catch (e) {
+            console.warn("[SAPPER] save error:", e);
+        }
+    }
+
+    // =========================
+    // Game
+    // =========================
     var grid = [];
     var started = false;
     var gameOver = false;
@@ -9,8 +151,6 @@
 
     var startMs = 0;
     var timerInt = null;
-
-    function $(id) { return document.getElementById(id); }
 
     function rcToIdx(r, c) { return r * SIZE + c; }
 
@@ -25,7 +165,7 @@
                 if (dr === 0 && dc === 0) continue;
                 var rr = r + dr,
                     cc = c + dc;
-                if (inBounds(rr, cc)) out.push({ r: rr, c: cc, i: rcToIdx(rr, cc) });
+                if (inBounds(rr, cc)) out.push(rcToIdx(rr, cc));
             }
         }
         return out;
@@ -39,7 +179,7 @@
         return m + ":" + s;
     }
 
-    function startTimer(timerEl) {
+    function startTimer() {
         startMs = Date.now();
         clearInterval(timerInt);
         timerInt = setInterval(function() {
@@ -72,10 +212,10 @@
         for (var i = 0; i < grid.length; i++) {
             if (grid[i].mine) { grid[i].n = -1; continue; }
             var rc = idxToRC(i);
-            var cnt = 0;
             var nbs = neighbors(rc.r, rc.c);
+            var cnt = 0;
             for (var k = 0; k < nbs.length; k++)
-                if (grid[nbs[k].i].mine) cnt++;
+                if (grid[nbs[k]].mine) cnt++;
             grid[i].n = cnt;
         }
     }
@@ -92,9 +232,7 @@
         c.open = true;
         openedCount++;
 
-        if (c.el) {
-            c.el.classList.add("open");
-        }
+        if (c.el) c.el.classList.add("open");
 
         if (c.mine) {
             if (c.el) { c.el.textContent = "💣";
@@ -103,8 +241,9 @@
         }
 
         if (c.el) {
+            c.el.textContent = "";
+            c.el.className = c.el.className.replace(/\bn[1-8]\b/g, "").trim();
             if (c.n > 0) paintNumber(c.el, c.n);
-            else c.el.textContent = "";
         }
 
         return false;
@@ -127,7 +266,7 @@
             if (cell.n === 0) {
                 var rc = idxToRC(cur);
                 var nbs = neighbors(rc.r, rc.c);
-                for (var k = 0; k < nbs.length; k++) q.push(nbs[k].i);
+                for (var k = 0; k < nbs.length; k++) q.push(nbs[k]);
             }
         }
     }
@@ -146,11 +285,11 @@
         }
     }
 
-    function ensureStarted(firstIdx, statusEl, timerEl) {
+    function ensureStarted(firstIdx) {
         if (started) return;
         started = true;
         if (statusEl) statusEl.textContent = "PLAYING";
-        startTimer(timerEl);
+        startTimer();
         placeMines(firstIdx);
         calcNumbers();
     }
@@ -167,10 +306,10 @@
         }
     }
 
-    function handleOpen(i, statusEl, timerEl, scoreEl) {
+    function handleOpen(i) {
         if (gameOver) return;
 
-        ensureStarted(i, statusEl, timerEl);
+        ensureStarted(i);
 
         var c = grid[i];
         if (c.flag || c.open) return;
@@ -192,17 +331,23 @@
             gameOver = true;
             stopTimer();
             if (statusEl) statusEl.textContent = "WIN";
+
             var timeSec = Math.floor((Date.now() - startMs) / 1000);
+
+            // Скоринг (можем любой формулой) — сейчас простой и понятный
             var score = Math.max(1000 - timeSec * 5, 100);
             if (scoreEl) scoreEl.textContent = String(score);
+
+            // ✅ Firebase как во flappy: bestScore only
+            saveBestScoreIfBetter(score);
         }
     }
 
-    function renderGrid(boardEl, statusEl, timerEl, scoreEl) {
+    function renderGrid() {
         if (!boardEl) return;
 
         boardEl.innerHTML = "";
-        boardEl.style.gridTemplateColumns = "repeat(" + SIZE + ", minmax(34px, 1fr))";
+        boardEl.style.gridTemplateColumns = "repeat(" + SIZE + ", minmax(64px, 1fr))";
 
         for (var i = 0; i < grid.length; i++) {
             (function(idx) {
@@ -212,7 +357,7 @@
 
                 cell.addEventListener("click", function(e) {
                     e.preventDefault();
-                    handleOpen(idx, statusEl, timerEl, scoreEl);
+                    handleOpen(idx);
                 });
 
                 cell.addEventListener("contextmenu", function(e) {
@@ -220,6 +365,7 @@
                     toggleFlag(idx);
                 });
 
+                // long tap -> flag
                 var pressT = null;
                 cell.addEventListener("touchstart", function() {
                     if (gameOver) return;
@@ -235,11 +381,9 @@
                 boardEl.appendChild(cell);
             })(i);
         }
-
-        console.log("[SAPPER] rendered cells:", boardEl.children.length);
     }
 
-    function resetAll(boardEl, statusEl, timerEl, scoreEl) {
+    function resetAll() {
         started = false;
         gameOver = false;
         openedCount = 0;
@@ -250,35 +394,37 @@
         if (scoreEl) scoreEl.textContent = "—";
 
         buildEmptyGrid();
-        renderGrid(boardEl, statusEl, timerEl, scoreEl);
+        renderGrid();
     }
 
+    // =========================
+    // Init
+    // =========================
     function init() {
-        var boardEl = $("sapperBoard");
-        var timerEl = $("sapperTimer");
-        var statusEl = $("sapperStatus");
-        var scoreEl = $("sapperScore");
-        var restartBtn = $("btnRestart");
+        boardEl = $("sapperBoard");
+        timerEl = $("sapperTimer");
+        statusEl = $("sapperStatus");
+        scoreEl = $("sapperScore");
+        restartBtn = $("btnRestart");
 
-        console.log("[SAPPER] board:", boardEl);
+        top1Name = $("top1Name");
+        top2Name = $("top2Name");
+        top3Name = $("top3Name");
+        top1Score = $("top1Score");
+        top2Score = $("top2Score");
+        top3Score = $("top3Score");
 
         if (!boardEl) {
-            console.error("[SAPPER] Не найден #sapperBoard — ты точно открыл sapper.html который ты скинул?");
+            console.error("[SAPPER] Не найден #sapperBoard (проверь sapper.html)");
             return;
         }
 
-        buildEmptyGrid();
-        renderGrid(boardEl, statusEl, timerEl, scoreEl);
+        initFirebase();
+        listenTop3(); // ✅ как во flappy — топ живой
 
-        if (statusEl) statusEl.textContent = "READY";
-        if (scoreEl) scoreEl.textContent = "—";
-        if (timerEl) timerEl.textContent = "00:00";
+        resetAll();
 
-        if (restartBtn) {
-            restartBtn.addEventListener("click", function() {
-                resetAll(boardEl, statusEl, timerEl, scoreEl);
-            });
-        }
+        if (restartBtn) restartBtn.addEventListener("click", resetAll);
     }
 
     if (document.readyState === "loading") {
