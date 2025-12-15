@@ -1431,4 +1431,41 @@
 
         window.openIntroComics = openIntro;
     })();
+    // =================== SAPPER: TOP-3 (GLOBAL, READ ONLY) ===================
+    (async function loadSapperTop3() {
+        try {
+            if (!db) return;
+
+            const list = document.getElementById("sapperTop3");
+            if (!list) return;
+
+            const snap = await db
+                .collection("sapperScores")
+                .orderBy("score", "desc")
+                .limit(3)
+                .get();
+
+            list.innerHTML = "";
+
+            if (snap.empty) {
+                const li = document.createElement("li");
+                li.textContent = "Поки що немає рекордів";
+                list.appendChild(li);
+                return;
+            }
+
+            let pos = 1;
+            snap.forEach(doc => {
+                const d = doc.data();
+                const li = document.createElement("li");
+                li.textContent = `${pos}. ${d.name || "PLAYER"}: ${d.score}`;
+                list.appendChild(li);
+                pos++;
+            });
+
+        } catch (e) {
+            console.error("SAPPER TOP-3 ERROR:", e);
+        }
+    })();
+
 })();

@@ -2255,3 +2255,18 @@ body {
         transform: scale(0.85);
     }
 }
+
+.game-icon-btn--sapper {
+    top: 90px;
+    /* ниже Flappy */
+}
+
+.game-icon-btn--sapper img {
+    width: 64px;
+    height: 64px;
+    image-rendering: pixelated;
+}
+
+.game-icon-btn--sapper:hover img {
+    filter: drop-shadow(0 0 12px #facc15);
+}
