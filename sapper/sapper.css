@@ -1,58 +1,163 @@
+/* ===============================
+   SAPPER — FINAL CSS (CENTER BOARD ON MOBILE)
+   • двигается ТОЛЬКО .sapper-board-box
+   • мобилка: поле по центру (чуть вправо не нужно — ровно центр)
+================================ */
+
+html,
+body {
+    overflow-x: hidden;
+}
+
+
+/* PAGE */
+
 .sapper-page {
     max-width: 1200px;
     margin: 0 auto;
     padding: 16px;
+    box-sizing: border-box;
 }
+
+
+/* HEADER */
 
 .sapper-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
 }
+
+
+/* MAIN */
 
 .sapper-main {
     display: grid;
-    grid-template-columns: 240px 1fr 240px;
+    grid-template-columns: 1fr;
     gap: 16px;
     margin-top: 16px;
 }
 
-.sapper-board {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 6px;
+@media (min-width: 769px) {
+    .sapper-main {
+        grid-template-columns: 240px 1fr 240px;
+        align-items: start;
+    }
 }
 
+
+/* CARDS */
+
+.sapper-card {
+    background: rgba(2, 6, 23, 0.35);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.sapper-card__title {
+    margin-bottom: 10px;
+    opacity: 0.9;
+    letter-spacing: 1px;
+}
+
+.sapper-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 6px 0;
+}
+
+.sapper-rules {
+    margin-top: 10px;
+    opacity: 0.9;
+    line-height: 1.35;
+}
+
+
+/* BACK */
+
+.sapper-back {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 2px solid #a855f7;
+    border-radius: 6px;
+    color: #a855f7;
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.sapper-back:active {
+    background: #a855f7;
+    color: #020617;
+}
+
+
+/* ===============================
+   GAME CONTAINERS
+================================ */
+
+.sapper-board-wrap {
+    position: relative;
+    width: 100%;
+}
+
+
+/* 🔑 ЕДИНСТВЕННЫЙ ДВИГАЕМЫЙ БЛОК */
+
+.sapper-board-box {
+    position: relative;
+    left: 0;
+    top: 0;
+}
+
+
+/* BOARD */
+
+#sapperBoard {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 6px;
+    width: 520px;
+    max-width: 520px;
+    box-sizing: border-box;
+}
+
+
+/* CELL */
+
 .sapper-cell {
-    aspect-ratio: 1/1;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     background: #0f172a;
     border: 1px solid #334155;
     display: grid;
     place-items: center;
     cursor: pointer;
+    user-select: none;
+    font-size: 18px;
+    line-height: 1;
 }
 
+
+/* STATES */
+
 .sapper-cell.open {
-    background: #475569;
+    background: rgba(148, 163, 184, 0.18);
 }
 
 .sapper-cell.flag {
     background: #facc15;
 }
 
-@media (max-width: 768px) {
-    .sapper-main {
-        grid-template-columns: 1fr;
-    }
-}
-
-.sapper-cell.open {
-    background: rgba(148, 163, 184, .18);
-}
-
 .sapper-cell.boom {
-    background: rgba(248, 113, 113, .35);
+    background: rgba(248, 113, 113, 0.35);
 }
+
+
+/* NUMBERS */
 
 .sapper-cell.n1 {
     color: #93c5fd;
@@ -87,36 +192,53 @@
 }
 
 
-/* ===== FIX: make board реально иметь размер ===== */
+/* ===============================
+   MOBILE — CENTER BOARD
+================================ */
 
-.sapper-board-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-.sapper-board {
-    width: min(560px, 100%);
-    /* важно: чтобы 1fr имел от чего считать */
-    grid-template-columns: repeat(10, minmax(34px, 1fr));
-}
-
-.sapper-cell {
-    min-width: 34px;
-    /* ключ */
-    font-size: 18px;
-    line-height: 1;
-}
-
-
-/* мобилка */
-
-@media (max-width: 420px) {
-    .sapper-board {
-        grid-template-columns: repeat(10, minmax(28px, 1fr));
+@media (max-width: 480px) {
+    .sapper-page {
+        padding: 12px;
+    }
+    /* убираем TOP-3 */
+    aside.sapper-card {
+        display: none;
+    }
+    /* центрируем ТОЛЬКО контейнер игры */
+    .sapper-board-wrap {
+        display: flex;
+        justify-content: center;
+    }
+    /* уменьшаем поле */
+    #sapperBoard {
+        width: 300px;
+        max-width: 300px;
+        gap: 3px;
     }
     .sapper-cell {
-        min-width: 28px;
-        font-size: 16px;
+        font-size: 14px;
+    }
+    /* если нужно чуть вправо — ставь 6-12px */
+    .sapper-board-box {
+        left: 0px;
+        top: 0px;
+    }
+}
+
+
+/* iPhone SE */
+
+@media (max-width: 360px) {
+    #sapperBoard {
+        width: 280px;
+        max-width: 280px;
+        gap: 2px;
+    }
+    .sapper-cell {
+        font-size: 13px;
+    }
+    .sapper-board-box {
+        left: 0px;
+        top: 0px;
     }
 }
