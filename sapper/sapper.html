@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MBHA · SAPPER</title>
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="sapper.css" />
+</head>
+
+<body>
+    <div class="sapper-page">
+
+        <header class="sapper-head">
+            <a class="sapper-back" href="../index.html">← BACK</a>
+
+            <div class="sapper-title">
+                <div class="sapper-title__main">SAPPER</div>
+                <div class="sapper-title__sub">10×10 · 17 MINES</div>
+            </div>
+
+            <div class="sapper-meta">
+                <div id="sapperTimer">00:00</div>
+                <button id="btnRestart">RESTART</button>
+            </div>
+        </header>
+
+        <main class="sapper-main">
+            <section class="sapper-card">
+                <div class="sapper-card__title">YOUR RUN</div>
+
+                <div class="sapper-row">
+                    <span>STATUS</span>
+                    <span id="sapperStatus">READY</span>
+                </div>
+
+                <div class="sapper-row">
+                    <span>SCORE</span>
+                    <span id="sapperScore">—</span>
+                </div>
+
+                <div class="sapper-rules">
+                    • Тап / ЛКМ — відкрити клітинку<br> • Довгий тап / ПКМ — прапорець
+                </div>
+            </section>
+
+            <section class="sapper-board-wrap">
+                <div id="sapperBoard" class="sapper-board"></div>
+            </section>
+
+            <aside class="sapper-card">
+                <div class="sapper-card__title">TOP-3</div>
+
+                <div class="sapper-top3">
+                    <div><b>1.</b> <span id="t1n">—</span> <span id="t1s">—</span></div>
+                    <div><b>2.</b> <span id="t2n">—</span> <span id="t2s">—</span></div>
+                    <div><b>3.</b> <span id="t3n">—</span> <span id="t3s">—</span></div>
+                </div>
+            </aside>
+        </main>
+
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLbWp6Fl2covgchvupY5H7leUCmlXFAwE",
+            authDomain: "mbha-flappy.firebaseapp.com",
+            projectId: "mbha-flappy",
+            storageBucket: "mbha-flappy.firebasestorage.app",
+            messagingSenderId: "800643993606",
+            appId: "1:800643993606:web:571b10108b0122ed383387"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
+    <script src="sapper.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,122 @@
+.sapper-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.sapper-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sapper-main {
+    display: grid;
+    grid-template-columns: 240px 1fr 240px;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.sapper-board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 6px;
+}
+
+.sapper-cell {
+    aspect-ratio: 1/1;
+    background: #0f172a;
+    border: 1px solid #334155;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.sapper-cell.open {
+    background: #475569;
+}
+
+.sapper-cell.flag {
+    background: #facc15;
+}
+
+@media (max-width: 768px) {
+    .sapper-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sapper-cell.open {
+    background: rgba(148, 163, 184, .18);
+}
+
+.sapper-cell.boom {
+    background: rgba(248, 113, 113, .35);
+}
+
+.sapper-cell.n1 {
+    color: #93c5fd;
+}
+
+.sapper-cell.n2 {
+    color: #86efac;
+}
+
+.sapper-cell.n3 {
+    color: #fca5a5;
+}
+
+.sapper-cell.n4 {
+    color: #c4b5fd;
+}
+
+.sapper-cell.n5 {
+    color: #fdba74;
+}
+
+.sapper-cell.n6 {
+    color: #67e8f9;
+}
+
+.sapper-cell.n7 {
+    color: #e5e7eb;
+}
+
+.sapper-cell.n8 {
+    color: #f9fafb;
+}
+
+
+/* ===== FIX: make board реально иметь размер ===== */
+
+.sapper-board-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.sapper-board {
+    width: min(560px, 100%);
+    /* важно: чтобы 1fr имел от чего считать */
+    grid-template-columns: repeat(10, minmax(34px, 1fr));
+}
+
+.sapper-cell {
+    min-width: 34px;
+    /* ключ */
+    font-size: 18px;
+    line-height: 1;
+}
+
+
+/* мобилка */
+
+@media (max-width: 420px) {
+    .sapper-board {
+        grid-template-columns: repeat(10, minmax(28px, 1fr));
+    }
+    .sapper-cell {
+        min-width: 28px;
+        font-size: 16px;
+    }
+}
