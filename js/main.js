@@ -13,7 +13,7 @@
         projectId: "mbha-flappy",
         storageBucket: "mbha-flappy.firebasestorage.app",
         messagingSenderId: "800643993606",
-        appId: "1:800643993606:web:571b10108b0122ed383387"
+        appId: "1:800643993606:web:571b10108b0122ed383387",
     };
 
     let db = null;
@@ -70,7 +70,7 @@
                 role: role === "user" ? "user" : "guest",
                 code: code ? String(code).trim().toUpperCase() : null,
                 name: name ? String(name) : null,
-                lastLogin: getTodayStr()
+                lastLogin: getTodayStr(),
             };
             localStorage.setItem("mbhaAuth", JSON.stringify(data));
         } catch (e) {
@@ -114,7 +114,6 @@
         return false;
     }
 
-    // Парсер CSV
     // Парсер CSV с поддержкой кавычек и запятых внутри поля
     function parseCsv(text) {
         if (!text) return [];
@@ -143,7 +142,6 @@
 
         return rows;
 
-        // вспомогательная: аккуратно режем строку по запятым
         function splitCsvLine(line) {
             const result = [];
             let current = "";
@@ -153,7 +151,6 @@
                 const ch = line[i];
 
                 if (ch === '"') {
-                    // экранированная кавычка внутри "..."
                     if (inQuotes && line[i + 1] === '"') {
                         current += '"';
                         i++;
@@ -161,7 +158,6 @@
                         inQuotes = !inQuotes;
                     }
                 } else if (ch === "," && !inQuotes) {
-                    // конец ячейки
                     result.push(current);
                     current = "";
                 } else {
@@ -172,7 +168,6 @@
             return result;
         }
     }
-
 
     // Загружаем всех юзеров из Google Sheets
     async function loadUsersFromSheet() {
@@ -208,7 +203,7 @@
             "TEAM OF BANDITS": "0",
             TOTAL: "0",
             ABOUT: "",
-            MODAL_VER: "0"
+            MODAL_VER: "0",
         };
     }
 
@@ -218,7 +213,6 @@
         const target = logicalName.toUpperCase();
         for (const key in row) {
             if (!Object.prototype.hasOwnProperty.call(row, key)) continue;
-            // заменяем любые пробелы / NBSP на обычный, схлопываем
             const norm = key
                 .replace(/\u00A0/g, " ")
                 .replace(/\s+/g, " ")
@@ -234,9 +228,7 @@
     // аккуратно парсим числа из таблицы (убираем пробелы и т.п.)
     function parseScore(value) {
         if (value == null) return 0;
-        const cleaned = String(value)
-            .replace(/\s/g, "")
-            .replace(/,/g, ".");
+        const cleaned = String(value).replace(/\s/g, "").replace(/,/g, ".");
         const n = parseFloat(cleaned);
         return Number.isFinite(n) ? n : 0;
     }
@@ -262,7 +254,7 @@
             teamBandits: rawBandits,
             total: rawTotal,
             about: rawAbout,
-            modalVer: rawModalVer
+            modalVer: rawModalVer,
         };
     }
 
@@ -297,25 +289,30 @@
             photoEl.src = src;
         }
     }
-    // ===== MBHA: SCENE SWITCH + 400K COMIC =====
+
+    // =================== MBHA: SCENES + COMICS (400K + 1.1M) ===================
 
     const MBHA_SCENE_THRESHOLD = 400000;
+    const MBHA_SCENE1100_THRESHOLD = 1100000;
 
     function mbhaUpdateScenesByTotal(totalNumber) {
         const idleScene = document.querySelector(".ha-scene--idle");
         const scene1 = document.querySelector(".ha-scene--scene1");
+        const scene2 = document.querySelector(".ha-scene--scene2");
 
-        if (!idleScene && !scene1) return;
+        if (!idleScene && !scene1 && !scene2) return;
 
-        if (totalNumber >= MBHA_SCENE_THRESHOLD) {
-            if (idleScene) idleScene.style.display = "none";
-            if (scene1) scene1.style.display = "block";
-        } else {
-            if (idleScene) idleScene.style.display = "block";
-            if (scene1) scene1.style.display = "none";
-        }
+        const showIdle = totalNumber < MBHA_SCENE_THRESHOLD;
+        const showScene1 =
+            totalNumber >= MBHA_SCENE_THRESHOLD && totalNumber < MBHA_SCENE1100_THRESHOLD;
+        const showScene2 = totalNumber >= MBHA_SCENE1100_THRESHOLD;
+
+        if (idleScene) idleScene.style.display = showIdle ? "block" : "none";
+        if (scene1) scene1.style.display = showScene1 ? "block" : "none";
+        if (scene2) scene2.style.display = showScene2 ? "block" : "none";
     }
 
+    // ===== SCENE-01 COMIC (400K) =====
     function mbhaGetScene400Key(profile) {
         const code = profile && profile.code ? String(profile.code).trim().toUpperCase() : "GUEST";
         return "mbha_scene400_" + code;
@@ -369,6 +366,103 @@
         mbhaMarkScene400Seen(profile);
     }
 
+    // ===== SCENE-02 COMIC (1.1M, 3 pages) =====
+    function mbhaGetScene1100Key(profile) {
+        const code = profile && profile.code ? String(profile.code).trim().toUpperCase() : "GUEST";
+        return "mbha_scene1100_" + code;
+    }
+
+    function mbhaHasScene1100Seen(profile) {
+        try {
+            return localStorage.getItem(mbhaGetScene1100Key(profile)) === "1";
+        } catch {
+            return false;
+        }
+    }
+
+    function mbhaMarkScene1100Seen(profile) {
+        try {
+            localStorage.setItem(mbhaGetScene1100Key(profile), "1");
+        } catch {}
+    }
+
+    function mbhaShouldShowScene1100(profile, totalNumber) {
+        return totalNumber >= MBHA_SCENE1100_THRESHOLD && !mbhaHasScene1100Seen(profile);
+    }
+
+    function mbhaOpenScene1100Modal(profile, onClose) {
+        // Нужные элементы в HTML:
+        // #scene1100Modal, #scene1100Image, #scene1100PrevBtn, #scene1100NextBtn, #scene1100CloseBtn, #scene1100Counter
+        const modal = document.getElementById("scene1100Modal");
+        const img = document.getElementById("scene1100Image");
+        const prevBtn = document.getElementById("scene1100PrevBtn");
+        const nextBtn = document.getElementById("scene1100NextBtn");
+        const closeBtn = document.getElementById("scene1100CloseBtn");
+        const counter = document.getElementById("scene1100Counter");
+
+        if (!modal || !img || !prevBtn || !nextBtn || !closeBtn || !counter) return;
+
+        const pages = [
+            "img/comics/scene-02/page-1.png",
+            "img/comics/scene-02/page-2.png",
+            "img/comics/scene-02/page-3.png",
+        ];
+
+        let idx = 0;
+
+        function updateView() {
+            img.src = pages[idx];
+            counter.textContent = `${idx + 1} / ${pages.length}`;
+            prevBtn.style.display = idx === 0 ? "none" : "block";
+            nextBtn.style.display = idx === pages.length - 1 ? "none" : "block";
+        }
+
+        function cleanup() {
+            document.body.style.overflow = "";
+            prevBtn.onclick = null;
+            nextBtn.onclick = null;
+            closeBtn.onclick = null;
+            modal.removeEventListener("click", onBackdrop);
+        }
+
+        function close() {
+            modal.classList.remove("scene1100-modal--visible");
+            cleanup();
+            if (typeof onClose === "function") onClose();
+        }
+
+        function onBackdrop(e) {
+            if (e.target === modal) close();
+        }
+
+        prevBtn.onclick = () => {
+            if (idx > 0) {
+                idx--;
+                updateView();
+            }
+        };
+
+        nextBtn.onclick = () => {
+            if (idx < pages.length - 1) {
+                idx++;
+                updateView();
+            }
+        };
+
+        closeBtn.onclick = close;
+
+        idx = 0;
+        updateView();
+
+        modal.classList.add("scene1100-modal--visible");
+        document.body.style.overflow = "hidden";
+        modal.addEventListener("click", onBackdrop);
+
+        // помечаем “увидел” при открытии (как в scene400)
+        mbhaMarkScene1100Seen(profile);
+    }
+
+    // Глобалки (оставляем твой подход)
     window.MBHA_SCENE400_CAN_TRIGGER = false;
     window.MBHA_SCENE400_PROFILE = null;
 
@@ -377,9 +471,7 @@
         mbhaOpenScene400Modal(profile, onClose);
     };
 
-
     // ===== ФЛАГИ ПОКАЗА ONBOARDING ПО MODAL_VER =====
-
     function getIntroVersion(profile) {
         const ver = (profile && profile.modalVer != null ? String(profile.modalVer) : "0").trim();
         return ver === "" ? "0" : ver;
@@ -399,7 +491,6 @@
         if (!key) return false;
 
         const stored = localStorage.getItem(key);
-        // если в таблице новая версия (или вообще ничего не было) — показываем
         return stored !== ver;
     }
 
@@ -415,7 +506,6 @@
     }
 
     // ===== TEAM INTRO MODAL (показ, печатная машинка, звук) =====
-
     let teamTypeAudio = null;
 
     function maybeShowTeamIntro(profile) {
@@ -454,12 +544,12 @@
         photoEl.src = avatarSrc;
 
         // about
-        const fullText = (profile.about && profile.about.trim()) ?
-            profile.about.trim() :
-            `Name: ${profile.name || "PLAYER"}`;
+        const fullText = profile.about && profile.about.trim() ? profile.about.trim() : `Name: ${profile.name || "PLAYER"}`;
 
         if (teamTypeAudio) {
-            try { teamTypeAudio.pause(); } catch (e) {}
+            try {
+                teamTypeAudio.pause();
+            } catch (e) {}
         }
         teamTypeAudio = new Audio("audio/typewriter.mp3");
         teamTypeAudio.loop = false;
@@ -505,7 +595,6 @@
             }
         }
 
-
         function handleChoice() {
             if (btnKevin.disabled || btnBandits.disabled) return;
 
@@ -521,10 +610,8 @@
 
             markTeamIntroSeen(profile);
 
-            msgEl.textContent =
-                "ХАХ! НЕ ВИГАДУЙ ДУРНИЦЬ, СВОЮ КОМАНДУ ДІЗНАЄШСЯ ПРИ ОГОЛОШЕННІ РЕЗУЛЬТАТІВ 🐋💨";
+            msgEl.textContent = "ХАХ! НЕ ВИГАДУЙ ДУРНИЦЬ, СВОЮ КОМАНДУ ДІЗНАЄШСЯ ПРИ ОГОЛОШЕННІ РЕЗУЛЬТАТІВ 🐋💨";
 
-            // показываем крестик, окно больше само не закрывается
             if (closeBtn) {
                 closeBtn.classList.add("team-modal__close--visible");
                 closeBtn.onclick = closeTeamModal;
@@ -538,8 +625,6 @@
         document.body.style.overflow = "hidden";
     }
 
-
-
     // ===== FLAPPY CAKE: рендер TOP-3 + личный рекорд (UI остаётся прежним) =====
     function renderFlappyLeaderboard(data) {
         const topEl = document.getElementById("flappyTop3");
@@ -548,7 +633,6 @@
         const top = (data && data.top) || [];
         const me = (data && data.me) || null;
 
-        // ТОП-3
         if (topEl) {
             topEl.innerHTML = "";
             if (!top.length) {
@@ -564,7 +648,6 @@
             }
         }
 
-        // Личный рекорд под именем
         if (userScoreEl) {
             if (me && typeof me.score === "number" && me.score > 0) {
                 userScoreEl.textContent = `FLAPPY CAKE: ${me.score}`;
@@ -583,18 +666,13 @@
             }
 
             const currentUser = window.MBHA_CURRENT_USER || null;
-            const code = currentUser && currentUser.code ?
-                String(currentUser.code).toUpperCase() :
-                null;
+            const code = currentUser && currentUser.code ? String(currentUser.code).toUpperCase() : null;
 
-            // --- ТОП-3 по bestScore ---
-            const topQuery = flappyScoresCollection
-                .orderBy("bestScore", "desc")
-                .limit(3);
+            const topQuery = flappyScoresCollection.orderBy("bestScore", "desc").limit(3);
 
             const topSnap = await topQuery.get();
             const top = [];
-            topSnap.forEach(doc => {
+            topSnap.forEach((doc) => {
                 const d = doc.data() || {};
                 const name = d.name || d.code || "PLAYER";
                 const score = Number(d.bestScore || 0);
@@ -603,7 +681,6 @@
                 }
             });
 
-            // --- Личный рекорд текущего пользователя ---
             let me = null;
             if (code) {
                 const meSnap = await flappyScoresCollection.doc(code).get();
@@ -611,10 +688,7 @@
                     const d = meSnap.data() || {};
                     const myScore = Number(d.bestScore || 0);
                     if (Number.isFinite(myScore) && myScore > 0) {
-                        me = {
-                            name: d.name || d.code || "PLAYER",
-                            score: myScore
-                        };
+                        me = { name: d.name || d.code || "PLAYER", score: myScore };
                     }
                 }
             }
@@ -648,13 +722,12 @@
 
         const profile = normalizeProfile(row);
 
-        // Глобальный объект для игр / рекордов
         window.MBHA_CURRENT_USER = {
             code: profile.code || null,
             name: profile.name || "GUEST",
             isGuest: mbhaRole !== "user" || !profile.code,
             about: profile.about || "",
-            modalVer: getIntroVersion(profile)
+            modalVer: getIntroVersion(profile),
         };
 
         // ==== ОБНОВЛЯЕМ ССЫЛКУ НА ИГРУ ====
@@ -664,10 +737,8 @@
             const params = new URLSearchParams();
 
             if (window.MBHA_CURRENT_USER.isGuest || !window.MBHA_CURRENT_USER.code) {
-                // гость — просто помечаем guest=1
                 params.set("guest", "1");
             } else {
-                // юзер — передаём код и имя
                 params.set("code", window.MBHA_CURRENT_USER.code);
                 params.set("name", window.MBHA_CURRENT_USER.name || "");
             }
@@ -681,20 +752,27 @@
 
         renderProfile(profile);
 
-        // === SCENE 1 + COMIC 400K ===
+        // сцены
         window.MBHA_SCENE400_PROFILE = { code: profile.code || null };
 
         const numericTotal = parseScore(profile.total || 0);
 
-        // переключаем idle / scene1
         mbhaUpdateScenesByTotal(numericTotal);
 
         const willShowTeamIntro = shouldShowTeamIntro(profile);
-        window.MBHA_SCENE400_CAN_TRIGGER = mbhaShouldShowScene400(profile, numericTotal);
 
-        // если интро уже показывали – можно сразу показать комикс сцены
-        if (!willShowTeamIntro && window.MBHA_SCENE400_CAN_TRIGGER) {
-            mbhaOpenScene400Modal({ code: profile.code || null });
+        // ✅ приоритет комиксов: 1.1M сначала scene-02, иначе scene-01
+        const canShow1100 = mbhaShouldShowScene1100({ code: profile.code || null }, numericTotal);
+        const canShow400 = mbhaShouldShowScene400({ code: profile.code || null }, numericTotal);
+
+        window.MBHA_SCENE400_CAN_TRIGGER = canShow400;
+
+        if (!willShowTeamIntro) {
+            if (canShow1100) {
+                mbhaOpenScene1100Modal({ code: profile.code || null });
+            } else if (canShow400) {
+                mbhaOpenScene400Modal({ code: profile.code || null });
+            }
         }
 
         // Подтягиваем ТОП-3 и личный рекорд уже из Firestore
@@ -705,14 +783,13 @@
     }
 
     // =================== DONT PUSH BUTTON (user/guest) ===================
-
     const dontPushUserSound = new Audio("audio/dont-push-user.mp3");
     const dontPushGuestSound = new Audio("audio/dont-push-guest.mp3");
 
     dontPushUserSound.loop = false;
     dontPushGuestSound.loop = false;
 
-    // =================== DOMContentLoaded ===================
+    // =================== DOMContentLoaded (UI / LOGIN / RULES / MUSIC) ===================
     document.addEventListener("DOMContentLoaded", () => {
         // --- DONT PUSH ---
         const dontPushBtn = document.getElementById("dont-push-btn");
@@ -734,7 +811,6 @@
         }
 
         // =================== ВХОД ПО КОДУ ===================
-
         function showCodeModal() {
             const modal = document.getElementById("codeModal");
             if (!modal) return;
@@ -771,11 +847,8 @@
             const today = getTodayStr();
 
             if (savedAuth && savedAuth.lastLogin === today) {
-                if (savedAuth.role === "user") {
-                    setMbhaRole("user");
-                } else {
-                    setMbhaRole("guest");
-                }
+                if (savedAuth.role === "user") setMbhaRole("user");
+                else setMbhaRole("guest");
 
                 const params = getUrlParams();
                 if (savedAuth.role === "user" && savedAuth.code) {
@@ -791,28 +864,21 @@
                 return;
             }
 
-            if (codeModal) {
-                showCodeModal();
-            }
+            if (codeModal) showCodeModal();
 
             if (!codeInput || !codeSubmitBtn || !codeGuestBtn) {
                 const code = getCodeFromUrl();
                 const guestMode = isGuestFromUrl();
 
-                if (guestMode || !code) {
-                    setMbhaRole("guest");
-                } else {
-                    setMbhaRole("user");
-                }
+                if (guestMode || !code) setMbhaRole("guest");
+                else setMbhaRole("user");
 
                 initUserProfile();
                 return;
             }
 
             function showError(msg) {
-                if (codeError) {
-                    codeError.textContent = msg || "";
-                }
+                if (codeError) codeError.textContent = msg || "";
             }
 
             // Подтверждение кода
@@ -864,13 +930,11 @@
             });
 
             codeInput.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") {
-                    codeSubmitBtn.click();
-                }
+                if (e.key === "Enter") codeSubmitBtn.click();
             });
         }
-        // =================== SITE LOCK (ONLY CD34 ALLOWED) ===================
 
+        // =================== SITE LOCK (ONLY CD34 ALLOWED) ===================
         const SITE_LOCK_ENABLED = false; // ← ВОТ ЭТОЙ СТРОКОЙ УПРАВЛЯЕМ
 
         function checkSiteLock() {
@@ -888,21 +952,16 @@
             }
 
             const lock = document.getElementById("siteLock");
-            if (lock) {
-                lock.classList.add("site-lock--visible");
-            }
+            if (lock) lock.classList.add("site-lock--visible");
 
             document.body.style.overflow = "hidden";
             return false;
         }
 
-
-
         // Запускаем логин/профиль
         initCodeFlow();
 
         // =================== LOGOUT ===================
-
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
             logoutBtn.addEventListener("click", () => {
@@ -914,7 +973,7 @@
                     name: "GUEST",
                     isGuest: true,
                     about: "",
-                    modalVer: "0"
+                    modalVer: "0",
                 };
 
                 const params = getUrlParams();
@@ -935,9 +994,7 @@
                 }
 
                 const userScoreEl = document.getElementById("flappyUserScore");
-                if (userScoreEl) {
-                    userScoreEl.textContent = "FLAPPY CAKE: —";
-                }
+                if (userScoreEl) userScoreEl.textContent = "FLAPPY CAKE: —";
 
                 const codeModal = document.getElementById("codeModal");
                 if (codeModal) {
@@ -946,13 +1003,11 @@
                     codeModal.classList.add("code-modal--visible");
                 }
 
-                // жёсткий ресет (чтоб точно всё сбросилось)
                 location.reload();
             });
         }
 
         // =================== RULES ===================
-
         const rulesBtn = document.getElementById("rulesBtn");
         const rulesModal = document.getElementById("rulesModal");
         const rulesBackdrop = document.getElementById("rulesBackdrop");
@@ -976,14 +1031,11 @@
             rulesBackdrop.addEventListener("click", closeRules);
 
             document.addEventListener("keydown", function(e) {
-                if (e.key === "Escape") {
-                    closeRules();
-                }
+                if (e.key === "Escape") closeRules();
             });
         }
 
         // =================== MUSIC ===================
-
         const musicBtn = document.getElementById("musicBtn");
         const musicUrl = "audio/song1.mp3";
 
@@ -996,11 +1048,8 @@
 
             function updateVisual() {
                 if (!musicBtn) return;
-                if (isPlaying) {
-                    musicBtn.classList.add("is-playing");
-                } else {
-                    musicBtn.classList.remove("is-playing");
-                }
+                if (isPlaying) musicBtn.classList.add("is-playing");
+                else musicBtn.classList.remove("is-playing");
             }
 
             function playMusic() {
@@ -1025,11 +1074,8 @@
 
             musicBtn.addEventListener("click", function() {
                 if (!audio) return;
-                if (isPlaying) {
-                    pauseMusic();
-                } else {
-                    playMusic();
-                }
+                if (isPlaying) pauseMusic();
+                else playMusic();
             });
 
             audio.addEventListener("ended", function() {
@@ -1037,33 +1083,27 @@
                 updateVisual();
             });
         }
-
-        // На этом main.js заканчивается.
     });
-    // =================== MBHA: CHARACTER FRAME ANIMATION ===================
 
+    // =================== MBHA: CHARACTER FRAME ANIMATION (IDLE) ===================
     document.addEventListener("DOMContentLoaded", () => {
         const kevinImg = document.querySelector(".ha-kevin img");
         const marvImg = document.querySelector(".ha-marv img");
         const harryImg = document.querySelector(".ha-harry img");
-        const kevinWrap = document.querySelector(".ha-kevin");
 
-        if (!kevinImg || !marvImg || !harryImg || !kevinWrap) {
+        if (!kevinImg || !marvImg || !harryImg) {
             console.warn("MBHA: персонажи не найдены в DOM");
             return;
         }
 
-        // --- Кол-во кадров ---
         const KEVIN_FRAMES = 10;
         const MARV_FRAMES = 4;
         const HARRY_FRAMES = 6;
 
-        // --- Скорости (мс) ---
-        const KEVIN_SPEED = 120; // Кевин — как был
-        const MARV_SPEED = 320; // в 2 раза медленнее
-        const HARRY_SPEED = 280; // в 2 раза медленнее
+        const KEVIN_SPEED = 120;
+        const MARV_SPEED = 320;
+        const HARRY_SPEED = 280;
 
-        // --- Путь к кадрам ---
         function kevinSrc(i) {
             return `img/sprites/kevin/kevin_idle_${String(i).padStart(2, "0")}.png`;
         }
@@ -1075,8 +1115,6 @@
         function harrySrc(i) {
             return `img/sprites/harry/harry_idle_${String(i).padStart(2, "0")}.png`;
         }
-
-        // ================== MARV & HARRY (просто медленнее) ==================
 
         let marvFrame = 1;
         setInterval(() => {
@@ -1090,37 +1128,6 @@
             harryImg.src = harrySrc(harryFrame);
         }, HARRY_SPEED);
 
-        // ================== KEVIN: ЧЕРДАК, ВПРАВО–ВЛЕВО ==================
-
-        // Состояния: стоит лицом, идёт вправо, опять стоит, идёт влево
-        const PHASE_IDLE_RIGHT = "idle_right";
-        const PHASE_WALK_RIGHT = "walk_right";
-        const PHASE_IDLE_LEFT = "idle_left";
-        const PHASE_WALK_LEFT = "walk_left";
-
-        let kevinPhase = PHASE_IDLE_RIGHT;
-        let phaseTicks = 0;
-
-        // смещение по X (от исходной позиции .ha-kevin)
-        let kevinOffsetX = 0;
-        const STEP_PX = 6; // шаг за тик
-        const MAX_OFFSET = 24; // насколько далеко уходит от центра вправо/влево
-
-        let kevinWalkFrame = 2; // ходьба — кадры 2..10
-
-        function nextKevinWalkFrame() {
-            kevinWalkFrame++;
-            if (kevinWalkFrame > KEVIN_FRAMES) {
-                kevinWalkFrame = 2;
-            }
-            kevinImg.src = kevinSrc(kevinWalkFrame);
-        }
-
-        function applyKevinTransform() {
-            // движение по X, масштабирование оставляем в CSS (на img)
-            kevinWrap.style.transform = `translateX(${kevinOffsetX}px)`;
-        }
-
         // =================== MBHA: KEVIN WALK (01–10 ПО ТВОЕМУ СЦЕНАРИЮ) ===================
         (function setupKevinWalkProper() {
             const wrapper = document.querySelector(".ha-kevin");
@@ -1129,28 +1136,24 @@
             const img = wrapper.querySelector("img");
             if (!img) return;
 
-            // Хелпер для пути к кадрам
             function kevinSrc(n) {
                 return `img/sprites/kevin/kevin_idle_${String(n).padStart(2, "0")}.png`;
             }
 
-            // Группы кадров по твоей логике
-            const FRAMES_IDLE_CENTER = [1, 2]; // смотрит на зрителя слева/центр
-            const FRAMES_WALK_RIGHT = [3, 4]; // идёт вправо
-            const FRAMES_IDLE_RIGHT = [6, 7]; // смотрит на зрителя справа
-            const FRAMES_WALK_LEFT = [8, 9]; // идёт влево
+            const FRAMES_IDLE_CENTER = [1, 2];
+            const FRAMES_WALK_RIGHT = [3, 4];
+            const FRAMES_IDLE_RIGHT = [6, 7];
+            const FRAMES_WALK_LEFT = [8, 9];
 
-            // Берём базовый left из CSS (.ha-kevin { left: 28%; ... })
             const computed = getComputedStyle(wrapper);
             const baseLeft = parseFloat(computed.left) || 0;
 
-            let offset = 0; // отклонение от базы
-            const STEP_PX = 3; // длина шага
-            const MAX_OFFSET = 22; // насколько далеко уходит от центра
+            let offset = 0;
+            const STEP_PX = 3;
+            const MAX_OFFSET = 22;
 
-            const SPEED = 120; // мс между тиками
+            const SPEED = 120;
 
-            // Состояния анимации
             const STATE_IDLE_CENTER = 0;
             const STATE_WALK_RIGHT = 1;
             const STATE_IDLE_RIGHT = 2;
@@ -1160,7 +1163,6 @@
             let tick = 0;
             let frameIndex = 0;
 
-            // Ставим стартовый кадр
             img.src = kevinSrc(1);
             wrapper.style.left = baseLeft + "px";
 
@@ -1169,7 +1171,6 @@
             }
 
             function stepWalk(list, direction) {
-                // direction: 1 — вправо, -1 — влево
                 setFrameFrom(list);
                 frameIndex = (frameIndex + 1) % list.length;
 
@@ -1177,7 +1178,7 @@
                 if (offset > MAX_OFFSET) offset = MAX_OFFSET;
                 if (offset < -MAX_OFFSET) offset = -MAX_OFFSET;
 
-                wrapper.style.left = (baseLeft + offset) + "px";
+                wrapper.style.left = baseLeft + offset + "px";
             }
 
             setInterval(() => {
@@ -1185,7 +1186,6 @@
 
                 switch (state) {
                     case STATE_IDLE_CENTER:
-                        // 01–02 — немного «дышит» на месте
                         setFrameFrom(FRAMES_IDLE_CENTER);
                         if (tick % 2 === 0) {
                             frameIndex = (frameIndex + 1) % FRAMES_IDLE_CENTER.length;
@@ -1193,7 +1193,7 @@
                         wrapper.style.left = baseLeft + "px";
                         offset = 0;
 
-                        if (tick >= 10) { // постоял → идём вправо
+                        if (tick >= 10) {
                             tick = 0;
                             frameIndex = 0;
                             state = STATE_WALK_RIGHT;
@@ -1201,9 +1201,8 @@
                         break;
 
                     case STATE_WALK_RIGHT:
-                        // 03–04–05 — движение вправо
                         stepWalk(FRAMES_WALK_RIGHT, 1);
-                        if (tick >= 9) { // чуть походил → остановился справа
+                        if (tick >= 9) {
                             tick = 0;
                             frameIndex = 0;
                             state = STATE_IDLE_RIGHT;
@@ -1211,13 +1210,11 @@
                         break;
 
                     case STATE_IDLE_RIGHT:
-                        // 06–07 — стоит справа, смотрит на зрителя
                         setFrameFrom(FRAMES_IDLE_RIGHT);
                         if (tick % 2 === 0) {
                             frameIndex = (frameIndex + 1) % FRAMES_IDLE_RIGHT.length;
                         }
-
-                        if (tick >= 10) { // постоял → идём влево
+                        if (tick >= 10) {
                             tick = 0;
                             frameIndex = 0;
                             state = STATE_WALK_LEFT;
@@ -1225,9 +1222,8 @@
                         break;
 
                     case STATE_WALK_LEFT:
-                        // 08–09–10 — идёт влево обратно
                         stepWalk(FRAMES_WALK_LEFT, -1);
-                        if (tick >= 9) { // вернулся → снова в центр
+                        if (tick >= 9) {
                             tick = 0;
                             frameIndex = 0;
                             state = STATE_IDLE_CENTER;
@@ -1236,10 +1232,9 @@
                 }
             }, SPEED);
         })();
-
     });
-    // =================== MBHA: CHARACTER FRAME ANIMATION · SCENE 1 ===================
 
+    // =================== MBHA: CHARACTER FRAME ANIMATION · SCENE 1 ===================
     document.addEventListener("DOMContentLoaded", () => {
         const kevinScene1Img = document.querySelector(".ha-kevin-scene1 img");
         const marvScene1Img = document.querySelector(".ha-marv-scene1 img");
@@ -1250,12 +1245,10 @@
             return;
         }
 
-        // --- Кол-во кадров SCENE 1 ---
-        const KEVIN_SCENE1_FRAMES = 3; // kevin_scene1_01...03
-        const MARV_SCENE1_FRAMES = 3; // marv_scene1_01...03
-        const HARRY_SCENE1_FRAMES = 7; // harry_scene1_01...07
+        const KEVIN_SCENE1_FRAMES = 3;
+        const MARV_SCENE1_FRAMES = 3;
+        const HARRY_SCENE1_FRAMES = 7;
 
-        // --- Пути к кадрам SCENE 1 ---
         function kevinScene1Src(i) {
             return `img/sprites/kevin/kevin_scene1_${String(i).padStart(2, "0")}.png`;
         }
@@ -1268,44 +1261,86 @@
             return `img/sprites/harry/harry_scene1_${String(i).padStart(2, "0")}.png`;
         }
 
-        // --- Скорости анимации (играешься потом, как по ощущениям) ---
-        const KEVIN_SCENE1_SPEED = 500; // мс между кадрами
+        const KEVIN_SCENE1_SPEED = 500;
         const MARV_SCENE1_SPEED = 220;
         const HARRY_SCENE1_SPEED = 250;
 
-        // ========== KEVIN SCENE 1 ==========
         let kevinScene1Frame = 1;
         kevinScene1Img.src = kevinScene1Src(kevinScene1Frame);
-
         setInterval(() => {
-            kevinScene1Frame =
-                kevinScene1Frame < KEVIN_SCENE1_FRAMES ? kevinScene1Frame + 1 : 1;
+            kevinScene1Frame = kevinScene1Frame < KEVIN_SCENE1_FRAMES ? kevinScene1Frame + 1 : 1;
             kevinScene1Img.src = kevinScene1Src(kevinScene1Frame);
         }, KEVIN_SCENE1_SPEED);
 
-        // ========== MARV SCENE 1 ==========
         let marvScene1Frame = 1;
         marvScene1Img.src = marvScene1Src(marvScene1Frame);
-
         setInterval(() => {
-            marvScene1Frame =
-                marvScene1Frame < MARV_SCENE1_FRAMES ? marvScene1Frame + 1 : 1;
+            marvScene1Frame = marvScene1Frame < MARV_SCENE1_FRAMES ? marvScene1Frame + 1 : 1;
             marvScene1Img.src = marvScene1Src(marvScene1Frame);
         }, MARV_SCENE1_SPEED);
 
-        // ========== HARRY SCENE 1 ==========
         let harryScene1Frame = 1;
         harryScene1Img.src = harryScene1Src(harryScene1Frame);
-
         setInterval(() => {
-            harryScene1Frame =
-                harryScene1Frame < HARRY_SCENE1_FRAMES ? harryScene1Frame + 1 : 1;
+            harryScene1Frame = harryScene1Frame < HARRY_SCENE1_FRAMES ? harryScene1Frame + 1 : 1;
             harryScene1Img.src = harryScene1Src(harryScene1Frame);
         }, HARRY_SCENE1_SPEED);
     });
 
-    // =================== INTRO COMICS LOGIC ===================
+    // =================== MBHA: CHARACTER FRAME ANIMATION · SCENE 2 ===================
+    document.addEventListener("DOMContentLoaded", () => {
+        const kevinImg = document.querySelector(".ha-kevin-scene2 img");
+        const marvImg = document.querySelector(".ha-marv-scene2 img");
+        const harryImg = document.querySelector(".ha-harry-scene2 img");
 
+        if (!kevinImg || !marvImg || !harryImg) {
+            console.warn("MBHA: scene2 персонажи не найдены в DOM");
+            return;
+        }
+
+        const KEVIN_FRAMES = 2; // kevin_scene2_01..02
+        const MARV_FRAMES = 4; // marv_scene2_01..04
+        const HARRY_FRAMES = 4; // harry_scene2_01..04
+
+        function kevinSrc(i) {
+            return `img/sprites/kevin/kevin_scene2_${String(i).padStart(2, "0")}.png`;
+        }
+
+        function marvSrc(i) {
+            return `img/sprites/marv/marv_scene2_${String(i).padStart(2, "0")}.png`;
+        }
+
+        function harrySrc(i) {
+            return `img/sprites/harry/harry_scene2_${String(i).padStart(2, "0")}.png`;
+        }
+
+        const KEVIN_SPEED = 420;
+        const MARV_SPEED = 220;
+        const HARRY_SPEED = 240;
+
+        let k = 1;
+        kevinImg.src = kevinSrc(k);
+        setInterval(() => {
+            k = k < KEVIN_FRAMES ? k + 1 : 1;
+            kevinImg.src = kevinSrc(k);
+        }, KEVIN_SPEED);
+
+        let m = 1;
+        marvImg.src = marvSrc(m);
+        setInterval(() => {
+            m = m < MARV_FRAMES ? m + 1 : 1;
+            marvImg.src = marvSrc(m);
+        }, MARV_SPEED);
+
+        let h = 1;
+        harryImg.src = harrySrc(h);
+        setInterval(() => {
+            h = h < HARRY_FRAMES ? h + 1 : 1;
+            harryImg.src = harrySrc(h);
+        }, HARRY_SPEED);
+    });
+
+    // =================== INTRO COMICS LOGIC ===================
     (function initIntroComics() {
         const introModal = document.getElementById("introModal");
         const introImage = document.getElementById("introImage");
@@ -1332,7 +1367,6 @@
             introImage.src = introPages[introIndex];
             introCounter.textContent = `${introIndex + 1} / ${introPages.length}`;
 
-            // Аватар и START GAME только на 3-й странице
             if (introIndex === 2) {
                 introAvatar.style.display = "block";
                 introStartBtn.style.display = "block";
@@ -1341,7 +1375,6 @@
                 introStartBtn.style.display = "none";
             }
 
-            // Стрелки
             introPrevBtn.style.display = introIndex === 0 ? "none" : "block";
             introNextBtn.style.display = introIndex === introPages.length - 1 ? "none" : "block";
         }
@@ -1352,7 +1385,6 @@
             introModal.classList.add("intro-modal--visible");
             document.body.style.overflow = "hidden";
 
-            // Подставляем аватар юзера
             const avatarImg = introAvatar.querySelector("img");
             if (avatarImg) {
                 if (window.MBHA_CURRENT_USER && window.MBHA_CURRENT_USER.code) {
@@ -1384,28 +1416,19 @@
 
         introCloseBtn.addEventListener("click", closeIntro);
 
-        // START GAME: закрываем интро и открываем RULES
         introStartBtn.addEventListener("click", () => {
             closeIntro();
             const rulesBtn = document.getElementById("rulesBtn");
 
-            if (window.MBHA_SCENE400_CAN_TRIGGER &&
-                typeof window.mbhaOpenScene400ForCurrentProfile === "function") {
-
+            if (window.MBHA_SCENE400_CAN_TRIGGER && typeof window.mbhaOpenScene400ForCurrentProfile === "function") {
                 window.mbhaOpenScene400ForCurrentProfile(() => {
                     if (rulesBtn) rulesBtn.click();
                 });
-
             } else {
                 if (rulesBtn) rulesBtn.click();
             }
         });
 
-
-        // Глобалка, чтобы вызывать из teamModal
         window.openIntroComics = openIntro;
     })();
-
-
-
 })();

@@ -1956,6 +1956,58 @@ body {
 }
 
 
+/* === MBHA: SCENE 2 (отдельные позиции и размеры) === */
+
+.ha-kevin-scene2,
+.ha-marv-scene2,
+.ha-harry-scene2 {
+    position: absolute;
+    transform-origin: bottom center;
+}
+
+.ha-kevin-scene2 img,
+.ha-marv-scene2 img,
+.ha-harry-scene2 img {
+    width: 48px;
+    height: auto;
+    display: block;
+    image-rendering: pixelated;
+}
+
+
+/* Десктоп — временно как scene1 (потом двинем под сюжет) */
+
+.ha-kevin-scene2 {
+    left: 50%;
+    bottom: 320px;
+    transform: translateX(-50%);
+}
+
+.ha-marv-scene2 {
+    left: 72%;
+    bottom: 200px;
+    transform: translateX(-50%);
+}
+
+.ha-harry-scene2 {
+    left: 39%;
+    bottom: 230px;
+    transform: translateX(-50%);
+}
+
+.ha-kevin-scene2 img {
+    transform: scale(1.0);
+}
+
+.ha-marv-scene2 img {
+    transform: scale(1.7);
+}
+
+.ha-harry-scene2 img {
+    transform: scale(2);
+}
+
+
 /* === MOBILE: ЛОК ПОД iPHONE SE (375px) === */
 
 @media (max-width: 768px) {
@@ -2042,6 +2094,31 @@ body {
         transform: translateX(-50%);
     }
     .ha-harry-scene1 img {
+        transform: scale(0.85);
+    }
+    /* === SCENE 2: позиции под iPhone SE === */
+    .ha-kevin-scene2 {
+        left: 50%;
+        bottom: 79px;
+        transform: translateX(-50%);
+    }
+    .ha-kevin-scene2 img {
+        transform: scale(0.4);
+    }
+    .ha-marv-scene2 {
+        left: 69%;
+        bottom: 23px;
+        transform: translateX(-50%);
+    }
+    .ha-marv-scene2 img {
+        transform: scale(0.55);
+    }
+    .ha-harry-scene2 {
+        left: 39%;
+        bottom: 43px;
+        transform: translateX(-50%);
+    }
+    .ha-harry-scene2 img {
         transform: scale(0.85);
     }
 }

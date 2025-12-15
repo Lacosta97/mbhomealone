@@ -138,6 +138,22 @@
                 <img src="img/sprites/harry/harry_scene1_01.png" alt="Harry scene 1">
             </div>
         </div>
+        <!-- === ✅ СЦЕНА 2: КЕВИН + ГАРРИ + МАРВ (SCENE 2) === -->
+        <div class="ha-scene ha-scene--scene2">
+            <div class="ha-character ha-kevin-scene2">
+                <img src="img/sprites/kevin/kevin_scene2_01.png" alt="Kevin scene 2">
+            </div>
+
+            <div class="ha-character ha-marv-scene2">
+                <img src="img/sprites/marv/marv_scene2_01.png" alt="Marv scene 2">
+            </div>
+
+            <div class="ha-character ha-harry-scene2">
+                <img src="img/sprites/harry/harry_scene2_01.png" alt="Harry scene 2">
+            </div>
+        </div>
+        <!-- === ✅ КОНЕЦ СЦЕНЫ 2 === -->
+
         <!-- === ✅ КОНЕЦ СЦЕН MBHA === -->
 
 
@@ -268,6 +284,32 @@
             </div>
         </div>
     </div>
+    <!-- SCENE-02 (1 100 000 TOTAL) COMIC MODAL -->
+    <div class="scene1100-modal" id="scene1100Modal">
+        <div class="scene1100-modal__backdrop"></div>
+
+        <div class="scene1100-modal__content">
+            <button class="scene1100-modal__close" id="scene1100CloseBtn">✕</button>
+
+            <div class="scene1100-modal__comic">
+                <!-- page-1 / page-2 / page-3 переключаем через JS -->
+                <img src="img/comics/scene-02/page-1.png" alt="MBHA Scene 02" class="scene1100-modal__image" id="scene1100Image" />
+
+                <!-- стрелки -->
+                <button class="scene1100-modal__nav scene1100-modal__nav--prev" type="button" id="scene1100PrevBtn" aria-label="Previous page">
+        ‹
+      </button>
+
+                <button class="scene1100-modal__nav scene1100-modal__nav--next" type="button" id="scene1100NextBtn" aria-label="Next page">
+        ›
+      </button>
+
+                <!-- счётчик страниц -->
+                <div class="scene1100-modal__counter" id="scene1100Counter">1 / 3</div>
+            </div>
+        </div>
+    </div>
+
 
 
     <!-- TEAM INTRO MODAL -->
