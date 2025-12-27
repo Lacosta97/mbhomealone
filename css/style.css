@@ -2502,3 +2502,226 @@ body {
 .game-icon-btn--sapper:hover img {
     filter: drop-shadow(0 0 12px #facc15);
 }
+
+
+/* ===== SCENE-03..FIN COMIC MODALS (2800/3000/3200/3500/3700/4000/4500) ===== */
+
+.scene2800-modal,
+.scene3000-modal,
+.scene3200-modal,
+.scene3500-modal,
+.scene3700-modal,
+.scene4000-modal,
+.scene4500-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2380;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.scene2800-modal--visible,
+.scene3000-modal--visible,
+.scene3200-modal--visible,
+.scene3500-modal--visible,
+.scene3700-modal--visible,
+.scene4000-modal--visible,
+.scene4500-modal--visible {
+    display: flex;
+}
+
+.scene2800-modal__backdrop,
+.scene3000-modal__backdrop,
+.scene3200-modal__backdrop,
+.scene3500-modal__backdrop,
+.scene3700-modal__backdrop,
+.scene4000-modal__backdrop,
+.scene4500-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(2px);
+}
+
+.scene2800-modal__content,
+.scene3000-modal__content,
+.scene3200-modal__content,
+.scene3500-modal__content,
+.scene3700-modal__content,
+.scene4000-modal__content,
+.scene4500-modal__content {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    width: 90%;
+    max-height: 90vh;
+    padding: 10px;
+    background: #020617;
+    border: 3px solid #f97316;
+    box-shadow: 0 0 0 3px #0f172a, 4px 4px 0 #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.scene2800-modal__comic,
+.scene3000-modal__comic,
+.scene3200-modal__comic,
+.scene3500-modal__comic,
+.scene3700-modal__comic,
+.scene4000-modal__comic,
+.scene4500-modal__comic {
+    position: relative;
+    width: 100%;
+    max-height: 86vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.scene2800-modal__image,
+.scene3000-modal__image,
+.scene3200-modal__image,
+.scene3500-modal__image,
+.scene3700-modal__image,
+.scene4000-modal__image,
+.scene4500-modal__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 86vh;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border-radius: 6px;
+}
+
+.scene2800-modal__close,
+.scene3000-modal__close,
+.scene3200-modal__close,
+.scene3500-modal__close,
+.scene3700-modal__close,
+.scene4000-modal__close,
+.scene4500-modal__close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 3px solid #f97316;
+    background: #020617;
+    color: #f97316;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 6;
+    box-shadow: 0 0 0 3px #0f172a, 0 0 12px rgba(249, 115, 22, 0.8);
+}
+
+.scene2800-modal__close:hover,
+.scene3000-modal__close:hover,
+.scene3200-modal__close:hover,
+.scene3500-modal__close:hover,
+.scene3700-modal__close:hover,
+.scene4000-modal__close:hover,
+.scene4500-modal__close:hover {
+    background: #f97316;
+    color: #020617;
+}
+
+.scene2800-modal__close:active,
+.scene3000-modal__close:active,
+.scene3200-modal__close:active,
+.scene3500-modal__close:active,
+.scene3700-modal__close:active,
+.scene4000-modal__close:active,
+.scene4500-modal__close:active {
+    transform: scale(0.95);
+}
+
+.scene2800-modal__nav,
+.scene3000-modal__nav,
+.scene3200-modal__nav,
+.scene3500-modal__nav,
+.scene3700-modal__nav,
+.scene4000-modal__nav,
+.scene4500-modal__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: rgba(15, 23, 42, 0.9);
+    color: #f9fafb;
+    font-size: 26px;
+    line-height: 1;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 999px;
+    box-shadow: 0 0 0 2px #020617, 0 0 12px rgba(15, 23, 42, 0.9);
+    z-index: 7;
+    opacity: 0.9;
+}
+
+.scene2800-modal__nav--prev,
+.scene3000-modal__nav--prev,
+.scene3200-modal__nav--prev,
+.scene3500-modal__nav--prev,
+.scene3700-modal__nav--prev,
+.scene4000-modal__nav--prev,
+.scene4500-modal__nav--prev {
+    left: 10px;
+}
+
+.scene2800-modal__nav--next,
+.scene3000-modal__nav--next,
+.scene3200-modal__nav--next,
+.scene3500-modal__nav--next,
+.scene3700-modal__nav--next,
+.scene4000-modal__nav--next,
+.scene4500-modal__nav--next {
+    right: 10px;
+}
+
+.scene2800-modal__nav:active,
+.scene3000-modal__nav:active,
+.scene3200-modal__nav:active,
+.scene3500-modal__nav:active,
+.scene3700-modal__nav:active,
+.scene4000-modal__nav:active,
+.scene4500-modal__nav:active {
+    transform: translateY(-50%) translate(1px, 1px);
+}
+
+.scene2800-modal__counter,
+.scene3000-modal__counter,
+.scene3200-modal__counter,
+.scene3500-modal__counter,
+.scene3700-modal__counter,
+.scene4000-modal__counter,
+.scene4500-modal__counter {
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    font-size: 13px;
+    color: #e5e7eb;
+    text-shadow: 0 0 6px rgba(15, 23, 42, 0.9);
+    z-index: 7;
+}
+
+@media (max-width: 768px) {
+    .scene2800-modal__content,
+    .scene3000-modal__content,
+    .scene3200-modal__content,
+    .scene3500-modal__content,
+    .scene3700-modal__content,
+    .scene4000-modal__content,
+    .scene4500-modal__content {
+        max-width: 420px;
+        width: 92%;
+    }
+}
