@@ -2725,10 +2725,3 @@ body {
         width: 92%;
     }
 }
-
-
-/* DEBUG: показать все сцены */
-
-.ha-scene {
-    display: block !important;
-}
