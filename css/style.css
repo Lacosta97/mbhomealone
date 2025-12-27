@@ -2141,7 +2141,121 @@ body {
 }
 
 
+/* ===============================
+   MBHA — SCENES 3–7 (DESKTOP BASE)
+   Adjust left/bottom/scale later
+================================ */
+
+
+/* --- Scene 3 --- */
+
+.ha-kevin-scene3 {
+    left: 18%;
+    bottom: 10%;
+    transform: scale(1);
+}
+
+.ha-marv-scene3 {
+    left: 44%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+.ha-harry-scene3 {
+    left: 66%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+
+/* --- Scene 4 --- */
+
+.ha-kevin-scene4 {
+    left: 18%;
+    bottom: 10%;
+    transform: scale(1);
+}
+
+.ha-marv-scene4 {
+    left: 44%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+.ha-harry-scene4 {
+    left: 66%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+
+/* --- Scene 5 --- */
+
+.ha-kevin-scene5 {
+    left: 18%;
+    bottom: 10%;
+    transform: scale(1);
+}
+
+.ha-marv-scene5 {
+    left: 44%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+.ha-harry-scene5 {
+    left: 66%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+
+/* --- Scene 6 --- */
+
+.ha-kevin-scene6 {
+    left: 18%;
+    bottom: 10%;
+    transform: scale(1);
+}
+
+.ha-marv-scene6 {
+    left: 44%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+.ha-harry-scene6 {
+    left: 66%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+
+/* --- Scene 7 --- */
+
+.ha-kevin-scene7 {
+    left: 18%;
+    bottom: 10%;
+    transform: scale(1);
+}
+
+.ha-marv-scene7 {
+    left: 44%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+.ha-harry-scene7 {
+    left: 66%;
+    bottom: 8%;
+    transform: scale(1);
+}
+
+
 /* === MOBILE: ЛОК ПОД iPHONE SE (375px) === */
+
+
+/* ===== MOBILE (FIXED LIKE iPhone SE) ===== */
 
 @media (max-width: 768px) {
     body {
@@ -2159,17 +2273,10 @@ body {
         max-width: 375px;
         margin: 0 auto;
     }
-    /* user-section — только ширина, margin сохраняем из предыдущего блока */
     .user-section {
         max-width: 375px;
         margin: -5px auto 0;
     }
-}
-
-
-/* ===== MOBILE (FIXED LIKE iPhone SE) ===== */
-
-@media (max-width: 768px) {
     /* сама сцена */
     .ha-scene {
         margin-top: -12px;
@@ -2181,7 +2288,6 @@ body {
     .ha-marv {
         right: 28%;
         bottom: 25px;
-        /* было 205px */
     }
     .ha-marv img {
         transform: scale(0.55);
@@ -2190,7 +2296,6 @@ body {
     .ha-harry {
         right: 35%;
         bottom: 25px;
-        /* было 205px */
     }
     .ha-harry img {
         transform: scale(0.5);
@@ -2199,7 +2304,6 @@ body {
     .ha-kevin {
         left: 25%;
         bottom: 50px;
-        /* было 244px */
     }
     .ha-kevin img {
         transform: scale(0.25);
@@ -2252,6 +2356,134 @@ body {
         transform: translateX(-50%);
     }
     .ha-harry-scene2 img {
+        transform: scale(0.85);
+    }
+    /* ===============================
+     MBHA — SCENES 3–7 (MOBILE BASE)
+  ================================ */
+    /* --- Scene 3 --- */
+    .ha-kevin-scene3 {
+        left: 50%;
+        bottom: 79px;
+        transform: translateX(-50%);
+    }
+    .ha-kevin-scene3 img {
+        transform: scale(0.4);
+    }
+    .ha-marv-scene3 {
+        left: 69%;
+        bottom: 23px;
+        transform: translateX(-50%);
+    }
+    .ha-marv-scene3 img {
+        transform: scale(0.55);
+    }
+    .ha-harry-scene3 {
+        left: 39%;
+        bottom: 43px;
+        transform: translateX(-50%);
+    }
+    .ha-harry-scene3 img {
+        transform: scale(0.85);
+    }
+    /* --- Scene 4 --- */
+    .ha-kevin-scene4 {
+        left: 50%;
+        bottom: 79px;
+        transform: translateX(-50%);
+    }
+    .ha-kevin-scene4 img {
+        transform: scale(0.4);
+    }
+    .ha-marv-scene4 {
+        left: 69%;
+        bottom: 23px;
+        transform: translateX(-50%);
+    }
+    .ha-marv-scene4 img {
+        transform: scale(0.55);
+    }
+    .ha-harry-scene4 {
+        left: 39%;
+        bottom: 43px;
+        transform: translateX(-50%);
+    }
+    .ha-harry-scene4 img {
+        transform: scale(0.85);
+    }
+    /* --- Scene 5 --- */
+    .ha-kevin-scene5 {
+        left: 50%;
+        bottom: 79px;
+        transform: translateX(-50%);
+    }
+    .ha-kevin-scene5 img {
+        transform: scale(0.4);
+    }
+    .ha-marv-scene5 {
+        left: 69%;
+        bottom: 23px;
+        transform: translateX(-50%);
+    }
+    .ha-marv-scene5 img {
+        transform: scale(0.55);
+    }
+    .ha-harry-scene5 {
+        left: 39%;
+        bottom: 43px;
+        transform: translateX(-50%);
+    }
+    .ha-harry-scene5 img {
+        transform: scale(0.85);
+    }
+    /* --- Scene 6 --- */
+    .ha-kevin-scene6 {
+        left: 50%;
+        bottom: 79px;
+        transform: translateX(-50%);
+    }
+    .ha-kevin-scene6 img {
+        transform: scale(0.4);
+    }
+    .ha-marv-scene6 {
+        left: 69%;
+        bottom: 23px;
+        transform: translateX(-50%);
+    }
+    .ha-marv-scene6 img {
+        transform: scale(0.55);
+    }
+    .ha-harry-scene6 {
+        left: 39%;
+        bottom: 43px;
+        transform: translateX(-50%);
+    }
+    .ha-harry-scene6 img {
+        transform: scale(0.85);
+    }
+    /* --- Scene 7 --- */
+    .ha-kevin-scene7 {
+        left: 50%;
+        bottom: 79px;
+        transform: translateX(-50%);
+    }
+    .ha-kevin-scene7 img {
+        transform: scale(0.4);
+    }
+    .ha-marv-scene7 {
+        left: 69%;
+        bottom: 23px;
+        transform: translateX(-50%);
+    }
+    .ha-marv-scene7 img {
+        transform: scale(0.55);
+    }
+    .ha-harry-scene7 {
+        left: 39%;
+        bottom: 43px;
+        transform: translateX(-50%);
+    }
+    .ha-harry-scene7 img {
         transform: scale(0.85);
     }
 }

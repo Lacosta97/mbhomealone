@@ -290,50 +290,79 @@
         }
     }
 
-    // =================== MBHA: SCENES + COMICS (400K + 1.1M) ===================
+    // =================== MBHA: SCENES + COMICS (400K ... FIN) ===================
 
-    const MBHA_SCENE_THRESHOLD = 400000;
-    const MBHA_SCENE1100_THRESHOLD = 1100000;
+    const MBHA_SCENE_400 = 400000;
+    const MBHA_SCENE_1100 = 1100000;
+    const MBHA_SCENE_2800 = 2800000;
+    const MBHA_SCENE_3000 = 3000000;
+    const MBHA_SCENE_3200 = 3200000;
+    const MBHA_SCENE_3500 = 3500000;
+    const MBHA_SCENE_3700 = 3700000;
+    const MBHA_SCENE_4000 = 4000000;
+    const MBHA_SCENE_4500 = 4500000;
 
     function mbhaUpdateScenesByTotal(totalNumber) {
         const idleScene = document.querySelector(".ha-scene--idle");
         const scene1 = document.querySelector(".ha-scene--scene1");
         const scene2 = document.querySelector(".ha-scene--scene2");
+        const scene3 = document.querySelector(".ha-scene--scene3");
+        const scene4 = document.querySelector(".ha-scene--scene4");
+        const scene5 = document.querySelector(".ha-scene--scene5");
+        const scene6 = document.querySelector(".ha-scene--scene6");
+        const scene7 = document.querySelector(".ha-scene--scene7");
+        const scene8 = document.querySelector(".ha-scene--scene8");
+        const sceneFin = document.querySelector(".ha-scene--fin");
 
-        if (!idleScene && !scene1 && !scene2) return;
+        const set = (el, on) => { if (el) el.style.display = on ? "block" : "none"; };
 
-        const showIdle = totalNumber < MBHA_SCENE_THRESHOLD;
-        const showScene1 =
-            totalNumber >= MBHA_SCENE_THRESHOLD && totalNumber < MBHA_SCENE1100_THRESHOLD;
-        const showScene2 = totalNumber >= MBHA_SCENE1100_THRESHOLD;
+        const showIdle = totalNumber < MBHA_SCENE_400;
 
-        if (idleScene) idleScene.style.display = showIdle ? "block" : "none";
-        if (scene1) scene1.style.display = showScene1 ? "block" : "none";
-        if (scene2) scene2.style.display = showScene2 ? "block" : "none";
+        const showS1 = totalNumber >= MBHA_SCENE_400 && totalNumber < MBHA_SCENE_1100;
+        const showS2 = totalNumber >= MBHA_SCENE_1100 && totalNumber < MBHA_SCENE_2800;
+        const showS3 = totalNumber >= MBHA_SCENE_2800 && totalNumber < MBHA_SCENE_3000;
+        const showS4 = totalNumber >= MBHA_SCENE_3000 && totalNumber < MBHA_SCENE_3200;
+        const showS5 = totalNumber >= MBHA_SCENE_3200 && totalNumber < MBHA_SCENE_3500;
+        const showS6 = totalNumber >= MBHA_SCENE_3500 && totalNumber < MBHA_SCENE_3700;
+        const showS7 = totalNumber >= MBHA_SCENE_3700 && totalNumber < MBHA_SCENE_4000;
+        const showS8 = totalNumber >= MBHA_SCENE_4000 && totalNumber < MBHA_SCENE_4500;
+        const showFin = totalNumber >= MBHA_SCENE_4500;
+
+        set(idleScene, showIdle);
+        set(scene1, showS1);
+        set(scene2, showS2);
+        set(scene3, showS3);
+        set(scene4, showS4);
+        set(scene5, showS5);
+        set(scene6, showS6);
+        set(scene7, showS7);
+        set(scene8, showS8);
+        set(sceneFin, showFin);
     }
 
-    // ===== SCENE-01 COMIC (400K) =====
-    function mbhaGetScene400Key(profile) {
+    // ====== ONE-TIME FLAGS (per user code) ======
+    function mbhaSeenKey(prefix, profile) {
         const code = profile && profile.code ? String(profile.code).trim().toUpperCase() : "GUEST";
-        return "mbha_scene400_" + code;
+        return prefix + "_" + code;
     }
 
-    function mbhaHasScene400Seen(profile) {
+    function mbhaHasSeen(prefix, profile) {
         try {
-            return localStorage.getItem(mbhaGetScene400Key(profile)) === "1";
+            return localStorage.getItem(mbhaSeenKey(prefix, profile)) === "1";
         } catch {
             return false;
         }
     }
 
-    function mbhaMarkScene400Seen(profile) {
+    function mbhaMarkSeen(prefix, profile) {
         try {
-            localStorage.setItem(mbhaGetScene400Key(profile), "1");
+            localStorage.setItem(mbhaSeenKey(prefix, profile), "1");
         } catch {}
     }
 
+    // ===== SCENE-01 COMIC (400K) =====
     function mbhaShouldShowScene400(profile, totalNumber) {
-        return totalNumber >= MBHA_SCENE_THRESHOLD && !mbhaHasScene400Seen(profile);
+        return totalNumber >= MBHA_SCENE_400 && !mbhaHasSeen("mbha_scene400", profile);
     }
 
     function mbhaOpenScene400Modal(profile, onClose) {
@@ -345,6 +374,7 @@
             document.body.style.overflow = "";
             closeBtn.removeEventListener("click", onClickClose);
             modal.removeEventListener("click", onBackdropClick);
+            document.removeEventListener("keydown", onKey);
         }
 
         function onClickClose() {
@@ -357,42 +387,93 @@
             if (e.target === modal) onClickClose();
         }
 
+        function onKey(e) {
+            if (e.key === "Escape") onClickClose();
+        }
+
         modal.classList.add("scene400-modal--visible");
         document.body.style.overflow = "hidden";
 
         closeBtn.addEventListener("click", onClickClose);
         modal.addEventListener("click", onBackdropClick);
+        document.addEventListener("keydown", onKey);
 
-        mbhaMarkScene400Seen(profile);
+        mbhaMarkSeen("mbha_scene400", profile);
+    }
+
+    // ===== UNIVERSAL PAGED COMIC MODAL =====
+    // FIX: открываем/закрываем через style.display (работает с любым CSS, не нужен visibleClass)
+    function mbhaOpenPagedComicModal(prefix, profile, ids, pages, onClose) {
+        const modal = document.getElementById(ids.modalId);
+        const img = document.getElementById(ids.imgId);
+        const prevBtn = document.getElementById(ids.prevId);
+        const nextBtn = document.getElementById(ids.nextId);
+        const closeBtn = document.getElementById(ids.closeId);
+        const counter = document.getElementById(ids.counterId);
+
+        if (!modal || !img || !prevBtn || !nextBtn || !closeBtn || !counter) return;
+        if (!pages || !pages.length) return;
+
+        let idx = 0;
+
+        function updateView() {
+            img.src = pages[idx];
+            counter.textContent = `${idx + 1} / ${pages.length}`;
+            prevBtn.style.display = idx === 0 ? "none" : "inline-block";
+            nextBtn.style.display = idx === pages.length - 1 ? "none" : "inline-block";
+        }
+
+        function cleanup() {
+            document.body.style.overflow = "";
+            prevBtn.onclick = null;
+            nextBtn.onclick = null;
+            closeBtn.onclick = null;
+            modal.removeEventListener("click", onBackdrop);
+            document.removeEventListener("keydown", onKey);
+        }
+
+        function close() {
+            modal.style.display = "none";
+            cleanup();
+            if (typeof onClose === "function") onClose();
+        }
+
+        function onBackdrop(e) {
+            if (e.target === modal) close();
+        }
+
+        function onKey(e) {
+            if (e.key === "Escape") close();
+            if (e.key === "ArrowLeft" && idx > 0) { idx--;
+                updateView(); }
+            if (e.key === "ArrowRight" && idx < pages.length - 1) { idx++;
+                updateView(); }
+        }
+
+        prevBtn.onclick = () => { if (idx > 0) { idx--;
+                updateView(); } };
+        nextBtn.onclick = () => { if (idx < pages.length - 1) { idx++;
+                updateView(); } };
+        closeBtn.onclick = close;
+
+        idx = 0;
+        updateView();
+
+        // show
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+        modal.addEventListener("click", onBackdrop);
+        document.addEventListener("keydown", onKey);
+
+        mbhaMarkSeen(prefix, profile);
     }
 
     // ===== SCENE-02 COMIC (1.1M, 3 pages) =====
-    function mbhaGetScene1100Key(profile) {
-        const code = profile && profile.code ? String(profile.code).trim().toUpperCase() : "GUEST";
-        return "mbha_scene1100_" + code;
-    }
-
-    function mbhaHasScene1100Seen(profile) {
-        try {
-            return localStorage.getItem(mbhaGetScene1100Key(profile)) === "1";
-        } catch {
-            return false;
-        }
-    }
-
-    function mbhaMarkScene1100Seen(profile) {
-        try {
-            localStorage.setItem(mbhaGetScene1100Key(profile), "1");
-        } catch {}
-    }
-
     function mbhaShouldShowScene1100(profile, totalNumber) {
-        return totalNumber >= MBHA_SCENE1100_THRESHOLD && !mbhaHasScene1100Seen(profile);
+        return totalNumber >= MBHA_SCENE_1100 && !mbhaHasSeen("mbha_scene1100", profile);
     }
 
     function mbhaOpenScene1100Modal(profile, onClose) {
-        // Нужные элементы в HTML:
-        // #scene1100Modal, #scene1100Image, #scene1100PrevBtn, #scene1100NextBtn, #scene1100CloseBtn, #scene1100Counter
         const modal = document.getElementById("scene1100Modal");
         const img = document.getElementById("scene1100Image");
         const prevBtn = document.getElementById("scene1100PrevBtn");
@@ -423,6 +504,7 @@
             nextBtn.onclick = null;
             closeBtn.onclick = null;
             modal.removeEventListener("click", onBackdrop);
+            document.removeEventListener("keydown", onKey);
         }
 
         function close() {
@@ -435,20 +517,18 @@
             if (e.target === modal) close();
         }
 
-        prevBtn.onclick = () => {
-            if (idx > 0) {
-                idx--;
-                updateView();
-            }
-        };
+        function onKey(e) {
+            if (e.key === "Escape") close();
+            if (e.key === "ArrowLeft" && idx > 0) { idx--;
+                updateView(); }
+            if (e.key === "ArrowRight" && idx < pages.length - 1) { idx++;
+                updateView(); }
+        }
 
-        nextBtn.onclick = () => {
-            if (idx < pages.length - 1) {
-                idx++;
-                updateView();
-            }
-        };
-
+        prevBtn.onclick = () => { if (idx > 0) { idx--;
+                updateView(); } };
+        nextBtn.onclick = () => { if (idx < pages.length - 1) { idx++;
+                updateView(); } };
         closeBtn.onclick = close;
 
         idx = 0;
@@ -457,9 +537,153 @@
         modal.classList.add("scene1100-modal--visible");
         document.body.style.overflow = "hidden";
         modal.addEventListener("click", onBackdrop);
+        document.addEventListener("keydown", onKey);
 
-        // помечаем “увидел” при открытии (как в scene400)
-        mbhaMarkScene1100Seen(profile);
+        mbhaMarkSeen("mbha_scene1100", profile);
+    }
+
+    // ===== NEW COMICS (scene-03 ... fin) — показывать ОДИН РАЗ, приоритет самый поздний =====
+    function mbhaTryOpenComicByPriority(profile, totalNumber) {
+        // FIN
+        if (totalNumber >= MBHA_SCENE_4500 && !mbhaHasSeen("mbha_scenefin", profile)) {
+            return mbhaOpenPagedComicModal(
+                "mbha_scenefin",
+                profile, {
+                    modalId: "scene4500Modal",
+                    imgId: "scene4500Page",
+                    prevId: "scene4500Prev",
+                    nextId: "scene4500Next",
+                    closeId: "scene4500Close",
+                    counterId: "scene4500Counter"
+                }, [
+                    "img/comics/scene-fin/page-1.png",
+                    "img/comics/scene-fin/page-2.png",
+                    "img/comics/scene-fin/page-3.png",
+                    "img/comics/scene-fin/page-4.png",
+                    "img/comics/scene-fin/page-5.png",
+                ]
+            );
+        }
+
+        // SCENE-08
+        if (totalNumber >= MBHA_SCENE_4000 && !mbhaHasSeen("mbha_scene4000", profile)) {
+            return mbhaOpenPagedComicModal(
+                "mbha_scene4000",
+                profile, {
+                    modalId: "scene4000Modal",
+                    imgId: "scene4000Page",
+                    prevId: "scene4000Prev",
+                    nextId: "scene4000Next",
+                    closeId: "scene4000Close",
+                    counterId: "scene4000Counter"
+                }, [
+                    "img/comics/scene-08/page-1.png",
+                    "img/comics/scene-08/page-2.png",
+                ]
+            );
+        }
+
+        // SCENE-07
+        if (totalNumber >= MBHA_SCENE_3700 && !mbhaHasSeen("mbha_scene3700", profile)) {
+            return mbhaOpenPagedComicModal(
+                "mbha_scene3700",
+                profile, {
+                    modalId: "scene3700Modal",
+                    imgId: "scene3700Page",
+                    prevId: "scene3700Prev",
+                    nextId: "scene3700Next",
+                    closeId: "scene3700Close",
+                    counterId: "scene3700Counter"
+                }, [
+                    "img/comics/scene-07/page-1.png",
+                    "img/comics/scene-07/page-2.png",
+                ]
+            );
+        }
+
+        // SCENE-06
+        if (totalNumber >= MBHA_SCENE_3500 && !mbhaHasSeen("mbha_scene3500", profile)) {
+            return mbhaOpenPagedComicModal(
+                "mbha_scene3500",
+                profile, {
+                    modalId: "scene3500Modal",
+                    imgId: "scene3500Page",
+                    prevId: "scene3500Prev",
+                    nextId: "scene3500Next",
+                    closeId: "scene3500Close",
+                    counterId: "scene3500Counter"
+                }, [
+                    "img/comics/scene-06/page-1.png",
+                    "img/comics/scene-06/page-2.png",
+                ]
+            );
+        }
+
+        // SCENE-05
+        if (totalNumber >= MBHA_SCENE_3200 && !mbhaHasSeen("mbha_scene3200", profile)) {
+            return mbhaOpenPagedComicModal(
+                "mbha_scene3200",
+                profile, {
+                    modalId: "scene3200Modal",
+                    imgId: "scene3200Page",
+                    prevId: "scene3200Prev",
+                    nextId: "scene3200Next",
+                    closeId: "scene3200Close",
+                    counterId: "scene3200Counter"
+                }, [
+                    "img/comics/scene-05/page-1.png",
+                    "img/comics/scene-05/page-2.png",
+                    "img/comics/scene-05/page-3.png",
+                ]
+            );
+        }
+
+        // SCENE-04
+        if (totalNumber >= MBHA_SCENE_3000 && !mbhaHasSeen("mbha_scene3000", profile)) {
+            return mbhaOpenPagedComicModal(
+                "mbha_scene3000",
+                profile, {
+                    modalId: "scene3000Modal",
+                    imgId: "scene3000Page",
+                    prevId: "scene3000Prev",
+                    nextId: "scene3000Next",
+                    closeId: "scene3000Close",
+                    counterId: "scene3000Counter"
+                }, [
+                    "img/comics/scene-04/page-1.png",
+                    "img/comics/scene-04/page-2.png",
+                    "img/comics/scene-04/page-3.png",
+                ]
+            );
+        }
+
+        // SCENE-03
+        if (totalNumber >= MBHA_SCENE_2800 && !mbhaHasSeen("mbha_scene2800", profile)) {
+            return mbhaOpenPagedComicModal(
+                "mbha_scene2800",
+                profile, {
+                    modalId: "scene2800Modal",
+                    imgId: "scene2800Page",
+                    prevId: "scene2800Prev",
+                    nextId: "scene2800Next",
+                    closeId: "scene2800Close",
+                    counterId: "scene2800Counter"
+                }, [
+                    "img/comics/scene-03/page-1.png",
+                    "img/comics/scene-03/page-2.png",
+                ]
+            );
+        }
+
+        // SCENE-02 (1.1M) — твой существующий модал
+        if (mbhaShouldShowScene1100(profile, totalNumber)) {
+            return mbhaOpenScene1100Modal(profile);
+        }
+
+        // SCENE-01 (400K) — твой существующий модал
+        if (mbhaShouldShowScene400(profile, totalNumber)) {
+            return mbhaOpenScene400Modal(profile);
+        }
     }
 
     // Глобалки (оставляем твой подход)
@@ -761,18 +985,12 @@
 
         const willShowTeamIntro = shouldShowTeamIntro(profile);
 
-        // ✅ приоритет комиксов: 1.1M сначала scene-02, иначе scene-01
-        const canShow1100 = mbhaShouldShowScene1100({ code: profile.code || null }, numericTotal);
-        const canShow400 = mbhaShouldShowScene400({ code: profile.code || null }, numericTotal);
+        // ✅ сцена 400 для intro-логики (чтобы открыть после интро-комикса)
+        window.MBHA_SCENE400_CAN_TRIGGER = mbhaShouldShowScene400({ code: profile.code || null }, numericTotal);
 
-        window.MBHA_SCENE400_CAN_TRIGGER = canShow400;
-
+        // ✅ если не будет team-intro — показываем комикс по приоритету (FIN -> ... -> 400)
         if (!willShowTeamIntro) {
-            if (canShow1100) {
-                mbhaOpenScene1100Modal({ code: profile.code || null });
-            } else if (canShow400) {
-                mbhaOpenScene400Modal({ code: profile.code || null });
-            }
+            mbhaTryOpenComicByPriority({ code: profile.code || null }, numericTotal);
         }
 
         // Подтягиваем ТОП-3 и личный рекорд уже из Firestore
@@ -1340,6 +1558,50 @@
         }, HARRY_SPEED);
     });
 
+    // =================== MBHA: CHARACTER FRAME ANIMATION · SCENE 3–7 ===================
+    document.addEventListener("DOMContentLoaded", () => {
+        function getSpriteEl(selector) {
+            const el = document.querySelector(selector);
+            if (!el) return null;
+            return el.tagName === "IMG" ? el : el.querySelector("img");
+        }
+
+        function loopFrames(imgEl, frames, srcFn, speed) {
+            if (!imgEl) return;
+            let f = 1;
+            imgEl.src = srcFn(f);
+            setInterval(() => {
+                f = f < frames ? f + 1 : 1;
+                imgEl.src = srcFn(f);
+            }, speed);
+        }
+
+        // SCENE 3
+        loopFrames(getSpriteEl(".ha-kevin-scene3"), 3, (i) => `img/sprites/kevin/kevin_scene3_${String(i).padStart(2, "0")}.png`, 220);
+        loopFrames(getSpriteEl(".ha-marv-scene3"), 4, (i) => `img/sprites/marv/marv_scene3_${String(i).padStart(2, "0")}.png`, 220);
+        loopFrames(getSpriteEl(".ha-harry-scene3"), 5, (i) => `img/sprites/harry/harry_scene3_${String(i).padStart(2, "0")}.png`, 220);
+
+        // SCENE 4
+        loopFrames(getSpriteEl(".ha-kevin-scene4"), 6, (i) => `img/sprites/kevin/kevin_scene4_${String(i).padStart(2, "0")}.png`, 200);
+        loopFrames(getSpriteEl(".ha-marv-scene4"), 3, (i) => `img/sprites/marv/marv_scene4_${String(i).padStart(2, "0")}.png`, 240);
+        loopFrames(getSpriteEl(".ha-harry-scene4"), 4, (i) => `img/sprites/harry/harry_scene4_${String(i).padStart(2, "0")}.png`, 240);
+
+        // SCENE 5
+        loopFrames(getSpriteEl(".ha-kevin-scene5"), 3, (i) => `img/sprites/kevin/kevin_scene5_${String(i).padStart(2, "0")}.png`, 240);
+        loopFrames(getSpriteEl(".ha-marv-scene5"), 10, (i) => `img/sprites/marv/marv_scene5_${String(i).padStart(2, "0")}.png`, 160);
+        loopFrames(getSpriteEl(".ha-harry-scene5"), 5, (i) => `img/sprites/harry/harry_scene5_${String(i).padStart(2, "0")}.png`, 200);
+
+        // SCENE 6
+        loopFrames(getSpriteEl(".ha-kevin-scene6"), 6, (i) => `img/sprites/kevin/kevin_scene6_${String(i).padStart(2, "0")}.png`, 200);
+        loopFrames(getSpriteEl(".ha-marv-scene6"), 6, (i) => `img/sprites/marv/marv_scene6_${String(i).padStart(2, "0")}.png`, 200);
+        loopFrames(getSpriteEl(".ha-harry-scene6"), 6, (i) => `img/sprites/harry/harry_scene6_${String(i).padStart(2, "0")}.png`, 200);
+
+        // SCENE 7
+        loopFrames(getSpriteEl(".ha-kevin-scene7"), 10, (i) => `img/sprites/kevin/kevin_scene7_${String(i).padStart(2, "0")}.png`, 140);
+        loopFrames(getSpriteEl(".ha-marv-scene7"), 4, (i) => `img/sprites/marv/marv_scene7_${String(i).padStart(2, "0")}.png`, 220);
+        loopFrames(getSpriteEl(".ha-harry-scene7"), 4, (i) => `img/sprites/harry/harry_scene7_${String(i).padStart(2, "0")}.png`, 220);
+    });
+
     // =================== INTRO COMICS LOGIC ===================
     (function initIntroComics() {
         const introModal = document.getElementById("introModal");
@@ -1431,6 +1693,7 @@
 
         window.openIntroComics = openIntro;
     })();
+
     // =================== SAPPER: TOP-3 (GLOBAL, READ ONLY) ===================
     (async function loadSapperTop3() {
         try {
