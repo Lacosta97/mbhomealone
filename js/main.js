@@ -360,6 +360,28 @@
         } catch {}
     }
 
+    // ===== LAST TOTAL (per user code) =====
+    function mbhaLastTotalKey(profile) {
+        const code = profile && profile.code ? String(profile.code).trim().toUpperCase() : "GUEST";
+        return "mbha_last_total_" + code;
+    }
+
+    function mbhaGetLastTotal(profile) {
+        try {
+            const v = localStorage.getItem(mbhaLastTotalKey(profile));
+            const n = parseFloat(String(v || "0"));
+            return Number.isFinite(n) ? n : 0;
+        } catch {
+            return 0;
+        }
+    }
+
+    function mbhaSetLastTotal(profile, totalNumber) {
+        try {
+            localStorage.setItem(mbhaLastTotalKey(profile), String(totalNumber || 0));
+        } catch {}
+    }
+
     // ===== SCENE-01 COMIC (400K) =====
     function mbhaShouldShowScene400(profile, totalNumber) {
         return totalNumber >= MBHA_SCENE_400 && !mbhaHasSeen("mbha_scene400", profile);
@@ -444,16 +466,28 @@
 
         function onKey(e) {
             if (e.key === "Escape") close();
-            if (e.key === "ArrowLeft" && idx > 0) { idx--;
-                updateView(); }
-            if (e.key === "ArrowRight" && idx < pages.length - 1) { idx++;
-                updateView(); }
+            if (e.key === "ArrowLeft" && idx > 0) {
+                idx--;
+                updateView();
+            }
+            if (e.key === "ArrowRight" && idx < pages.length - 1) {
+                idx++;
+                updateView();
+            }
         }
 
-        prevBtn.onclick = () => { if (idx > 0) { idx--;
-                updateView(); } };
-        nextBtn.onclick = () => { if (idx < pages.length - 1) { idx++;
-                updateView(); } };
+        prevBtn.onclick = () => {
+            if (idx > 0) {
+                idx--;
+                updateView();
+            }
+        };
+        nextBtn.onclick = () => {
+            if (idx < pages.length - 1) {
+                idx++;
+                updateView();
+            }
+        };
         closeBtn.onclick = close;
 
         idx = 0;
@@ -519,16 +553,28 @@
 
         function onKey(e) {
             if (e.key === "Escape") close();
-            if (e.key === "ArrowLeft" && idx > 0) { idx--;
-                updateView(); }
-            if (e.key === "ArrowRight" && idx < pages.length - 1) { idx++;
-                updateView(); }
+            if (e.key === "ArrowLeft" && idx > 0) {
+                idx--;
+                updateView();
+            }
+            if (e.key === "ArrowRight" && idx < pages.length - 1) {
+                idx++;
+                updateView();
+            }
         }
 
-        prevBtn.onclick = () => { if (idx > 0) { idx--;
-                updateView(); } };
-        nextBtn.onclick = () => { if (idx < pages.length - 1) { idx++;
-                updateView(); } };
+        prevBtn.onclick = () => {
+            if (idx > 0) {
+                idx--;
+                updateView();
+            }
+        };
+        nextBtn.onclick = () => {
+            if (idx < pages.length - 1) {
+                idx++;
+                updateView();
+            }
+        };
         closeBtn.onclick = close;
 
         idx = 0;
@@ -541,19 +587,22 @@
 
         mbhaMarkSeen("mbha_scene1100", profile);
     }
+    // ===== NEW COMICS (scene-03 ... fin) — показывать ОДИН РАЗ ПРИ ДОСТИЖЕНИИ, приоритет самый поздний =====
+    function mbhaCrossed(prevTotal, totalNumber, threshold) {
+        return prevTotal < threshold && totalNumber >= threshold;
+    }
 
-    // ===== NEW COMICS (scene-03 ... fin) — показывать ОДИН РАЗ, приоритет самый поздний =====
-    function mbhaTryOpenComicByPriority(profile, totalNumber) {
+    function mbhaTryOpenComicByPriority(profile, prevTotal, totalNumber) {
         // FIN
-        if (totalNumber >= MBHA_SCENE_4500 && !mbhaHasSeen("mbha_scenefin", profile)) {
+        if (mbhaCrossed(prevTotal, totalNumber, MBHA_SCENE_4500) && !mbhaHasSeen("mbha_scenefin", profile)) {
             return mbhaOpenPagedComicModal(
                 "mbha_scenefin",
                 profile, {
                     modalId: "scene4500Modal",
-                    imgId: "scene4500Page",
-                    prevId: "scene4500Prev",
-                    nextId: "scene4500Next",
-                    closeId: "scene4500Close",
+                    imgId: "scene4500Image",
+                    prevId: "scene4500PrevBtn",
+                    nextId: "scene4500NextBtn",
+                    closeId: "scene4500CloseBtn",
                     counterId: "scene4500Counter"
                 }, [
                     "img/comics/scene-fin/page-1.png",
@@ -566,15 +615,15 @@
         }
 
         // SCENE-08
-        if (totalNumber >= MBHA_SCENE_4000 && !mbhaHasSeen("mbha_scene4000", profile)) {
+        if (mbhaCrossed(prevTotal, totalNumber, MBHA_SCENE_4000) && !mbhaHasSeen("mbha_scene4000", profile)) {
             return mbhaOpenPagedComicModal(
                 "mbha_scene4000",
                 profile, {
                     modalId: "scene4000Modal",
-                    imgId: "scene4000Page",
-                    prevId: "scene4000Prev",
-                    nextId: "scene4000Next",
-                    closeId: "scene4000Close",
+                    imgId: "scene4000Image",
+                    prevId: "scene4000PrevBtn",
+                    nextId: "scene4000NextBtn",
+                    closeId: "scene4000CloseBtn",
                     counterId: "scene4000Counter"
                 }, [
                     "img/comics/scene-08/page-1.png",
@@ -584,15 +633,15 @@
         }
 
         // SCENE-07
-        if (totalNumber >= MBHA_SCENE_3700 && !mbhaHasSeen("mbha_scene3700", profile)) {
+        if (mbhaCrossed(prevTotal, totalNumber, MBHA_SCENE_3700) && !mbhaHasSeen("mbha_scene3700", profile)) {
             return mbhaOpenPagedComicModal(
                 "mbha_scene3700",
                 profile, {
                     modalId: "scene3700Modal",
-                    imgId: "scene3700Page",
-                    prevId: "scene3700Prev",
-                    nextId: "scene3700Next",
-                    closeId: "scene3700Close",
+                    imgId: "scene3700Image",
+                    prevId: "scene3700PrevBtn",
+                    nextId: "scene3700NextBtn",
+                    closeId: "scene3700CloseBtn",
                     counterId: "scene3700Counter"
                 }, [
                     "img/comics/scene-07/page-1.png",
@@ -602,15 +651,15 @@
         }
 
         // SCENE-06
-        if (totalNumber >= MBHA_SCENE_3500 && !mbhaHasSeen("mbha_scene3500", profile)) {
+        if (mbhaCrossed(prevTotal, totalNumber, MBHA_SCENE_3500) && !mbhaHasSeen("mbha_scene3500", profile)) {
             return mbhaOpenPagedComicModal(
                 "mbha_scene3500",
                 profile, {
                     modalId: "scene3500Modal",
-                    imgId: "scene3500Page",
-                    prevId: "scene3500Prev",
-                    nextId: "scene3500Next",
-                    closeId: "scene3500Close",
+                    imgId: "scene3500Image",
+                    prevId: "scene3500PrevBtn",
+                    nextId: "scene3500NextBtn",
+                    closeId: "scene3500CloseBtn",
                     counterId: "scene3500Counter"
                 }, [
                     "img/comics/scene-06/page-1.png",
@@ -620,15 +669,15 @@
         }
 
         // SCENE-05
-        if (totalNumber >= MBHA_SCENE_3200 && !mbhaHasSeen("mbha_scene3200", profile)) {
+        if (mbhaCrossed(prevTotal, totalNumber, MBHA_SCENE_3200) && !mbhaHasSeen("mbha_scene3200", profile)) {
             return mbhaOpenPagedComicModal(
                 "mbha_scene3200",
                 profile, {
                     modalId: "scene3200Modal",
-                    imgId: "scene3200Page",
-                    prevId: "scene3200Prev",
-                    nextId: "scene3200Next",
-                    closeId: "scene3200Close",
+                    imgId: "scene3200Image",
+                    prevId: "scene3200PrevBtn",
+                    nextId: "scene3200NextBtn",
+                    closeId: "scene3200CloseBtn",
                     counterId: "scene3200Counter"
                 }, [
                     "img/comics/scene-05/page-1.png",
@@ -639,15 +688,15 @@
         }
 
         // SCENE-04
-        if (totalNumber >= MBHA_SCENE_3000 && !mbhaHasSeen("mbha_scene3000", profile)) {
+        if (mbhaCrossed(prevTotal, totalNumber, MBHA_SCENE_3000) && !mbhaHasSeen("mbha_scene3000", profile)) {
             return mbhaOpenPagedComicModal(
                 "mbha_scene3000",
                 profile, {
                     modalId: "scene3000Modal",
-                    imgId: "scene3000Page",
-                    prevId: "scene3000Prev",
-                    nextId: "scene3000Next",
-                    closeId: "scene3000Close",
+                    imgId: "scene3000Image",
+                    prevId: "scene3000PrevBtn",
+                    nextId: "scene3000NextBtn",
+                    closeId: "scene3000CloseBtn",
                     counterId: "scene3000Counter"
                 }, [
                     "img/comics/scene-04/page-1.png",
@@ -658,15 +707,15 @@
         }
 
         // SCENE-03
-        if (totalNumber >= MBHA_SCENE_2800 && !mbhaHasSeen("mbha_scene2800", profile)) {
+        if (mbhaCrossed(prevTotal, totalNumber, MBHA_SCENE_2800) && !mbhaHasSeen("mbha_scene2800", profile)) {
             return mbhaOpenPagedComicModal(
                 "mbha_scene2800",
                 profile, {
                     modalId: "scene2800Modal",
-                    imgId: "scene2800Page",
-                    prevId: "scene2800Prev",
-                    nextId: "scene2800Next",
-                    closeId: "scene2800Close",
+                    imgId: "scene2800Image",
+                    prevId: "scene2800PrevBtn",
+                    nextId: "scene2800NextBtn",
+                    closeId: "scene2800CloseBtn",
                     counterId: "scene2800Counter"
                 }, [
                     "img/comics/scene-03/page-1.png",
@@ -676,15 +725,16 @@
         }
 
         // SCENE-02 (1.1M) — твой существующий модал
-        if (mbhaShouldShowScene1100(profile, totalNumber)) {
+        if (mbhaCrossed(prevTotal, totalNumber, MBHA_SCENE_1100) && !mbhaHasSeen("mbha_scene1100", profile)) {
             return mbhaOpenScene1100Modal(profile);
         }
 
         // SCENE-01 (400K) — твой существующий модал
-        if (mbhaShouldShowScene400(profile, totalNumber)) {
+        if (mbhaCrossed(prevTotal, totalNumber, MBHA_SCENE_400) && !mbhaHasSeen("mbha_scene400", profile)) {
             return mbhaOpenScene400Modal(profile);
         }
     }
+
 
     // Глобалки (оставляем твой подход)
     window.MBHA_SCENE400_CAN_TRIGGER = false;
@@ -981,6 +1031,9 @@
 
         const numericTotal = parseScore(profile.total || 0);
 
+        const p = { code: profile.code || null };
+        const prevTotal = mbhaGetLastTotal(p);
+
         mbhaUpdateScenesByTotal(numericTotal);
 
         const willShowTeamIntro = shouldShowTeamIntro(profile);
@@ -990,8 +1043,11 @@
 
         // ✅ если не будет team-intro — показываем комикс по приоритету (FIN -> ... -> 400)
         if (!willShowTeamIntro) {
-            mbhaTryOpenComicByPriority({ code: profile.code || null }, numericTotal);
+            mbhaTryOpenComicByPriority(p, prevTotal, numericTotal);
         }
+
+        // сохраняем последний total (нужно для "достигли порога")
+        mbhaSetLastTotal(p, numericTotal);
 
         // Подтягиваем ТОП-3 и личный рекорд уже из Firestore
         loadFlappyStatsForCurrentUser();
