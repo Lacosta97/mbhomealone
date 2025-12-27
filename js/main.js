@@ -1403,8 +1403,8 @@
         }, HARRY_SPEED);
 
         // =================== MBHA: KEVIN WALK (01–10 ПО ТВОЕМУ СЦЕНАРИЮ) ===================
-        (function setupKevinWalkProper() {
-            const wrapper = document.querySelector(".ha-kevin");
+        function setupKevinWalkProper(wrapperSelector) {
+            const wrapper = document.querySelector(wrapperSelector);
             if (!wrapper) return;
 
             const img = wrapper.querySelector("img");
@@ -1505,7 +1505,11 @@
                         break;
                 }
             }, SPEED);
-        })();
+        }
+
+        setupKevinWalkProper(".ha-kevin");
+        setupKevinWalkProper(".ha-kevin-scene6");
+        setupKevinWalkProper(".ha-kevin-scene7");
     });
 
     // =================== MBHA: CHARACTER FRAME ANIMATION · SCENE 1 ===================
@@ -1632,30 +1636,66 @@
             }, speed);
         }
 
+        function setupMarvWalkLikeKevinIdle(wrapperSelector) {
+            const wrapper = document.querySelector(wrapperSelector);
+            if (!wrapper) return;
+            const img = wrapper.tagName === "IMG" ? wrapper : wrapper.querySelector("img");
+            if (!img) return;
+
+            function marvIdleSrc(n) {
+                return `img/sprites/marv/marv_idle_${String(n).padStart(2, "0")}.png`;
+            }
+
+            const FRAMES = [1, 2, 3, 4];
+            const computed = getComputedStyle(wrapper);
+            const baseLeft = parseFloat(computed.left) || 0;
+
+            let offset = 0;
+            let dir = 1;
+            const STEP_PX = 3;
+            const MAX_OFFSET = 22;
+            let frameIndex = 0;
+
+            img.src = marvIdleSrc(FRAMES[0]);
+            wrapper.style.left = baseLeft + "px";
+
+            setInterval(() => {
+                frameIndex = (frameIndex + 1) % FRAMES.length;
+                img.src = marvIdleSrc(FRAMES[frameIndex]);
+
+                offset += STEP_PX * dir;
+                if (offset >= MAX_OFFSET) { offset = MAX_OFFSET;
+                    dir = -1; }
+                if (offset <= -MAX_OFFSET) { offset = -MAX_OFFSET;
+                    dir = 1; }
+
+                wrapper.style.left = baseLeft + offset + "px";
+            }, 320);
+        }
+
+
         // SCENE 3
-        loopFrames(getSpriteEl(".ha-kevin-scene3"), 3, (i) => `img/sprites/kevin/kevin_scene3_${String(i).padStart(2, "0")}.png`, 220);
-        loopFrames(getSpriteEl(".ha-marv-scene3"), 4, (i) => `img/sprites/marv/marv_scene3_${String(i).padStart(2, "0")}.png`, 220);
+        loopFrames(getSpriteEl(".ha-kevin-scene3"), 3, (i) => `img/sprites/kevin/kevin_scene3_${String(i).padStart(2, "0")}.png`, 440);
+        loopFrames(getSpriteEl(".ha-marv-scene3"), 4, (i) => `img/sprites/marv/marv_scene3_${String(i).padStart(2, "0")}.png`, 440);
         loopFrames(getSpriteEl(".ha-harry-scene3"), 5, (i) => `img/sprites/harry/harry_scene3_${String(i).padStart(2, "0")}.png`, 220);
 
         // SCENE 4
         loopFrames(getSpriteEl(".ha-kevin-scene4"), 6, (i) => `img/sprites/kevin/kevin_scene4_${String(i).padStart(2, "0")}.png`, 200);
         loopFrames(getSpriteEl(".ha-marv-scene4"), 3, (i) => `img/sprites/marv/marv_scene4_${String(i).padStart(2, "0")}.png`, 240);
-        loopFrames(getSpriteEl(".ha-harry-scene4"), 4, (i) => `img/sprites/harry/harry_scene4_${String(i).padStart(2, "0")}.png`, 240);
+        loopFrames(getSpriteEl(".ha-harry-scene4"), 4, (i) => `img/sprites/harry/harry_scene4_${String(i).padStart(2, "0")}.png`, 480);
 
         // SCENE 5
-        loopFrames(getSpriteEl(".ha-kevin-scene5"), 3, (i) => `img/sprites/kevin/kevin_scene5_${String(i).padStart(2, "0")}.png`, 240);
-        loopFrames(getSpriteEl(".ha-marv-scene5"), 10, (i) => `img/sprites/marv/marv_scene5_${String(i).padStart(2, "0")}.png`, 160);
+        loopFrames(getSpriteEl(".ha-kevin-scene5"), 3, (i) => `img/sprites/kevin/kevin_scene5_${String(i).padStart(2, "0")}.png`, 480);
+        setupMarvWalkLikeKevinIdle(".ha-marv-scene5");
         loopFrames(getSpriteEl(".ha-harry-scene5"), 5, (i) => `img/sprites/harry/harry_scene5_${String(i).padStart(2, "0")}.png`, 200);
 
         // SCENE 6
-        loopFrames(getSpriteEl(".ha-kevin-scene6"), 6, (i) => `img/sprites/kevin/kevin_scene6_${String(i).padStart(2, "0")}.png`, 200);
         loopFrames(getSpriteEl(".ha-marv-scene6"), 6, (i) => `img/sprites/marv/marv_scene6_${String(i).padStart(2, "0")}.png`, 200);
-        loopFrames(getSpriteEl(".ha-harry-scene6"), 6, (i) => `img/sprites/harry/harry_scene6_${String(i).padStart(2, "0")}.png`, 200);
+        loopFrames(getSpriteEl(".ha-harry-scene6"), 6, (i) => `img/sprites/harry/harry_idle_${String(i).padStart(2, "0")}.png`, 280);
 
         // SCENE 7
-        loopFrames(getSpriteEl(".ha-kevin-scene7"), 10, (i) => `img/sprites/kevin/kevin_scene7_${String(i).padStart(2, "0")}.png`, 140);
-        loopFrames(getSpriteEl(".ha-marv-scene7"), 4, (i) => `img/sprites/marv/marv_scene7_${String(i).padStart(2, "0")}.png`, 220);
-        loopFrames(getSpriteEl(".ha-harry-scene7"), 4, (i) => `img/sprites/harry/harry_scene7_${String(i).padStart(2, "0")}.png`, 220);
+        loopFrames(getSpriteEl(".ha-marv-scene7"), 4, (i) => `img/sprites/marv/marv_scene7_${String(i).padStart(2, "0")}.png`, 440);
+        loopFrames(getSpriteEl(".ha-harry-scene7"), 4, (i) => `img/sprites/harry/harry_scene7_${String(i).padStart(2, "0")}.png`, 440);
     });
 
     // =================== INTRO COMICS LOGIC ===================
