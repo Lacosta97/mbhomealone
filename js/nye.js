@@ -1,4 +1,4 @@
-// ===== NYE (Kyiv time) — heart overlay FIX v3 (MBHA compatible) =====
+// ===== NYE (Kyiv time) — heart overlay FIX v3 (MBHA compatible, FIXED) =====
 // Shows between 2025-12-31 00:00 and 2026-01-01 23:59 (Europe/Kyiv)
 // Debug: add ?nye=1 to force show
 
@@ -16,7 +16,7 @@
 
   if (!widget || !envelopeBtn || !modal || !modalClose || !modalBackdrop || !heartBtn) return;
 
-  // Garland title
+  // ===== Garland title =====
   const titleEl = widget.querySelector(".nye-title");
   if (titleEl && !titleEl.dataset.garlandReady) {
     const raw = titleEl.textContent || "";
@@ -47,9 +47,10 @@
     titleEl.dataset.garlandReady = "1";
   }
 
+  // Heart emoji
   heartBtn.textContent = "❤️";
 
-  // Time window (Kyiv) — compare stamps
+  // ===== Time window (Kyiv) =====
   function kyivNowParts() {
     const fmt = new Intl.DateTimeFormat("en-CA", {
       timeZone: tz,
@@ -61,13 +62,30 @@
       second: "2-digit",
       hour12: false,
     });
+
     const parts = fmt.formatToParts(new Date());
     const get = (t) => parts.find((p) => p.type === t)?.value || "00";
-    return { y: +get("year"), mo: +get("month"), d: +get("day"), h: +get("hour"), mi: +get("minute"), s: +get("second") };
+
+    return {
+      y: +get("year"),
+      mo: +get("month"),
+      d: +get("day"),
+      h: +get("hour"),
+      mi: +get("minute"),
+      s: +get("second"),
+    };
   }
+
   function kyivStamp(p) {
     const pad2 = (n) => String(n).padStart(2, "0");
-    return +(String(p.y) + pad2(p.mo) + pad2(p.d) + pad2(p.h) + pad2(p.mi) + pad2(p.s));
+    return +(
+      String(p.y) +
+      pad2(p.mo) +
+      pad2(p.d) +
+      pad2(p.h) +
+      pad2(p.mi) +
+      pad2(p.s)
+    );
   }
 
   const startStamp = 20251231000000;
@@ -86,11 +104,12 @@
     envelopeBtn.style.display = on ? "" : "none";
   }
 
-  // Modal
+  // ===== Modal =====
   function openModal() {
     modal.setAttribute("aria-hidden", "false");
     modal.style.display = "";
   }
+
   function closeModal() {
     modal.setAttribute("aria-hidden", "true");
     modal.style.display = "none";
@@ -103,8 +122,7 @@
     if (e.key === "Escape") closeModal();
   });
 
-  // HEART CLICK — compatible with your main.js DONT PUSH:
-  // main.js shows overlay by toggling class "is-visible" (not by display).
+  // ===== HEART CLICK (uses dontPushOverlay logic) =====
   heartBtn.addEventListener("click", () => {
     const overlay = document.getElementById("dontPushOverlay");
     if (!overlay) return;
@@ -112,7 +130,6 @@
     const okakPath = "img/icons/okak2.png";
     const soundPath = "audio/dont-push-guest.mp3";
 
-    // 1) Force the image (works whether overlay uses <img> OR CSS background)
     const img = overlay.querySelector("img");
     const prevImgSrc = img ? img.getAttribute("src") : null;
 
@@ -130,17 +147,14 @@
       overlay.style.backgroundRepeat = "no-repeat";
     }
 
-    // 2) Show overlay the same way as main.js
     overlay.classList.add("is-visible");
 
-    // 3) Play the same sound file
     try {
       const a = new Audio(soundPath);
       a.currentTime = 0;
       a.play().catch(() => {});
     } catch (_) {}
 
-    // 4) Hide + restore
     setTimeout(() => {
       overlay.classList.remove("is-visible");
 
@@ -155,7 +169,7 @@
     }, 1000);
   });
 
-  // Init + periodic re-check
+  // ===== Init =====
   setWidgetVisible(shouldShow());
   setInterval(() => setWidgetVisible(shouldShow()), 30000);
 })();

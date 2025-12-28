@@ -241,3 +241,18 @@
         font-size: 48px;
     }
 }
+
+
+/* ===== NYE — iPhone SE ONLY ===== */
+
+@media (max-width: 375px) {
+    /* Надпись — в 2 раза меньше */
+    .nye-title {
+        font-size: 50%;
+        line-height: 1;
+    }
+    /* Конверт — поднять вверх на 2 высоты конверта */
+    .nye-envelope {
+        top: calc(100% - (2 * 56px));
+    }
+}
