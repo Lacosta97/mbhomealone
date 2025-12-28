@@ -324,13 +324,35 @@
     // ===== FIRESTORE TOP-3 =====
     const COL = "sapper_scores_v1";
 
-    function getPlayerName() {
-        const n =
+    async function getPlayerName() {
+        // 1) cache (fast path)
+        const cached =
             localStorage.getItem("MBHA_NAME") ||
             localStorage.getItem("mbha_name") ||
-            localStorage.getItem("name") ||
-            "PLAYER";
-        return String(n).slice(0, 16);
+            localStorage.getItem("name");
+        if (cached) return String(cached).slice(0, 16);
+
+        // 2) take code
+        const code =
+            localStorage.getItem("MBHA_CODE") ||
+            localStorage.getItem("mbha_code") ||
+            localStorage.getItem("code");
+
+        if (!code) return "PLAYER";
+
+        // 3) read from flappyScores/{code}
+        try {
+            const snap = await db.collection("flappyScores").doc(String(code)).get();
+            const data = snap.exists ? snap.data() : null;
+            const name = data ? .name ? String(data.name) : "PLAYER";
+
+            // cache it for all games
+            localStorage.setItem("MBHA_NAME", name);
+
+            return name.slice(0, 16);
+        } catch (e) {
+            return "PLAYER";
+        }
     }
 
     async function loadTop3() {
@@ -340,8 +362,11 @@
 
             const safeSet = (i, nameEl, scoreEl) => {
                 const row = rows[i];
-                if (!row) { nameEl.textContent = "—";
-                    scoreEl.textContent = "—"; return; }
+                if (!row) {
+                    nameEl.textContent = "—";
+                    scoreEl.textContent = "—";
+                    return;
+                }
                 nameEl.textContent = row.name || "—";
                 scoreEl.textContent = formatTime(row.timeMs || 0);
             };
@@ -355,7 +380,7 @@
     async function submitScore(timeMs) {
         timeMs = clamp(timeMs, 1, 24 * 60 * 60 * 1000);
 
-        const name = getPlayerName();
+        const name = await getPlayerName();
         const payload = {
             name,
             timeMs,
