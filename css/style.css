@@ -2172,19 +2172,19 @@ body {
 
 .ha-kevin-scene4 {
     left: 60%;
-    bottom: 420%;
+    bottom: 219%;
     transform: scale(1);
 }
 
 .ha-marv-scene4 {
-    left: 8%;
-    bottom: 350%;
+    left: 7%;
+    bottom: 126%;
     transform: scale(3);
 }
 
 .ha-harry-scene4 {
     left: 66%;
-    bottom: 300%;
+    bottom: 100%;
     transform: scale(1.5);
 }
 
@@ -2388,25 +2388,25 @@ body {
     }
     /* --- Scene 4 --- */
     .ha-kevin-scene4 {
-        left: 50%;
-        bottom: 79px;
+        left: 64%;
+        bottom: 68px;
         transform: translateX(-50%);
     }
     .ha-kevin-scene4 img {
         transform: scale(0.4);
     }
     .ha-marv-scene4 {
-        left: 69%;
+        left: 1%;
         bottom: 23px;
-        transform: translateX(-50%);
+        transform: scale(2.5);
     }
     .ha-marv-scene4 img {
         transform: scale(0.55);
     }
     .ha-harry-scene4 {
-        left: 39%;
-        bottom: 43px;
-        transform: translateX(-50%);
+        left: 46%;
+        bottom: 41px;
+        transform: scale(0.7);
     }
     .ha-harry-scene4 img {
         transform: scale(0.85);
