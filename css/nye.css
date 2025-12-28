@@ -219,40 +219,19 @@
 }
 
 
-/* Mobile tweaks */
+/* ===== NYE — MOBILE (CANON LIKE iPhone SE FOR ALL MOBILES) ===== */
 
-@media (max-width: 420px) {
-    .nye-widget {
-        top: 42px;
-    }
-    .nye-title {
-        font-size: clamp(28px, 9vw, 44px);
-        letter-spacing: 1px;
-    }
-    .nye-envelope {
-        width: 60px;
-        height: 46px;
-        top: 108px;
-    }
-    .nye-letter__text {
-        font-size: 16px;
-    }
-    .nye-heart {
-        font-size: 48px;
-    }
-}
-
-
-/* ===== NYE — iPhone SE ONLY ===== */
-
-@media (max-width: 375px) {
+@media (max-width: 768px) {
     /* Надпись — в 2 раза меньше */
     .nye-title {
-        font-size: 50%;
+        font-size: 100%;
         line-height: 1;
     }
-    /* Конверт — поднять вверх на 2 высоты конверта */
+    /* Конверт — выше на 2 высоты конверта
+     (у тебя desktop top: 128px, высота конверта: 56px)
+     128 - 112 = 16px
+  */
     .nye-envelope {
-        top: calc(100% - (2 * 56px));
+        top: 16px;
     }
 }
