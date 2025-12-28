@@ -8,6 +8,7 @@
 
     <!-- Стили -->
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/nye.css">
 </head>
 
 <body>
@@ -16,6 +17,31 @@
     <div id="dontPushOverlay" class="dont-push-overlay">
         <img src="img/icons/okak1.png" alt="dont push image">
     </div>
+    <!-- ===== NEW YEAR EASTER EGG (KYIV) ===== -->
+    <div id="nyeWidget" class="nye-widget" aria-hidden="true">
+        <div class="nye-title">HAPPY NEW YEAR FAMILY!</div>
+
+        <button id="nyeEnvelopeBtn" class="nye-envelope" type="button" aria-label="Open letter">
+    <span>OPEN</span>
+  </button>
+    </div>
+
+    <div class="nye-letter" id="nyeLetter" aria-hidden="true">
+        <div class="nye-letter__backdrop" id="nyeLetterBackdrop"></div>
+
+        <div class="nye-letter__content" role="dialog" aria-modal="true" aria-labelledby="nyeLetterTitle">
+            <button class="nye-letter__close" id="nyeLetterCloseBtn" type="button">✕</button>
+
+            <div id="nyeLetterTitle" class="nye-letter__text">
+                I wish all your wishes come true! Live in the here and now, because there is only a moment, and you are in it, and everything else doesn't matter! Love! Laugh! Set goals and achieve them! You can do it! Be happy!
+            </div>
+
+            <button id="nyeHeartBtn" class="nye-heart" type="button" aria-label="Heart">
+      <i></i>
+    </button>
+        </div>
+    </div>
+
 
     <div class="page">
 
@@ -587,6 +613,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/nye.js"></script>
 
 </body>
 

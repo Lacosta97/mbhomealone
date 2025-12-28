@@ -1,0 +1,243 @@
+/* ===== NYE (time-limited feature) — DESIGN UPDATE v2 ===== */
+
+.nye-widget {
+    position: fixed;
+    left: 63%;
+    top: 52px;
+    /* lower */
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: min(96vw, 1200px);
+    pointer-events: none;
+}
+
+
+/* Center stack: title then envelope under it */
+
+.nye-title {
+    pointer-events: auto;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    /* ~3x bigger than previous */
+    font-size: clamp(42px, 7vw, 78px);
+    line-height: 1;
+    letter-spacing: 2px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 2px 0 0 rgba(0, 0, 0, .85), -2px 0 0 rgba(0, 0, 0, .85), 0 2px 0 rgba(0, 0, 0, .85), 0 -2px 0 rgba(0, 0, 0, .85), 0 4px 0 rgba(0, 0, 0, .35);
+}
+
+
+/* Garland: each character animates independently */
+
+.nye-title .nye-ch {
+    display: inline-block;
+    will-change: transform, opacity, filter;
+    animation: nyeGlow 1200ms steps(2, end) infinite;
+    animation-delay: var(--d, 0ms);
+    color: var(--c, #ffd60a);
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, .12));
+}
+
+@keyframes nyeGlow {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: drop-shadow(0 0 3px rgba(255, 255, 255, .06));
+    }
+    45% {
+        opacity: .85;
+        transform: translateY(0);
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, .12));
+    }
+    55% {
+        opacity: .6;
+        transform: translateY(2px);
+        filter: drop-shadow(0 0 16px rgba(255, 255, 255, .26));
+    }
+    70% {
+        opacity: .92;
+        transform: translateY(0);
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, .16));
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, .10));
+    }
+}
+
+
+/* Envelope image button centered under title */
+
+.nye-envelope {
+    pointer-events: auto;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 72px;
+    height: 56px;
+    position: fixed;
+    /* independent so it's always centered */
+    left: 33%;
+    top: 128px;
+    /* under the title */
+    transform: translateX(-50%);
+    z-index: 9999;
+    background-image: url("../img/icons/letter.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 14px rgba(255, 255, 255, .22));
+    animation: nyeEnvelopePulse 1400ms ease-in-out infinite;
+    transform-origin: center;
+}
+
+@keyframes nyeEnvelopePulse {
+    0% {
+        transform: translateX(-50%) translateY(0) scale(1);
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, .16));
+    }
+    50% {
+        transform: translateX(-50%) translateY(-2px) scale(1.06);
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, .28));
+    }
+    100% {
+        transform: translateX(-50%) translateY(0) scale(1);
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, .16));
+    }
+}
+
+.nye-envelope:hover {
+    animation: none;
+    transform: translateX(-50%) translateY(-2px) scale(1.08);
+    filter: drop-shadow(0 0 24px rgba(255, 255, 255, .34));
+}
+
+.nye-envelope:active {
+    transform: translateX(-50%) translateY(0) scale(1.03);
+}
+
+
+/* ===== Letter modal ===== */
+
+.nye-letter {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+}
+
+.nye-letter[aria-hidden="true"] {
+    display: none;
+}
+
+.nye-letter__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .65);
+}
+
+.nye-letter__content {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(92vw, 1180px);
+    background: linear-gradient(180deg, #f6e7c8 0%, #f1ddb3 100%);
+    border: 2px solid rgba(40, 25, 10, .55);
+    border-radius: 18px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, .55);
+    padding: 26px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nye-letter__text {
+    color: #1a120a;
+    font-size: 18px;
+    line-height: 1.35;
+    text-align: center;
+    max-width: 980px;
+    margin: 0 auto 18px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .25);
+}
+
+
+/* smaller close button */
+
+.nye-letter__close {
+    position: absolute;
+    right: 14px;
+    top: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+    border: 2px solid rgba(40, 25, 10, .35);
+    background: rgba(255, 255, 255, .25);
+    color: #1a120a;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .06);
+}
+
+
+/* Heart centered + obvious */
+
+.nye-heart {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: block;
+    width: fit-content;
+    margin: 6px auto 0;
+    font-size: 56px;
+    line-height: 1;
+    transform-origin: center;
+    animation: nyeHeartBeat 1200ms ease-in-out infinite;
+    text-shadow: 0 2px 0 rgba(90, 0, 0, .35), 0 6px 0 rgba(90, 0, 0, .18), 0 0 14px rgba(255, 0, 0, .22);
+}
+
+@keyframes nyeHeartBeat {
+    0% {
+        transform: scale(1);
+    }
+    35% {
+        transform: scale(1.10);
+    }
+    55% {
+        transform: scale(0.98);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+/* Mobile tweaks */
+
+@media (max-width: 420px) {
+    .nye-widget {
+        top: 42px;
+    }
+    .nye-title {
+        font-size: clamp(28px, 9vw, 44px);
+        letter-spacing: 1px;
+    }
+    .nye-envelope {
+        width: 60px;
+        height: 46px;
+        top: 108px;
+    }
+    .nye-letter__text {
+        font-size: 16px;
+    }
+    .nye-heart {
+        font-size: 48px;
+    }
+}
