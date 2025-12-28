@@ -344,7 +344,8 @@
         try {
             const snap = await db.collection("flappyScores").doc(String(code)).get();
             const data = snap.exists ? snap.data() : null;
-            const name = data ? .name ? String(data.name) : "PLAYER";
+            const name = data && data.name ? String(data.name) : "PLAYER";
+
 
             // cache it for all games
             localStorage.setItem("MBHA_NAME", name);
