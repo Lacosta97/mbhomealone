@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>MBHA • Cards</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./cards.css" />
+</head>
+
+<body class="mbha-cards">
+    <div class="cards-page">
+        <header class="cards-top">
+            <div class="cards-top__left">
+                <div class="cards-badge">MBHA</div>
+                <div class="cards-title">
+                    <div class="cards-title__h">CARD REVEAL</div>
+                    <div class="cards-title__s">Открытые карты сохраняются локально на этом устройстве.</div>
+                </div>
+            </div>
+
+            <div class="cards-top__right">
+                <button class="cards-btn" id="btnReset" type="button">RESET</button>
+            </div>
+        </header>
+
+        <main class="cards-main">
+            <div class="cards-status" id="status">
+                <div class="cards-status__row">
+                    <span class="loader"></span>
+                    <span id="statusText">Загружаю игроков из Google Sheet…</span>
+                </div>
+            </div>
+
+            <section class="cards-grid" id="cardsGrid" aria-label="Cards grid"></section>
+        </main>
+
+        <footer class="cards-foot">
+            <div class="cards-foot__hint">
+                <span class="cards-dot"></span>
+                <span>Всего: <b id="countTotal">18</b></span>
+                <span class="cards-sep">•</span>
+                <span>Открыто: <b id="countOpened">0</b></span>
+            </div>
+        </footer>
+
+        <div class="cards-fx-layer" id="fxLayer" aria-hidden="true"></div>
+    </div>
+
+    <script src="./cards.js"></script>
+</body>
+
+</html>
