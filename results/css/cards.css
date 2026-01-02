@@ -15,12 +15,12 @@
 * {
     box-sizing: border-box;
     margin: 0;
-    padding: 0;
+    padding: 0
 }
 
 html,
 body {
-    height: 100%;
+    height: 100%
 }
 
 body.mbha-cards {
@@ -34,14 +34,12 @@ body.mbha-cards {
     min-height: 100%;
     display: flex;
     flex-direction: column;
-    position: relative;
-    padding: 18px 18px 16px;
     gap: 14px;
+    padding: 18px
 }
 
 .cards-top {
     display: flex;
-    align-items: center;
     justify-content: space-between;
     gap: 12px;
     padding: 14px;
@@ -49,47 +47,37 @@ body.mbha-cards {
     border: 1px solid var(--stroke2);
     border-radius: var(--r);
     box-shadow: var(--shadow2);
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px)
 }
 
 .cards-top__left {
     display: flex;
     gap: 12px;
-    align-items: center;
-    min-width: 0;
+    align-items: center
 }
 
 .cards-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: 64px;
     height: 44px;
     border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: rgba(255, 45, 85, .14);
     border: 1px solid rgba(255, 45, 85, .35);
     letter-spacing: .08em;
-    font-weight: 600;
-    text-shadow: 0 2px 0 rgba(0, 0, 0, .35);
-}
-
-.cards-title {
-    min-width: 0;
+    font-weight: 600
 }
 
 .cards-title__h {
     font-size: 20px;
-    letter-spacing: .06em;
-    line-height: 1.05;
+    letter-spacing: .06em
 }
 
 .cards-title__s {
-    margin-top: 4px;
     font-size: 12px;
     color: var(--muted);
-    line-height: 1.2;
-    letter-spacing: .02em;
-    max-width: 680px;
+    margin-top: 4px
 }
 
 .cards-btn {
@@ -99,28 +87,14 @@ body.mbha-cards {
     border: 1px solid var(--stroke);
     border-radius: 14px;
     padding: 10px 12px;
-    font-size: 13px;
-    letter-spacing: .05em;
-    cursor: pointer;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, .25);
-    transition: transform .12s ease, background .12s ease, border-color .12s ease;
-    user-select: none;
-}
-
-.cards-btn:hover {
-    background: rgba(255, 255, 255, .06);
-    border-color: rgba(255, 255, 255, .22);
-}
-
-.cards-btn:active {
-    transform: translateY(1px) scale(.99);
+    cursor: pointer
 }
 
 .cards-main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 10px
 }
 
 .cards-status {
@@ -128,77 +102,86 @@ body.mbha-cards {
     padding: 12px 14px;
     background: rgba(255, 255, 255, .03);
     border: 1px solid var(--stroke2);
-    border-radius: var(--r);
-    box-shadow: var(--shadow2);
-    backdrop-filter: blur(6px);
+    border-radius: var(--r)
 }
 
 .cards-status.is-on {
-    display: block;
-}
-
-.cards-status__row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: rgba(248, 250, 252, .78);
-    font-size: 12px;
-    letter-spacing: .03em;
+    display: block
 }
 
 .loader {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, .20);
-    border-top-color: rgba(255, 255, 255, .85);
-    animation: spin 900ms linear infinite;
+    border: 2px solid rgba(255, 255, 255, .2);
+    border-top-color: #fff;
+    animation: spin .9s linear infinite
 }
 
 @keyframes spin {
     to {
-        transform: rotate(360deg);
+        transform: rotate(360deg)
     }
 }
 
-.cards-grid {
+
+/* ===== КАРУСЕЛЬ ===== */
+
+.carousel-wrap {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px
+}
+
+.carousel-viewport {
     width: 100%;
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 12px;
-    align-content: start;
+    max-width: 1100px;
+    height: 420px;
+    overflow: hidden;
+    touch-action: pan-y
+}
+
+.carousel-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    will-change: transform
+}
+
+.carousel-hint {
+    font-size: 12px;
+    color: var(--muted)
 }
 
 
-/* ==== CARD ==== */
+/* ===== КАРТКА (перевикористання) ===== */
 
 .card {
-    position: relative;
-    aspect-ratio: 3 / 4;
+    position: absolute;
+    width: 220px;
+    aspect-ratio: 3/4;
     border-radius: var(--cardR);
     perspective: 1200px;
     cursor: pointer;
-    user-select: none;
-    outline: none;
-    background: transparent;
     border: 0;
-    padding: 0;
-}
-
-.card:focus-visible {
-    box-shadow: 0 0 0 2px rgba(255, 45, 85, .55), var(--shadow2);
+    background: transparent
 }
 
 .card__inner {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
-    transition: transform 780ms cubic-bezier(.2, .9, .2, 1);
-    will-change: transform;
+    transition: transform .78s cubic-bezier(.2, .9, .2, 1)
 }
 
 .card.is-open .card__inner {
-    transform: rotateY(180deg);
+    transform: rotateY(180deg)
 }
 
 .face {
@@ -208,44 +191,19 @@ body.mbha-cards {
     overflow: hidden;
     backface-visibility: hidden;
     border: 1px solid var(--stroke);
-    box-shadow: var(--shadow2);
+    box-shadow: var(--shadow2)
 }
 
 .face.back {
-    background: radial-gradient(500px 260px at 30% 20%, rgba(255, 45, 85, .18), transparent 60%), radial-gradient(500px 260px at 80% 70%, rgba(50, 215, 75, .10), transparent 60%), linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .02));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
-}
-
-.back__stamp {
-    width: 100%;
-    height: 100%;
-    border-radius: 18px;
-    border: 1px dashed rgba(255, 255, 255, .22);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.back__logo {
-    font-size: 20px;
-    letter-spacing: .12em;
-    text-shadow: 0 2px 0 rgba(0, 0, 0, .35);
-}
-
-.back__sub {
-    font-size: 12px;
-    color: rgba(248, 250, 252, .75);
-    letter-spacing: .05em;
+    background-image: url("../img/ui/card-back.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat
 }
 
 .face.front {
     transform: rotateY(180deg);
-    background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .02));
+    background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .02))
 }
 
 .front__img {
@@ -253,34 +211,14 @@ body.mbha-cards {
     inset: 0;
     background-size: cover;
     background-position: center;
-    image-rendering: pixelated;
+    image-rendering: pixelated
 }
 
 .front__overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0, 0, 0, .08), rgba(0, 0, 0, .18) 55%, rgba(0, 0, 0, .74));
+    background: linear-gradient(180deg, rgba(0, 0, 0, .08), rgba(0, 0, 0, .18) 55%, rgba(0, 0, 0, .74))
 }
-
-
-/* top code badge */
-
-.code-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 3;
-    font-size: 12px;
-    letter-spacing: .10em;
-    padding: 6px 8px 5px;
-    border-radius: 999px;
-    background: rgba(2, 6, 23, .55);
-    border: 1px solid rgba(255, 255, 255, .16);
-    backdrop-filter: blur(6px);
-}
-
-
-/* meta bottom */
 
 .front__meta {
     position: absolute;
@@ -288,131 +226,89 @@ body.mbha-cards {
     right: 10px;
     bottom: 10px;
     border-radius: 16px;
-    padding: 10px 10px 9px;
+    padding: 10px;
     background: rgba(2, 6, 23, .62);
-    border: 1px solid rgba(255, 255, 255, .16);
-    backdrop-filter: blur(6px);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    z-index: 3;
+    border: 1px solid rgba(255, 255, 255, .16)
 }
 
 .name {
-    font-size: 14px;
-    letter-spacing: .04em;
-    line-height: 1.05;
     text-transform: uppercase;
+    font-size: 14px
 }
 
 .teamline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
     font-size: 12px;
-    letter-spacing: .04em;
-    color: rgba(248, 250, 252, .80);
+    color: rgba(248, 250, 252, .8)
 }
-
-.pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: 999px;
-    padding: 5px 8px 5px;
-    border: 1px solid rgba(255, 255, 255, .16);
-    background: rgba(255, 255, 255, .06);
-}
-
-.pill__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 18px rgba(255, 45, 85, .55);
-}
-
-.pill.good .pill__dot {
-    background: var(--good);
-    box-shadow: 0 0 18px rgba(50, 215, 75, .45);
-}
-
-
-/* ==== FRAME OVERLAY (card-frame.png) ==== */
 
 .card__frame {
     position: absolute;
     inset: 0;
-    border-radius: var(--cardR);
     pointer-events: none;
     z-index: 4;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-position: center;
+    background: url("../img/ui/card-frame.png") center/100% 100% no-repeat
 }
-
-
-/* shine */
 
 .card__shine {
     position: absolute;
     inset: -2px;
-    border-radius: calc(var(--cardR) + 2px);
-    pointer-events: none;
     opacity: 0;
     background: radial-gradient(380px 200px at 20% 10%, rgba(255, 255, 255, .18), transparent 60%);
-    mix-blend-mode: screen;
-    transition: opacity .16s ease;
-    z-index: 5;
-}
-
-.card:hover .card__shine {
-    opacity: .55;
+    mix-blend-mode: screen
 }
 
 .card.is-open .card__shine {
-    opacity: .25;
+    opacity: .25
 }
 
 
-/* BAM */
+/* ===== МАСКА-ПОРТАЛ (БЕЗ PNG) ===== */
 
-.card.is-opening {
-    animation: pop 420ms cubic-bezier(.2, .9, .2, 1) both;
+.portal {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10
 }
 
-@keyframes pop {
-    0% {
-        transform: translateY(0) scale(1);
+.portal::before {
+    content: "";
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0%, rgba(255, 255, 255, .9) 40%, rgba(255, 255, 255, 0) 60%);
+    animation: portal .34s ease-out forwards
+}
+
+@keyframes portal {
+    from {
+        transform: scale(.2);
+        opacity: 1
     }
-    35% {
-        transform: translateY(-6px) scale(1.03);
-    }
-    100% {
-        transform: translateY(0) scale(1);
+    to {
+        transform: scale(12);
+        opacity: 0
     }
 }
 
 
-/* Footer */
+/* ===== FOOTER ===== */
 
 .cards-foot {
     padding: 10px 12px;
     background: rgba(255, 255, 255, .03);
     border: 1px solid var(--stroke2);
-    border-radius: var(--r);
-    box-shadow: var(--shadow2);
-    backdrop-filter: blur(6px);
+    border-radius: var(--r)
 }
 
 .cards-foot__hint {
-    display: flex;
-    gap: 10px;
-    align-items: center;
     font-size: 12px;
-    letter-spacing: .04em;
     color: rgba(248, 250, 252, .78);
+    display: flex;
+    gap: 10px
 }
 
 .cards-dot {
@@ -420,112 +316,14 @@ body.mbha-cards {
     height: 10px;
     border-radius: 50%;
     background: rgba(255, 45, 85, .75);
-    box-shadow: 0 0 16px rgba(255, 45, 85, .5);
+    box-shadow: 0 0 16px rgba(255, 45, 85, .5)
 }
 
-.cards-sep {
-    opacity: .6;
-}
-
-
-/* FX layer */
-
-.cards-fx-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-}
-
-.fx {
-    position: absolute;
-    left: 0;
-    top: 0;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    will-change: transform, opacity;
-    animation: fxFly 700ms ease-out forwards;
-    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, .35));
-}
-
-.fx img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    image-rendering: pixelated;
-}
-
-@keyframes fxFly {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(.8) rotate(0deg);
+@media (max-width:430px) {
+    .carousel-viewport {
+        height: 360px
     }
-    10% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s)) rotate(var(--rot));
-    }
-}
-
-
-/* Responsive */
-
-@media (max-width: 1100px) {
-    .cards-grid {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 880px) {
-    .cards-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-}
-
-
-/* iPhone SE */
-
-@media (max-width: 430px) {
-    .cards-page {
-        padding: 14px 12px 12px;
-        gap: 12px;
-    }
-    .cards-top {
-        padding: 12px;
-    }
-    .cards-badge {
-        width: 54px;
-        height: 40px;
-        border-radius: 14px;
-    }
-    .cards-title__h {
-        font-size: 18px;
-    }
-    .cards-title__s {
-        font-size: 11px;
-    }
-    .cards-btn {
-        padding: 9px 10px;
-        font-size: 12px;
-    }
-    .cards-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
-    }
-    .name {
-        font-size: 12px;
-    }
-    .teamline {
-        font-size: 11px;
-    }
-    .front__meta {
-        padding: 9px;
-        border-radius: 14px;
-    }
-    .code-badge {
-        font-size: 11px;
-        padding: 5px 7px 4px;
+    .card {
+        width: 180px
     }
 }
