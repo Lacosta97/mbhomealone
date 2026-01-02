@@ -2,12 +2,16 @@
     --bg0: #020617;
     --bg1: #0b1224;
     --txt: #f8fafc;
-    --stroke: rgba(255, 255, 255, .18);
+    --muted: rgba(248, 250, 252, .68);
+    --stroke: rgba(255, 255, 255, .16);
     --stroke2: rgba(255, 255, 255, .08);
     --accent: #ff2d55;
     --r: 18px;
     --cardR: 22px;
-    --shadow: 0 10px 26px rgba(0, 0, 0, .35)
+    /* карусель */
+    --cardW: 210px;
+    --gap: 140px;
+    /* МЕНШЕ = ближче */
 }
 
 * {
@@ -22,70 +26,49 @@ body {
 }
 
 body.mbha-cards {
-    font-family: "Pixelify Sans", sans-serif;
+    font-family: "Pixelify Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--txt);
-    background: radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .18), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .1), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
+    background: radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
+    overflow: hidden;
 }
 
-.cards-page {
+.stage {
     min-height: 100%;
     display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: 18px
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
 }
 
-.cards-top {
-    display: flex;
-    justify-content: space-between;
-    padding: 14px;
+.status {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    display: none;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 14px;
     background: rgba(255, 255, 255, .03);
     border: 1px solid var(--stroke2);
-    border-radius: var(--r)
-}
-
-.cards-title__h {
-    font-size: 20px
-}
-
-.cards-title__s {
+    border-radius: var(--r);
+    backdrop-filter: blur(6px);
     font-size: 12px;
-    opacity: .7
+    letter-spacing: .03em;
+    z-index: 50;
 }
 
-.cards-btn {
-    background: rgba(255, 255, 255, .05);
-    border: 1px solid var(--stroke);
-    color: #fff;
-    padding: 10px 12px;
-    border-radius: 14px
-}
-
-.cards-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 12px
-}
-
-.cards-status {
-    display: none;
-    padding: 12px;
-    border: 1px solid var(--stroke2);
-    border-radius: var(--r)
-}
-
-.cards-status.is-on {
-    display: block
+.status.is-on {
+    display: flex
 }
 
 .loader {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, .2);
-    border-top-color: #fff;
-    animation: spin .9s linear infinite
+    border: 2px solid rgba(255, 255, 255, .18);
+    border-top-color: rgba(255, 255, 255, .9);
+    animation: spin 900ms linear infinite;
 }
 
 @keyframes spin {
@@ -94,77 +77,105 @@ body.mbha-cards {
     }
 }
 
-
-/* ==== КАРУСЕЛЬ ==== */
-
-.carousel-wrap {
-    flex: 1;
+.wheel {
+    width: 100%;
+    max-width: 1100px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 8px
+    gap: 14px;
 }
 
-.carousel-viewport {
+.wheel-viewport {
     width: 100%;
-    max-width: 1100px;
     height: 420px;
-    overflow: hidden
-}
-
-.carousel-track {
     position: relative;
-    width: 100%;
-    height: 100%;
-    will-change: transform
+    overflow: hidden;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, .06);
+    background: rgba(255, 255, 255, .02);
 }
 
-.carousel-hint {
-    font-size: 12px;
-    opacity: .6
+.wheel-track {
+    position: absolute;
+    inset: 0;
 }
 
 
-/* ==== КАРТКА ==== */
+/* легка підсвітка центру */
+
+.center-mark {
+    position: absolute;
+    inset: 18px;
+    border-radius: 24px;
+    pointer-events: none;
+    background: radial-gradient(500px 220px at 50% 55%, rgba(255, 255, 255, .08), transparent 60%);
+    opacity: .9;
+}
+
+
+/* ===== КАРТКА ===== */
 
 .card {
     position: absolute;
-    width: 210px;
+    left: 50%;
+    top: 50%;
+    width: var(--cardW);
     aspect-ratio: 3/4;
+    transform: translate(-50%, -50%);
+    border: 0;
+    padding: 0;
+    background: transparent;
     border-radius: var(--cardR);
     perspective: 1200px;
     cursor: pointer;
+    user-select: none;
+    outline: none;
+    will-change: transform;
+    transition: transform 260ms ease, opacity 260ms ease, filter 260ms ease;
+}
+
+.card:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 45, 85, .55);
 }
 
 .card__inner {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
-    transition: transform .7s cubic-bezier(.2, .9, .2, 1)
+    transition: transform 720ms cubic-bezier(.2, .9, .2, 1);
 }
 
 .card.is-open .card__inner {
-    transform: rotateY(180deg)
+    transform: rotateY(180deg);
 }
 
 .face {
     position: absolute;
     inset: 0;
     border-radius: var(--cardR);
-    backface-visibility: hidden;
     overflow: hidden;
+    backface-visibility: hidden;
     border: 1px solid var(--stroke);
-    box-shadow: var(--shadow)
+    box-shadow: 0 10px 26px rgba(0, 0, 0, .35);
 }
 
+
+/* РУБАШКА: без обрізання — заповнює 100% */
+
 .face.back {
-    background: url("../img/cards/card-back.png") center/cover no-repeat;
+    background-image: url("../img/cards/card-back.png");
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
 }
+
+
+/* ЛИЦЕВА: тільки аватар + затемнення (без інших картинок) */
 
 .face.front {
     transform: rotateY(180deg);
-    background: url("../img/cards/card-face-bg.png") center/cover no-repeat;
+    background: rgba(255, 255, 255, .02);
 }
 
 .front__img {
@@ -172,13 +183,13 @@ body.mbha-cards {
     inset: 0;
     background-size: cover;
     background-position: center;
-    image-rendering: pixelated
+    image-rendering: pixelated;
 }
 
-.front__overlay {
+.front__shade {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .7))
+    background: linear-gradient(180deg, rgba(0, 0, 0, .10), rgba(0, 0, 0, .76));
 }
 
 .front__meta {
@@ -186,90 +197,159 @@ body.mbha-cards {
     left: 10px;
     right: 10px;
     bottom: 10px;
-    background: rgba(0, 0, 0, .6);
     padding: 10px;
-    border-radius: 14px
+    border-radius: 14px;
+    background: rgba(2, 6, 23, .62);
+    border: 1px solid rgba(255, 255, 255, .12);
+    backdrop-filter: blur(6px);
 }
 
 .name {
+    font-size: 14px;
+    letter-spacing: .04em;
     text-transform: uppercase;
-    font-size: 14px
+    line-height: 1.05;
 }
 
-.card__frame {
-    position: absolute;
-    inset: 0;
-    background: url("../img/cards/card-frame.png") center/100% 100% no-repeat;
-    pointer-events: none;
+.team {
+    margin-top: 6px;
+    font-size: 12px;
+    letter-spacing: .03em;
+    color: rgba(248, 250, 252, .78);
 }
 
-.cards-foot {
-    padding: 10px;
+
+/* ===== INFO PANEL ===== */
+
+.info {
+    width: 100%;
+    max-width: 520px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .03);
     border: 1px solid var(--stroke2);
-    border-radius: var(--r)
+    backdrop-filter: blur(6px);
+    text-align: center;
 }
 
-.cards-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--accent);
-    display: inline-block
+.info__name {
+    font-size: 18px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
 }
 
-
-/* ==== FX ==== */
-
-.cards-fx-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none
+.info__team {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: .04em;
 }
 
-.fx {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    animation: fx .7s ease-out forwards
-}
-
-@keyframes fx {
-    from {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(.8)
-    }
-    to {
-        opacity: 0;
-        transform: translate(var(--dx), var(--dy)) scale(1.4)
-    }
+.info__sub {
+    margin-top: 10px;
+    font-size: 12px;
+    color: rgba(248, 250, 252, .78);
+    letter-spacing: .03em;
 }
 
 
-/* ==== ПОРТАЛ ==== */
+/* ===== CONTROLS ===== */
 
-.portal {
-    position: absolute;
-    inset: 0;
+.controls {
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.portal::before {
-    content: "";
-    width: 40px;
-    height: 40px;
+.btn {
+    font-family: inherit;
+    color: var(--txt);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, .18);
+    background: rgba(255, 255, 255, .05);
+    padding: 12px 16px;
+    letter-spacing: .06em;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.btn:active {
+    transform: translateY(1px) scale(.99)
+}
+
+.btn-roll {
+    padding: 14px 26px;
+    border-color: rgba(255, 45, 85, .35);
+    background: rgba(255, 45, 85, .10);
+}
+
+.btn-reset {
+    border-color: rgba(255, 255, 255, .22);
+}
+
+.nav {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-nav {
+    width: 74px;
+    padding: 14px 0;
+    font-size: 18px;
+}
+
+
+/* ===== FX (без PNG, легкий) ===== */
+
+.fx-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 30;
+}
+
+.fx-dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: radial-gradient(circle, #fff 0%, rgba(255, 255, 255, .8) 40%, rgba(255, 255, 255, 0) 70%);
-    animation: portal .35s ease-out forwards
+    background: rgba(255, 255, 255, .9);
+    box-shadow: 0 0 18px rgba(255, 255, 255, .55);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    animation: fx 520ms ease-out forwards;
 }
 
-@keyframes portal {
-    from {
-        transform: scale(.2)
+@keyframes fx {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.8)
     }
-    to {
-        transform: scale(14);
-        opacity: 0
+    15% {
+        opacity: 1
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s))
+    }
+}
+
+
+/* ===== MOBILE ===== */
+
+@media (max-width:430px) {
+     :root {
+        --cardW: 180px;
+        --gap: 120px;
+    }
+    .wheel-viewport {
+        height: 360px;
+    }
+    .info__name {
+        font-size: 16px;
     }
 }

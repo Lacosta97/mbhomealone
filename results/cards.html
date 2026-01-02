@@ -14,47 +14,40 @@
 </head>
 
 <body class="mbha-cards">
-    <div class="cards-page">
-        <header class="cards-top">
-            <div class="cards-top__left">
-                <div class="cards-badge">MBHA</div>
-                <div class="cards-title">
-                    <div class="cards-title__h">РОЗКРИТТЯ КАРТ</div>
-                    <div class="cards-title__s">Відкриті карти зберігаються локально на цьому пристрої.</div>
+    <main class="stage">
+        <div class="status" id="status">
+            <span class="loader"></span>
+            <span id="statusText">Завантажую гравців…</span>
+        </div>
+
+        <section class="wheel" aria-label="Карусель карт">
+            <div class="wheel-viewport" id="viewport">
+                <div class="wheel-track" id="track"></div>
+
+                <div class="center-mark" aria-hidden="true"></div>
+
+                <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
+            </div>
+
+            <!-- Панель (поки мінімальна; далі докрутимо) -->
+            <div class="info" id="info">
+                <div class="info__name" id="infoName">—</div>
+                <div class="info__team" id="infoTeam">—</div>
+                <div class="info__sub" id="infoSub">Відкрито: <b id="openedCount">0</b> / <b id="totalCount">18</b></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-roll" id="btnRoll" type="button">ROLL</button>
+
+                <div class="nav" id="nav" hidden>
+                    <button class="btn btn-nav" id="btnPrev" type="button">←</button>
+                    <button class="btn btn-nav" id="btnNext" type="button">→</button>
                 </div>
-            </div>
-            <div class="cards-top__right">
-                <button class="cards-btn" id="btnReset">СКИНУТИ</button>
-            </div>
-        </header>
 
-        <main class="cards-main">
-            <div class="cards-status" id="status">
-                <div class="cards-status__row">
-                    <span class="loader"></span>
-                    <span id="statusText">Завантажую гравців…</span>
-                </div>
+                <button class="btn btn-reset" id="btnReset" type="button" hidden>СКИНУТИ</button>
             </div>
-
-            <section class="carousel-wrap">
-                <div class="carousel-viewport" id="carouselViewport">
-                    <div class="carousel-track" id="carouselTrack"></div>
-                </div>
-                <div class="carousel-hint">Свайпни • Натисни по центру</div>
-            </section>
-        </main>
-
-        <footer class="cards-foot">
-            <div class="cards-foot__hint">
-                <span class="cards-dot"></span>
-                <span>Всього: <b id="countTotal">18</b></span>
-                <span class="cards-sep">•</span>
-                <span>Відкрито: <b id="countOpened">0</b></span>
-            </div>
-        </footer>
-
-        <div class="cards-fx-layer" id="fxLayer"></div>
-    </div>
+        </section>
+    </main>
 
     <script src="./js/cards.js"></script>
 </body>
