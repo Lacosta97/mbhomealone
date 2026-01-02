@@ -294,17 +294,22 @@ body.mbha-cards {
 
 /* Info */
 
+
+/* Info — DARK readable */
+
 .info {
     width: 100%;
     padding: 12px 14px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, .05);
-    border: 1px solid var(--stroke2);
-    backdrop-filter: blur(6px);
+    background: rgba(6, 10, 20, 0.88);
+    border: 1px solid rgba(255, 255, 255, .10);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     text-align: center;
     opacity: 0;
     transform: translateY(6px);
     transition: opacity .18s ease, transform .18s ease;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .04), 0 10px 26px rgba(0, 0, 0, .55);
 }
 
 .info.is-on {
