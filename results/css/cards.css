@@ -1,16 +1,14 @@
+/* MBHA Cards — FINAL CLEAN */
+
 :root {
     --bg0: #020617;
     --bg1: #0b1224;
     --txt: #f8fafc;
-    --muted: rgba(248, 250, 252, .68);
     --stroke: rgba(255, 255, 255, .16);
     --stroke2: rgba(255, 255, 255, .08);
-    --accent: #ff2d55;
-    --r: 18px;
     --cardR: 22px;
     --cardW: 210px;
     --gap: 125px;
-    /* чуть компактнее, чтобы боковые карты точно были видны */
 }
 
 * {
@@ -25,7 +23,7 @@ body {
 }
 
 
-/* ===== Disable zoom ===== */
+/* Disable iOS double-tap zoom feel */
 
 button,
 .card {
@@ -33,20 +31,17 @@ button,
     -webkit-tap-highlight-color: transparent;
 }
 
-
-/* ===== BODY / BG ===== */
-
 body.mbha-cards {
-    font-family: "Pixelify Sans", system-ui, sans-serif;
+    font-family: "Pixelify Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--txt);
-    background: url("../img/bg/bg-base.png") center top no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
     /* bg-base.png строго як iPhone SE (375x667), без розтягування */
+    background: url("./img/bg/bg-base.png") center top no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
     background-size: 375px 667px, auto, auto, auto;
     overflow: hidden;
 }
 
 
-/* ===== iPhone SE stage ===== */
+/* iPhone SE stage (desktop looks like SE) */
 
 .stage {
     width: 375px;
@@ -59,8 +54,8 @@ body.mbha-cards {
     justify-content: center;
 }
 
-@media (max-width: 390px),
-(max-height: 690px) {
+@media (max-width:390px),
+(max-height:690px) {
     .stage {
         transform-origin: top center;
         transform: scale(min(calc(100vw / 375), calc(100vh / 667)));
@@ -68,7 +63,7 @@ body.mbha-cards {
 }
 
 
-/* ===== Status (loader) ===== */
+/* Status (loader) */
 
 .status {
     position: absolute;
@@ -107,7 +102,7 @@ body.mbha-cards {
 }
 
 
-/* ===== Wheel ===== */
+/* Wheel */
 
 .wheel {
     width: 100%;
@@ -141,7 +136,7 @@ body.mbha-cards {
 }
 
 
-/* ===== Card ===== */
+/* Card */
 
 .card {
     position: absolute;
@@ -157,17 +152,16 @@ body.mbha-cards {
     outline: none;
     border: 0;
     padding: 0;
-    /* чтобы смена позиций выглядела как "тосование" */
     will-change: transform, opacity, filter;
     transition: transform 140ms ease, opacity 220ms ease, filter 220ms ease;
 }
 
-
-/* ускоряем во время ROLL */
-
 .wheel-track.is-rolling .card {
     transition: transform 70ms linear, opacity 120ms ease, filter 120ms ease;
 }
+
+
+/* Inner flip */
 
 .card__inner {
     position: absolute;
@@ -180,6 +174,32 @@ body.mbha-cards {
     transform: rotateY(180deg);
 }
 
+
+/* During roll animate INNER (so center doesn't look frozen) */
+
+.wheel-track.is-rolling .card__inner {
+    animation: innerShuffle 180ms ease-in-out infinite;
+}
+
+.wheel-track.is-rolling .card.is-active .card__inner {
+    animation-duration: 140ms;
+}
+
+@keyframes innerShuffle {
+    0% {
+        transform: translateZ(0) rotate(-1.2deg) scale(0.995);
+        filter: blur(.2px);
+    }
+    50% {
+        transform: translateZ(0) rotate(1.4deg) scale(1.01);
+        filter: blur(0px);
+    }
+    100% {
+        transform: translateZ(0) rotate(-1.2deg) scale(0.995);
+        filter: blur(.2px);
+    }
+}
+
 .face {
     position: absolute;
     inset: 0;
@@ -190,23 +210,14 @@ body.mbha-cards {
     box-shadow: 0 10px 26px rgba(0, 0, 0, .35);
 }
 
-
-/* back */
-
 .face.back {
-    background: url("../img/cards/card-back.png") center/100% 100% no-repeat;
+    background: url("./img/cards/card-back.png") center/100% 100% no-repeat;
 }
-
-
-/* front */
 
 .face.front {
     transform: rotateY(180deg);
     background: rgba(255, 255, 255, .02);
 }
-
-
-/* avatar */
 
 .front__img {
     position: absolute;
@@ -214,20 +225,18 @@ body.mbha-cards {
     background-size: cover;
     background-position: center;
     z-index: 1;
+    image-rendering: auto;
 }
-
-
-/* shade */
 
 .front__shade {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .75));
+    background: linear-gradient(180deg, rgba(0, 0, 0, .10), rgba(0, 0, 0, .75));
     z-index: 2;
 }
 
 
-/* hide any leftovers */
+/* Hide any leftovers (if present) */
 
 .front__meta,
 .name {
@@ -235,7 +244,7 @@ body.mbha-cards {
 }
 
 
-/* ===== TEAM BADGE (VISIBLE) ===== */
+/* Team badge */
 
 .team-badge {
     position: absolute;
@@ -244,13 +253,12 @@ body.mbha-cards {
     transform: translateX(-50%);
     width: 150px;
     z-index: 6;
-    /* above shade */
     pointer-events: none;
-    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .7));
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .70));
 }
 
 
-/* ===== ACTIVE CARD GOLD GLOW (thin & clean) ===== */
+/* Active card thin gold glow (behind card) */
 
 .card.is-active {
     isolation: isolate;
@@ -261,11 +269,9 @@ body.mbha-cards {
     content: "";
     position: absolute;
     inset: -2px;
-    /* тоньше */
     border-radius: calc(var(--cardR) + 2px);
     pointer-events: none;
     z-index: -1;
-    /* glow ЗА картой, не перекрывает соседей */
     box-shadow: 0 0 0 2px rgba(255, 210, 95, .85), 0 0 12px rgba(255, 200, 90, .55);
     opacity: .85;
     animation: glowPulse 2.2s ease-in-out infinite;
@@ -284,26 +290,7 @@ body.mbha-cards {
 }
 
 
-/* ===== ROLL wobble (чтобы "тосование" было видно) ===== */
-
-.wheel-track.is-rolling .card.is-active {
-    animation: rollWobble .38s ease-in-out infinite;
-}
-
-@keyframes rollWobble {
-    0% {
-        transform: translate(-50%, -50%) translateX(var(--rollX, 0px)) scale(1) rotate(-0.6deg);
-    }
-    50% {
-        transform: translate(-50%, -50%) translateX(var(--rollX, 0px)) scale(1.01) rotate(0.8deg);
-    }
-    100% {
-        transform: translate(-50%, -50%) translateX(var(--rollX, 0px)) scale(1) rotate(-0.6deg);
-    }
-}
-
-
-/* ===== INFO (name only) ===== */
+/* Info (name only) */
 
 .info {
     width: 100%;
@@ -315,7 +302,7 @@ body.mbha-cards {
     text-align: center;
     opacity: 0;
     transform: translateY(6px);
-    transition: .18s;
+    transition: opacity .18s ease, transform .18s ease;
 }
 
 .info.is-on {
@@ -330,7 +317,7 @@ body.mbha-cards {
 }
 
 
-/* ===== CONTROLS ===== */
+/* Controls + buttons */
 
 .controls {
     display: flex;
@@ -339,9 +326,6 @@ body.mbha-cards {
     gap: 12px;
     flex-wrap: wrap;
 }
-
-
-/* ===== BUTTONS (VOLUME) ===== */
 
 .btn {
     font-family: inherit;
@@ -358,14 +342,19 @@ body.mbha-cards {
 
 .btn:active {
     transform: translateY(2px);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 4px 10px rgba(0, 0, 0, .6);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .20), 0 4px 10px rgba(0, 0, 0, .60);
 }
 
 .btn-roll {
     background: linear-gradient(180deg, rgba(255, 90, 120, .55), rgba(120, 20, 40, .55)), rgba(255, 45, 85, .35);
-    border-color: rgba(255, 90, 120, .9);
+    border-color: rgba(255, 90, 120, .90);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 10px 24px rgba(255, 45, 85, .55);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, .6);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, .60);
+}
+
+.nav {
+    display: flex;
+    gap: 12px;
 }
 
 .btn-nav {
@@ -374,19 +363,56 @@ body.mbha-cards {
 }
 
 
-/* RESET */
+/* RESET always top-right (apply class in HTML/JS if needed) */
 
 .btn-reset-top {
     position: absolute;
     top: 12px;
     right: 12px;
-    z-index: 60;
+    z-index: 90;
+    padding: 10px 14px;
 }
 
 
-/* ===== MOBILE ===== */
+/* FX dots */
 
-@media (max-width: 430px) {
+.fx-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.fx-dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .95);
+    box-shadow: 0 0 18px rgba(255, 255, 255, .55);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    animation: fx 520ms ease-out forwards;
+}
+
+@keyframes fx {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.8);
+    }
+    15% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s));
+    }
+}
+
+
+/* Mobile tweaks */
+
+@media (max-width:430px) {
      :root {
         --cardW: 180px;
         --gap: 115px;
@@ -397,5 +423,8 @@ body.mbha-cards {
     .team-badge {
         width: 140px;
         bottom: 14px;
+    }
+    .info__name {
+        font-size: 16px;
     }
 }

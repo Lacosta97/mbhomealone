@@ -6,11 +6,10 @@
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtWbgxyuW-7Dr8wSuY3Zq2giptTNS4V31mf_tryTyHUPXPrnZLalThAjCfa_YBMGRl9aNmQOe3mHuU/pubhtml";
     const SHEET_CSV_URL = PUBHTML_URL.replace(/\/pubhtml.*$/i, "/pub?output=csv");
 
-    // ====== PATHS ======
-    const AVATAR_BASE = "./img/avatars/"; // {CODE}.png
+    // ====== PATHS (results/) ======
+    const AVATAR_BASE = "./img/avatars/"; // CODE.png
     const AVATAR_GUEST = "GUEST.png";
 
-    // team badges
     const TEAM_BADGES = {
         bandits: "./img/icons/team-bandits.png",
         boss: "./img/icons/team-boss.png",
@@ -24,7 +23,6 @@
     // ====== DOM ======
     const track = document.getElementById("track");
     const fxLayer = document.getElementById("fxLayer");
-
     const status = document.getElementById("status");
     const statusText = document.getElementById("statusText");
 
@@ -37,11 +35,14 @@
     const info = document.getElementById("info");
     const infoName = document.getElementById("infoName");
 
+    // Make RESET always top-right (CSS expects .btn-reset-top)
+    if (btnReset) btnReset.classList.add("btn-reset-top");
+
     // ====== STATE ======
     const opened = loadOpened();
     let players = [];
     let cardEls = [];
-    let active = 0; // індекс по кільцю
+    let active = 0;
     let rolling = false;
 
     // ====== Anti-zoom (Safari) ======
@@ -50,18 +51,14 @@
     document.addEventListener("gestureend", (e) => e.preventDefault(), { passive: false });
     document.addEventListener("dblclick", (e) => e.preventDefault(), { passive: false });
 
-    function getGapPx() {
-        const v = getComputedStyle(document.documentElement).getPropertyValue("--gap").trim();
-        const n = parseFloat(v);
-        return Number.isFinite(n) ? n : 125;
-    }
-
     function showStatus(text) {
+        if (!status) return;
         status.classList.add("is-on");
-        statusText.textContent = text;
+        if (statusText) statusText.textContent = text;
     }
 
     function hideStatus() {
+        if (!status) return;
         status.classList.remove("is-on");
     }
 
@@ -81,7 +78,7 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify([...opened]));
     }
 
-    function avatarFor(code) {
+    function avatarUrl(code) {
         const c = String(code || "").trim();
         if (!c || c.toUpperCase() === "GUEST") return AVATAR_BASE + AVATAR_GUEST;
         return AVATAR_BASE + c + ".png";
@@ -116,8 +113,11 @@
                 if (ch === '"' && next === '"') {
                     cur += '"';
                     i++;
-                } else if (ch === '"') inQuotes = false;
-                else cur += ch;
+                } else if (ch === '"') {
+                    inQuotes = false;
+                } else {
+                    cur += ch;
+                }
             } else {
                 if (ch === '"') inQuotes = true;
                 else if (ch === ",") {
@@ -129,8 +129,10 @@
                     row = [];
                     cur = "";
                 } else if (ch === "\r") {
-                    /* ignore */
-                } else cur += ch;
+                    // ignore
+                } else {
+                    cur += ch;
+                }
             }
         }
         row.push(cur);
@@ -154,6 +156,10 @@
         return out;
     }
 
+    function escapeAttr(str) {
+        return String(str).replaceAll("'", "%27");
+    }
+
     // ====== UI BUILD ======
     function createCard(player) {
         const code = String(player.CODE || "").trim();
@@ -165,44 +171,50 @@
         el.className = "card";
         el.dataset.code = code;
         el.dataset.team = teamKey;
-        el.setAttribute("aria-label", `Карта: ${name}`);
+        el.setAttribute("aria-label", "Карта: " + name);
+
+        const avatar = escapeAttr(avatarUrl(code));
+        const badge = escapeAttr(badgeFor(teamKey));
 
         el.innerHTML = `
       <div class="card__inner">
         <div class="face back"></div>
         <div class="face front">
-          <div class="front__img" style="background-image:url('${escapeAttr(avatarFor(code))}')"></div>
+          <div class="front__img" style="background-image:url('${avatar}')"></div>
           <div class="front__shade"></div>
-          <img class="team-badge" src="${escapeAttr(badgeFor(teamKey))}" alt="">
+          <img class="team-badge" src="${badge}" alt="">
         </div>
       </div>
     `;
 
         if (opened.has(code)) el.classList.add("is-open");
 
-        el.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (rolling) return;
+        el.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                if (rolling) return;
 
-            const centerEl = cardEls[active];
-            if (el !== centerEl) return;
+                const centerEl = cardEls[active];
+                if (el !== centerEl) return;
 
-            if (opened.has(code)) {
-                burstFx(centerEl, 10);
+                if (opened.has(code)) {
+                    burstFx(centerEl, 10);
+                    updateInfo();
+                    return;
+                }
+
+                opened.add(code);
+                saveOpened();
+                centerEl.classList.add("is-open");
+                burstFx(centerEl, 18);
+
                 updateInfo();
-                return;
-            }
+                updateMode();
 
-            opened.add(code);
-            saveOpened();
-            centerEl.classList.add("is-open");
-            burstFx(centerEl, 18);
-
-            updateInfo();
-            updateMode();
-
-            if (!isAllOpened()) btnRoll.hidden = false;
-        }, { passive: false });
+                if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
+            }, { passive: false }
+        );
 
         return el;
     }
@@ -221,6 +233,12 @@
     }
 
     // ====== LAYOUT ======
+    function getGapPx() {
+        const v = getComputedStyle(document.documentElement).getPropertyValue("--gap").trim();
+        const n = parseFloat(v);
+        return Number.isFinite(n) ? n : 125;
+    }
+
     function mod(n, m) {
         return ((n % m) + m) % m;
     }
@@ -229,7 +247,7 @@
         if (!cardEls.length) return;
         const gap = getGapPx();
         const N = cardEls.length;
-        const visibleRange = 4; // ✅ возвращаем боковые карты
+        const visibleRange = 4;
 
         for (let i = 0; i < N; i++) {
             const el = cardEls[i];
@@ -239,8 +257,6 @@
             if (d < -N / 2) d += N;
 
             const isCenter = d === 0;
-
-            // ✅ GOLD GLOW only for active card
             el.classList.toggle("is-active", isCenter);
 
             if (Math.abs(d) > visibleRange) {
@@ -254,22 +270,19 @@
             el.style.pointerEvents = "auto";
 
             const x = d * gap;
+            const scale =
+                isCenter ? 1 : Math.abs(d) === 1 ? 0.86 : Math.abs(d) === 2 ? 0.78 : 0.72;
 
-            // for wobble animation (CSS uses var(--rollX))
-            el.style.setProperty("--rollX", `${x}px`);
-
-            const scale = isCenter ? 1 : Math.abs(d) === 1 ? 0.86 : Math.abs(d) === 2 ? 0.78 : 0.72;
-            const blur = isCenter ? "none" : "saturate(.9) brightness(.78)";
-            el.style.filter = blur;
-
+            el.style.filter = isCenter ? "none" : "saturate(.9) brightness(.78)";
             el.style.transform = `translate(-50%,-50%) translateX(${x}px) scale(${scale})`;
             el.style.zIndex = String(1000 - Math.abs(d) * 10);
         }
+
         updateInfo();
     }
 
     function updateInfo() {
-        if (!players.length) return;
+        if (!players.length || !info || !infoName) return;
 
         const p = players[active];
         const code = String(p.CODE || "").trim();
@@ -281,8 +294,7 @@
             return;
         }
 
-        const name = String(p.NAME || "Гість").toUpperCase();
-        infoName.textContent = name;
+        infoName.textContent = String(p.NAME || "Гість").toUpperCase();
         info.classList.add("is-on");
     }
 
@@ -293,8 +305,8 @@
 
     function updateMode() {
         const all = isAllOpened();
-        btnRoll.hidden = all;
-        nav.hidden = !all;
+        if (btnRoll) btnRoll.hidden = all;
+        if (nav) nav.hidden = !all;
     }
 
     // ====== ROLL (x2 faster + visible) ======
@@ -313,20 +325,18 @@
         if (isAllOpened()) return;
 
         rolling = true;
-        btnRoll.hidden = true;
-
-        // ✅ make toss visible
+        if (btnRoll) btnRoll.hidden = true;
         track.classList.add("is-rolling");
 
         const target = pickRandomClosedIndex();
-
         const N = players.length;
+
         const extraLoops = 2 + Math.floor(Math.random() * 2);
         let steps = extraLoops * N + mod(target - active, N);
 
-        let delay = 18;
-        const delayMax = 80;
-        const slowStart = Math.floor(steps * 0.65);
+        let delay = 14;
+        const delayMax = 70;
+        const slowStart = Math.floor(steps * 0.55);
         const totalPlanned = steps;
 
         const tick = () => {
@@ -339,8 +349,6 @@
                 active = target;
                 layout();
                 updateInfo();
-
-                // ✅ stop rolling mode
                 track.classList.remove("is-rolling");
                 return;
             }
@@ -348,7 +356,7 @@
             const done = totalPlanned - steps;
             if (done > slowStart) {
                 const k = (done - slowStart) / Math.max(1, totalPlanned - slowStart);
-                delay = Math.min(delayMax, 18 + k * (delayMax - 18));
+                delay = Math.min(delayMax, 14 + k * (delayMax - 14));
             }
 
             window.setTimeout(tick, delay);
@@ -365,12 +373,14 @@
     }
 
     // ====== FX ======
-    function burstFx(cardEl, amount = 14) {
+    function burstFx(cardEl, amount) {
         const rect = cardEl.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
         const cy = rect.top + rect.height / 2;
 
-        for (let i = 0; i < amount; i++) {
+        const count = Number.isFinite(amount) ? amount : 14;
+
+        for (let i = 0; i < count; i++) {
             const p = document.createElement("div");
             p.className = "fx-dot";
 
@@ -382,15 +392,15 @@
 
             const s = 0.8 + Math.random() * 1.0;
 
-            p.style.setProperty("--dx", `${dx}px`);
-            p.style.setProperty("--dy", `${dy}px`);
+            p.style.setProperty("--dx", dx + "px");
+            p.style.setProperty("--dy", dy + "px");
             p.style.setProperty("--s", String(s));
 
-            p.style.left = `${cx}px`;
-            p.style.top = `${cy}px`;
+            p.style.left = cx + "px";
+            p.style.top = cy + "px";
 
             fxLayer.appendChild(p);
-            setTimeout(() => p.remove(), 560);
+            window.setTimeout(() => p.remove(), 560);
         }
     }
 
@@ -404,34 +414,48 @@
         const rows = parseCSV(csv);
         const objs = rowsToObjects(rows);
 
-        return objs
-            .filter((o) => String(o.CODE || "").trim() !== "")
-            .slice(0, LIMIT);
-    }
-
-    function escapeAttr(str) {
-        return String(str).replaceAll("'", "%27");
+        return objs.filter((o) => String(o.CODE || "").trim() !== "").slice(0, LIMIT);
     }
 
     // ====== EVENTS ======
-    btnRoll.addEventListener("click", roll);
-    btnPrev.addEventListener("click", (e) => { e.preventDefault();
-        step(-1); }, { passive: false });
-    btnNext.addEventListener("click", (e) => { e.preventDefault();
-        step(1); }, { passive: false });
+    if (btnRoll) btnRoll.addEventListener("click", roll);
 
-    btnReset.addEventListener("click", (e) => {
-        e.preventDefault();
-        localStorage.removeItem(STORAGE_KEY);
-        opened.clear();
-        for (const el of cardEls) el.classList.remove("is-open");
+    if (btnPrev)
+        btnPrev.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                step(-1);
+            }, { passive: false }
+        );
 
-        const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
-        active = firstClosed >= 0 ? firstClosed : 0;
+    if (btnNext)
+        btnNext.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                step(1);
+            }, { passive: false }
+        );
 
-        layout();
-        updateMode();
-    }, { passive: false });
+    if (btnReset)
+        btnReset.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                localStorage.removeItem(STORAGE_KEY);
+                opened.clear();
+                for (const el of cardEls) el.classList.remove("is-open");
+
+                const firstClosed = players.findIndex(
+                    (p) => !opened.has(String(p.CODE || "").trim())
+                );
+                active = firstClosed >= 0 ? firstClosed : 0;
+
+                layout();
+                updateMode();
+            }, { passive: false }
+        );
 
     window.addEventListener("resize", () => layout());
 
