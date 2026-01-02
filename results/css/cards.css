@@ -9,7 +9,8 @@
     --r: 18px;
     --cardR: 22px;
     --cardW: 210px;
-    --gap: 140px;
+    --gap: 125px;
+    /* чуть компактнее, чтобы боковые карты точно были видны */
 }
 
 * {
@@ -117,6 +118,16 @@ body.mbha-cards {
     outline: none;
     border: 0;
     padding: 0;
+    /* чтобы смена позиций выглядела как "тосование" */
+    will-change: transform, opacity, filter;
+    transition: transform 140ms ease, opacity 220ms ease, filter 220ms ease;
+}
+
+
+/* ускоряем во время ROLL */
+
+.wheel-track.is-rolling .card {
+    transition: transform 70ms linear, opacity 120ms ease, filter 120ms ease;
 }
 
 .card__inner {
@@ -200,18 +211,25 @@ body.mbha-cards {
 }
 
 
-/* ===== ACTIVE CARD GOLD GLOW (only center) ===== */
+/* ===== ACTIVE CARD GOLD GLOW (thin & clean) ===== */
+
+.card.is-active {
+    isolation: isolate;
+    z-index: 1200;
+}
 
 .card.is-active::before {
     content: "";
     position: absolute;
-    inset: -6px;
-    border-radius: calc(var(--cardR) + 6px);
+    inset: -2px;
+    /* тоньше */
+    border-radius: calc(var(--cardR) + 2px);
     pointer-events: none;
-    background: linear-gradient( 135deg, rgba(255, 220, 140, .95), rgba(255, 175, 55, .55), rgba(255, 220, 140, .95));
-    filter: blur(14px);
+    z-index: -1;
+    /* glow ЗА картой, не перекрывает соседей */
+    box-shadow: 0 0 0 2px rgba(255, 210, 95, .85), 0 0 12px rgba(255, 200, 90, .55);
     opacity: .85;
-    animation: glowPulse 2.6s ease-in-out infinite;
+    animation: glowPulse 2.2s ease-in-out infinite;
 }
 
 @keyframes glowPulse {
@@ -219,15 +237,30 @@ body.mbha-cards {
         opacity: .55;
     }
     50% {
-        opacity: .98;
+        opacity: 1;
     }
     100% {
         opacity: .55;
     }
 }
 
-.card.is-active {
-    z-index: 2000;
+
+/* ===== ROLL wobble (чтобы "тосование" было видно) ===== */
+
+.wheel-track.is-rolling .card.is-active {
+    animation: rollWobble .38s ease-in-out infinite;
+}
+
+@keyframes rollWobble {
+    0% {
+        transform: translate(-50%, -50%) translateX(var(--rollX, 0px)) scale(1) rotate(-0.6deg);
+    }
+    50% {
+        transform: translate(-50%, -50%) translateX(var(--rollX, 0px)) scale(1.01) rotate(0.8deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) translateX(var(--rollX, 0px)) scale(1) rotate(-0.6deg);
+    }
 }
 
 
@@ -317,7 +350,7 @@ body.mbha-cards {
 @media (max-width: 430px) {
      :root {
         --cardW: 180px;
-        --gap: 120px;
+        --gap: 115px;
     }
     .wheel-viewport {
         height: 360px;

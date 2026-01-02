@@ -53,7 +53,7 @@
     function getGapPx() {
         const v = getComputedStyle(document.documentElement).getPropertyValue("--gap").trim();
         const n = parseFloat(v);
-        return Number.isFinite(n) ? n : 140;
+        return Number.isFinite(n) ? n : 125;
     }
 
     function showStatus(text) {
@@ -229,7 +229,7 @@
         if (!cardEls.length) return;
         const gap = getGapPx();
         const N = cardEls.length;
-        const visibleRange = 3;
+        const visibleRange = 4; // ✅ возвращаем боковые карты
 
         for (let i = 0; i < N; i++) {
             const el = cardEls[i];
@@ -255,7 +255,10 @@
 
             const x = d * gap;
 
-            const scale = isCenter ? 1 : Math.abs(d) === 1 ? 0.86 : 0.74;
+            // for wobble animation (CSS uses var(--rollX))
+            el.style.setProperty("--rollX", `${x}px`);
+
+            const scale = isCenter ? 1 : Math.abs(d) === 1 ? 0.86 : Math.abs(d) === 2 ? 0.78 : 0.72;
             const blur = isCenter ? "none" : "saturate(.9) brightness(.78)";
             el.style.filter = blur;
 
@@ -294,7 +297,7 @@
         nav.hidden = !all;
     }
 
-    // ====== ROLL (x2 faster) ======
+    // ====== ROLL (x2 faster + visible) ======
     function pickRandomClosedIndex() {
         const closed = [];
         for (let i = 0; i < players.length; i++) {
@@ -311,6 +314,9 @@
 
         rolling = true;
         btnRoll.hidden = true;
+
+        // ✅ make toss visible
+        track.classList.add("is-rolling");
 
         const target = pickRandomClosedIndex();
 
@@ -333,6 +339,9 @@
                 active = target;
                 layout();
                 updateInfo();
+
+                // ✅ stop rolling mode
+                track.classList.remove("is-rolling");
                 return;
             }
 
