@@ -7,14 +7,14 @@
     const SHEET_CSV_URL = PUBHTML_URL.replace(/\/pubhtml.*$/i, "/pub?output=csv");
 
     // ====== PATHS ======
-    const AVATAR_BASE = "../img/avatars/"; // {CODE}.png
+    const AVATAR_BASE = "./img/avatars/"; // {CODE}.png
     const AVATAR_GUEST = "GUEST.png";
 
     // team badges
     const TEAM_BADGES = {
-        bandits: "../img/icons/team-bandits.png",
-        boss: "../img/icons/team-boss.png",
-        kevin: "../img/icons/team-kevin.png",
+        bandits: "./img/icons/team-bandits.png",
+        boss: "./img/icons/team-boss.png",
+        kevin: "./img/icons/team-kevin.png",
     };
 
     // ====== SETTINGS ======
