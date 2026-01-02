@@ -12,10 +12,11 @@
 
     // team badges
     const TEAM_BADGES = {
-        bandits: "../img/team-bandits.png",
-        boss: "../img/team-boss.png",
-        kevin: "../img/team-kevin.png",
+        bandits: "../img/icons/team-bandits.png",
+        boss: "../img/icons/team-boss.png",
+        kevin: "../img/icons/team-kevin.png",
     };
+
 
     // ====== SETTINGS ======
     const STORAGE_KEY = "mbha_cards_opened_v2";
@@ -36,7 +37,6 @@
 
     const info = document.getElementById("info");
     const infoName = document.getElementById("infoName");
-    const infoBadge = document.getElementById("infoBadge");
 
     // ====== STATE ======
     const opened = loadOpened();
@@ -291,25 +291,18 @@
         const code = String(p.CODE || "").trim();
         const isOpen = opened.has(code);
 
+        // имя показываем ТОЛЬКО после открытия текущей карты
         if (!isOpen) {
             info.classList.remove("is-on");
             infoName.textContent = "—";
-            infoBadge.classList.remove("is-on");
-            infoBadge.removeAttribute("src");
-            infoBadge.alt = "";
             return;
         }
 
         const name = String(p.NAME || "Гість").toUpperCase();
-        const teamKey = normTeamKey(p.TEAM);
-
         infoName.textContent = name;
         info.classList.add("is-on");
-
-        infoBadge.src = badgeFor(teamKey);
-        infoBadge.alt = "";
-        infoBadge.classList.add("is-on");
     }
+
 
     function isAllOpened() {
         // рахуємо тільки по тим, що реально завантажили
@@ -460,10 +453,14 @@
 
     // ====== EVENTS ======
     btnRoll.addEventListener("click", roll);
-    btnPrev.addEventListener("click", (e) => { e.preventDefault();
-        step(-1); }, { passive: false });
-    btnNext.addEventListener("click", (e) => { e.preventDefault();
-        step(1); }, { passive: false });
+    btnPrev.addEventListener("click", (e) => {
+        e.preventDefault();
+        step(-1);
+    }, { passive: false });
+    btnNext.addEventListener("click", (e) => {
+        e.preventDefault();
+        step(1);
+    }, { passive: false });
 
     btnReset.addEventListener("click", (e) => {
         e.preventDefault();

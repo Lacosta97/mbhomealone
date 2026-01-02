@@ -38,7 +38,7 @@ body.mbha-cards {
     font-family: "Pixelify Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--txt);
     /* bg-base.png behind everything */
-    background: url("../img/bg-base.png") center/cover no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
+    background: url("../img/bg/bg-base.png") center/cover no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
     overflow: hidden;
 }
 
@@ -283,23 +283,6 @@ body.mbha-cards {
     font-size: 18px;
     letter-spacing: .06em;
     text-transform: uppercase;
-}
-
-.info__badge {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-}
-
-.info__badge img {
-    width: 160px;
-    height: 44px;
-    object-fit: contain;
-    display: none;
-}
-
-.info__badge img.is-on {
-    display: block
 }
 
 
