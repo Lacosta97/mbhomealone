@@ -35,7 +35,7 @@ body.mbha-cards {
     font-family: "Pixelify Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--txt);
     /* bg-base.png строго як iPhone SE (375x667), без розтягування */
-    background: url("./img/bg/bg-base.png") center top no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
+    background: url("../img/bg/bg-base.png") center top no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
     background-size: 375px 667px, auto, auto, auto;
     overflow: hidden;
 }
@@ -211,7 +211,7 @@ body.mbha-cards {
 }
 
 .face.back {
-    background: url("./img/cards/card-back.png") center/100% 100% no-repeat;
+    background: url("../img/cards/card-back.png") center/100% 100% no-repeat;
 }
 
 .face.front {
