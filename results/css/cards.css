@@ -292,7 +292,7 @@ body.mbha-cards {
 }
 
 
-/* Info (name only) */
+/* Info */
 
 .info {
     width: 100%;
@@ -316,6 +316,48 @@ body.mbha-cards {
     font-size: 18px;
     letter-spacing: .06em;
     text-transform: uppercase;
+}
+
+
+/* NEW: PA + ABOUT */
+
+.info__pa {
+    margin-top: 6px;
+    font-size: 16px;
+    letter-spacing: .04em;
+    color: rgba(245, 201, 106, .98);
+    text-shadow: 0 0 8px rgba(245, 201, 106, .22);
+}
+
+.info__about {
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.35;
+    letter-spacing: .01em;
+    text-align: left;
+    white-space: pre-wrap;
+    /* keep line breaks from Sheet */
+    max-height: 120px;
+    /* scroll if too long */
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+
+/* slim scrollbar */
+
+.info__about::-webkit-scrollbar {
+    width: 4px;
+}
+
+.info__about::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, .22);
+    border-radius: 6px;
+}
+
+.info__about::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, .06);
+    border-radius: 6px;
 }
 
 
@@ -428,5 +470,13 @@ body.mbha-cards {
     }
     .info__name {
         font-size: 16px;
+    }
+    /* NEW: tighten on iPhone SE */
+    .info__pa {
+        font-size: 14px;
+    }
+    .info__about {
+        font-size: 12px;
+        max-height: 112px;
     }
 }

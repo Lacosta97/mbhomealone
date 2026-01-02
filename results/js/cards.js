@@ -36,6 +36,8 @@
 
     const info = document.getElementById("info");
     const infoName = document.getElementById("infoName");
+    const infoPA = document.getElementById("infoPA");
+    const infoAbout = document.getElementById("infoAbout");
 
     // ====== STATE ======
     const opened = loadOpened();
@@ -158,6 +160,21 @@
 
     function escapeAttr(str) {
         return String(str).replaceAll("'", "%27");
+    }
+
+    // ====== HELPERS: PA formatting ======
+    function formatUAH(raw) {
+        const s = String(raw === null || raw === undefined ? "" : raw).trim();
+
+        if (!s) return "";
+        const digits = s.replace(/\s+/g, "");
+        if (/^-?\d+(\.\d+)?$/.test(digits)) {
+            const n = Number(digits);
+            if (!Number.isFinite(n)) return s;
+            return n.toLocaleString("uk-UA") + "₴";
+        }
+        // not a number (e.g., "∞ (IMPOSTOR)")
+        return s;
     }
 
     // ====== UI BUILD ======
@@ -291,10 +308,30 @@
         if (!isOpen) {
             info.classList.remove("is-on");
             infoName.textContent = "—";
+            if (infoPA) infoPA.textContent = "";
+            if (infoAbout) infoAbout.textContent = "";
             return;
         }
 
         infoName.textContent = String(p.NAME || "Гість").toUpperCase();
+
+        // NEW: PA
+        if (infoPA) {
+            const paRaw =
+                (p["PERSONAL ACCOUNT"] !== null && p["PERSONAL ACCOUNT"] !== undefined ? p["PERSONAL ACCOUNT"] :
+                    (p.PA !== null && p.PA !== undefined ? p.PA : ""));
+
+            const paFmt = formatUAH(paRaw);
+            infoPA.textContent = paFmt ? `PA: ${paFmt}` : "";
+        }
+
+        // NEW: ABOUT (keep full text + line breaks)
+        if (infoAbout) {
+            const aboutRaw = (p["ABOUT"] !== null && p["ABOUT"] !== undefined) ? p["ABOUT"] : "";
+
+            infoAbout.textContent = String(aboutRaw);
+        }
+
         info.classList.add("is-on");
     }
 
