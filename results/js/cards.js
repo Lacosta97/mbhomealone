@@ -6,10 +6,12 @@
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtWbgxyuW-7Dr8wSuY3Zq2giptTNS4V31mf_tryTyHUPXPrnZLalThAjCfa_YBMGRl9aNmQOe3mHuU/pubhtml";
     const SHEET_CSV_URL = PUBHTML_URL.replace(/\/pubhtml.*$/i, "/pub?output=csv");
 
-    // ====== PATHS (results/) ======
-    const AVATAR_BASE = "./img/avatars/"; // CODE.png
+    // ====== PATHS (IMPORTANT: paths are resolved from results/cards.html) ======
+    // Avatars are in: mbhomealone/img/avatars  -> from results/ it's ../img/avatars
+    const AVATAR_BASE = "../img/avatars/"; // CODE.png
     const AVATAR_GUEST = "GUEST.png";
 
+    // Team icons are in: mbhomealone/results/img/icons -> from results/ it's ./img/icons
     const TEAM_BADGES = {
         bandits: "./img/icons/team-bandits.png",
         boss: "./img/icons/team-boss.png",
@@ -34,9 +36,6 @@
 
     const info = document.getElementById("info");
     const infoName = document.getElementById("infoName");
-
-    // Make RESET always top-right (CSS expects .btn-reset-top)
-    if (btnReset) btnReset.classList.add("btn-reset-top");
 
     // ====== STATE ======
     const opened = loadOpened();
@@ -78,9 +77,10 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify([...opened]));
     }
 
+    // ✅ make CODE safe vs case mismatch
     function avatarUrl(code) {
-        const c = String(code || "").trim();
-        if (!c || c.toUpperCase() === "GUEST") return AVATAR_BASE + AVATAR_GUEST;
+        const c = String(code || "").trim().toUpperCase();
+        if (!c || c === "GUEST") return AVATAR_BASE + AVATAR_GUEST;
         return AVATAR_BASE + c + ".png";
     }
 
@@ -198,13 +198,14 @@
                 const centerEl = cardEls[active];
                 if (el !== centerEl) return;
 
-                if (opened.has(code)) {
+                const codeNow = String(player.CODE || "").trim();
+                if (opened.has(codeNow)) {
                     burstFx(centerEl, 10);
                     updateInfo();
                     return;
                 }
 
-                opened.add(code);
+                opened.add(codeNow);
                 saveOpened();
                 centerEl.classList.add("is-open");
                 burstFx(centerEl, 18);
@@ -270,8 +271,7 @@
             el.style.pointerEvents = "auto";
 
             const x = d * gap;
-            const scale =
-                isCenter ? 1 : Math.abs(d) === 1 ? 0.86 : Math.abs(d) === 2 ? 0.78 : 0.72;
+            const scale = isCenter ? 1 : Math.abs(d) === 1 ? 0.86 : Math.abs(d) === 2 ? 0.78 : 0.72;
 
             el.style.filter = isCenter ? "none" : "saturate(.9) brightness(.78)";
             el.style.transform = `translate(-50%,-50%) translateX(${x}px) scale(${scale})`;
@@ -447,9 +447,7 @@
                 opened.clear();
                 for (const el of cardEls) el.classList.remove("is-open");
 
-                const firstClosed = players.findIndex(
-                    (p) => !opened.has(String(p.CODE || "").trim())
-                );
+                const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
                 active = firstClosed >= 0 ? firstClosed : 0;
 
                 layout();
