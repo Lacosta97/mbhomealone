@@ -163,22 +163,17 @@
         el.type = "button";
         el.className = "card";
         el.dataset.code = code;
-        el.setAttribute("aria-label", `Карта: ${code}`);
+        el.setAttribute("aria-label", `Карта: ${name || "Гість"}`);
+
 
         el.innerHTML = `
       <div class="card__inner">
-        <div class="face back">
-          <div class="back__stamp">
-            <div class="back__logo">MBHA</div>
-            <div class="back__sub">tap to flip</div>
-          </div>
-        </div>
+        <div class="face back"></div>
+
 
         <div class="face front">
           <div class="front__img" style="background-image:url('${escapeAttr(avatarForCode(code))}')"></div>
           <div class="front__overlay"></div>
-
-          <div class="code-badge">${escapeHtml(code)}</div>
 
           <div class="front__meta">
             <div class="name">${escapeHtml(name || code)}</div>
@@ -274,7 +269,7 @@
 
     // ====== boot ======
     async function loadPlayers() {
-        showStatus("Загружаю игроков из Google Sheet…");
+        showStatus("Завантажую гравців…");
 
         const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
         if (!res.ok) throw new Error("Sheet fetch failed: " + res.status);
@@ -325,7 +320,7 @@
             render(cards);
             hideStatus();
         } catch (err) {
-            showStatus("Ошибка загрузки Google Sheet. Проверь Publish и доступ. (" + String(err && err.message ? err.message : err) + ")");
+            showStatus("Помилка. (" + String(err && err.message ? err.message : err) + ")");
             // всё равно покажем пусто, но счетчики будут честные
             render([]);
         }
