@@ -226,6 +226,8 @@ body.mbha-cards {
     background-position: center;
     z-index: 1;
     image-rendering: auto;
+    /* NEW: brighten avatars only */
+    filter: brightness(1.18) contrast(1.06);
 }
 
 .front__shade {
@@ -249,9 +251,9 @@ body.mbha-cards {
 .team-badge {
     position: absolute;
     left: 50%;
-    bottom: 18px;
+    bottom: -42px;
     transform: translateX(-50%);
-    width: 150px;
+    width: 190px;
     z-index: 6;
     pointer-events: none;
     filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .70));
@@ -421,8 +423,8 @@ body.mbha-cards {
         height: 360px;
     }
     .team-badge {
-        width: 280px;
-        bottom: 28px;
+        width: 190px;
+        bottom: -42px;
     }
     .info__name {
         font-size: 16px;
