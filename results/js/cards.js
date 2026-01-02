@@ -10,13 +10,19 @@
     const AVATAR_BASE = "../img/avatars/"; // {CODE}.png
     const AVATAR_GUEST = "GUEST.png";
 
+    // team badges
+    const TEAM_BADGES = {
+        bandits: "../img/team-bandits.png",
+        boss: "../img/team-boss.png",
+        kevin: "../img/team-kevin.png",
+    };
+
     // ====== SETTINGS ======
     const STORAGE_KEY = "mbha_cards_opened_v2";
     const LIMIT = 18;
 
     // ====== DOM ======
     const track = document.getElementById("track");
-    const viewport = document.getElementById("viewport");
     const fxLayer = document.getElementById("fxLayer");
 
     const status = document.getElementById("status");
@@ -28,10 +34,9 @@
     const btnNext = document.getElementById("btnNext");
     const btnReset = document.getElementById("btnReset");
 
+    const info = document.getElementById("info");
     const infoName = document.getElementById("infoName");
-    const infoTeam = document.getElementById("infoTeam");
-    const openedCount = document.getElementById("openedCount");
-    const totalCount = document.getElementById("totalCount");
+    const infoBadge = document.getElementById("infoBadge");
 
     // ====== STATE ======
     const opened = loadOpened();
@@ -39,6 +44,13 @@
     let cardEls = [];
     let active = 0; // індекс по кільцю
     let rolling = false;
+
+    // ====== Anti-zoom (Safari) ======
+    // (meta viewport already set; this blocks gesture zoom + dbltap zoom)
+    document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
+    document.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
+    document.addEventListener("gestureend", (e) => e.preventDefault(), { passive: false });
+    document.addEventListener("dblclick", (e) => e.preventDefault(), { passive: false });
 
     // GAP беремо з CSS змінної (менше лагів, ніж хардкодити)
     function getGapPx() {
@@ -62,7 +74,7 @@
             if (!raw) return new Set();
             const arr = JSON.parse(raw);
             if (!Array.isArray(arr)) return new Set();
-            return new Set(arr.filter(x => typeof x === "string"));
+            return new Set(arr.filter((x) => typeof x === "string"));
         } catch {
             return new Set();
         }
@@ -78,11 +90,21 @@
         return AVATAR_BASE + c + ".png";
     }
 
-    function normTeam(raw) {
-        const t = String(raw || "").trim();
-        if (!t) return "—";
-        // поки текстом (ти казав, що іконки потім)
-        return t;
+    function normTeamKey(raw) {
+        const t = String(raw || "").trim().toLowerCase();
+        if (!t) return "kevin";
+
+        // flexible mapping
+        if (t.includes("band") || t.includes("банд") || t.includes("wet")) return "bandits";
+        if (t.includes("boss") || t.includes("босс") || t.includes("шеф") || t.includes("admin")) return "boss";
+        if (t.includes("kevin") || t.includes("кев")) return "kevin";
+
+        if (t === "bandits" || t === "boss" || t === "kevin") return t;
+        return "kevin";
+    }
+
+    function badgeFor(teamKey) {
+        return TEAM_BADGES[teamKey] || TEAM_BADGES.kevin;
     }
 
     // ====== CSV PARSER (твій нормальний, з кавичками) ======
@@ -97,27 +119,35 @@
             const next = text[i + 1];
 
             if (inQuotes) {
-                if (ch === '"' && next === '"') { cur += '"';
-                    i++; } else if (ch === '"') inQuotes = false;
+                if (ch === '"' && next === '"') {
+                    cur += '"';
+                    i++;
+                } else if (ch === '"') inQuotes = false;
                 else cur += ch;
             } else {
                 if (ch === '"') inQuotes = true;
-                else if (ch === ",") { row.push(cur);
-                    cur = ""; } else if (ch === "\n") { row.push(cur);
+                else if (ch === ",") {
+                    row.push(cur);
+                    cur = "";
+                } else if (ch === "\n") {
+                    row.push(cur);
                     rows.push(row);
                     row = [];
-                    cur = ""; } else if (ch === "\r") { /* ignore */ } else cur += ch;
+                    cur = "";
+                } else if (ch === "\r") {
+                    /* ignore */
+                } else cur += ch;
             }
         }
         row.push(cur);
         rows.push(row);
 
-        return rows.filter(r => r.some(cell => String(cell).trim() !== ""));
+        return rows.filter((r) => r.some((cell) => String(cell).trim() !== ""));
     }
 
     function rowsToObjects(rows) {
         if (!rows.length) return [];
-        const headers = rows[0].map(h => String(h).trim().toUpperCase());
+        const headers = rows[0].map((h) => String(h).trim().toUpperCase());
         const out = [];
         for (let i = 1; i < rows.length; i++) {
             const r = rows[i];
@@ -134,12 +164,13 @@
     function createCard(player) {
         const code = String(player.CODE || "").trim();
         const name = String(player.NAME || "").trim() || "Гість";
-        const team = normTeam(player.TEAM);
+        const teamKey = normTeamKey(player.TEAM);
 
         const el = document.createElement("button");
         el.type = "button";
         el.className = "card";
         el.dataset.code = code;
+        el.dataset.team = teamKey;
         el.setAttribute("aria-label", `Карта: ${name}`);
 
         el.innerHTML = `
@@ -150,7 +181,7 @@
           <div class="front__shade"></div>
           <div class="front__meta">
             <div class="name">${escapeHtml(name)}</div>
-            <div class="team">${escapeHtml(team)}</div>
+            <img class="team-badge" src="${escapeAttr(badgeFor(teamKey))}" alt="">
           </div>
         </div>
       </div>
@@ -158,46 +189,52 @@
 
         if (opened.has(code)) el.classList.add("is-open");
 
-        el.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (rolling) return;
-            // відкриваємо тільки центральну
-            const centerEl = cardEls[active];
-            if (el !== centerEl) return;
+        el.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                if (rolling) return;
 
-            if (opened.has(code)) {
-                burstFx(centerEl, 10);
-                return;
-            }
+                // відкриваємо тільки центральну
+                const centerEl = cardEls[active];
+                if (el !== centerEl) return;
 
-            opened.add(code);
-            saveOpened();
-            centerEl.classList.add("is-open");
-            burstFx(centerEl, 18);
-            updateCounters();
-            updateMode();
+                if (opened.has(code)) {
+                    burstFx(centerEl, 10);
+                    // show info for opened
+                    updateInfo();
+                    return;
+                }
 
-            // після відкриття — якщо не фінал, ROLL повертається
-            if (!isAllOpened()) {
-                btnRoll.hidden = false;
-            }
-        });
+                opened.add(code);
+                saveOpened();
+                centerEl.classList.add("is-open");
+                burstFx(centerEl, 18);
+
+                updateInfo(); // now shows (only after open)
+                updateMode();
+
+                // після відкриття — якщо не фінал, ROLL повертається
+                if (!isAllOpened()) {
+                    btnRoll.hidden = false;
+                }
+            }, { passive: false }
+        );
 
         return el;
     }
 
     function mountCards() {
         track.innerHTML = "";
-        cardEls = players.map(p => createCard(p));
+        cardEls = players.map((p) => createCard(p));
         for (const el of cardEls) track.appendChild(el);
 
         // активну ставимо на першу закриту (щоб не крутився по вже відкритих)
-        const firstClosed = players.findIndex(p => !opened.has(String(p.CODE || "").trim()));
+        const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
         active = firstClosed >= 0 ? firstClosed : 0;
 
         layout();
         updateInfo();
-        updateCounters();
         updateMode();
     }
 
@@ -236,7 +273,7 @@
             const x = d * gap;
             const isCenter = d === 0;
 
-            const scale = isCenter ? 1 : (Math.abs(d) === 1 ? 0.86 : 0.74);
+            const scale = isCenter ? 1 : Math.abs(d) === 1 ? 0.86 : 0.74;
             const blur = isCenter ? "none" : "saturate(.9) brightness(.78)";
             el.style.filter = blur;
 
@@ -246,16 +283,32 @@
         updateInfo();
     }
 
+    // подпись снизу: появляется только если центральная карта ОТКРЫТА
     function updateInfo() {
         if (!players.length) return;
-        const p = players[active];
-        infoName.textContent = String(p.NAME || "Гість").toUpperCase();
-        infoTeam.textContent = normTeam(p.TEAM);
-    }
 
-    function updateCounters() {
-        openedCount.textContent = String(opened.size);
-        totalCount.textContent = String(players.length || LIMIT);
+        const p = players[active];
+        const code = String(p.CODE || "").trim();
+        const isOpen = opened.has(code);
+
+        if (!isOpen) {
+            info.classList.remove("is-on");
+            infoName.textContent = "—";
+            infoBadge.classList.remove("is-on");
+            infoBadge.removeAttribute("src");
+            infoBadge.alt = "";
+            return;
+        }
+
+        const name = String(p.NAME || "Гість").toUpperCase();
+        const teamKey = normTeamKey(p.TEAM);
+
+        infoName.textContent = name;
+        info.classList.add("is-on");
+
+        infoBadge.src = badgeFor(teamKey);
+        infoBadge.alt = "";
+        infoBadge.classList.add("is-on");
     }
 
     function isAllOpened() {
@@ -274,11 +327,10 @@
         // Стрілки тільки після фіналу
         nav.hidden = !all;
 
-        // Reset тільки після фіналу
-        btnReset.hidden = !all;
+        // RESET всегда доступен — ничего не скрываем
     }
 
-    // ====== ROLL (без свайпу) ======
+    // ====== ROLL (ускорили в 2 раза) ======
     function pickRandomClosedIndex() {
         const closed = [];
         for (let i = 0; i < players.length; i++) {
@@ -302,23 +354,23 @@
 
         // скільки "кроків" прокрутити (для відчуття барабана)
         const N = players.length;
-        const extraLoops = 2 + Math.floor(Math.random() * 2); // 2-3 кола
+        const extraLoops = 2 + Math.floor(Math.random() * 2); // keep feel
         let steps = extraLoops * N + mod(target - active, N);
 
-        // анімація: швидко → повільно
-        let delay = 30; // старт
-        const delayMax = 140; // кінець
+        // анімація: швидко → повільно (в 2 раза швидше)
+        let delay = 18; // старт (было 30)
+        const delayMax = 80; // кінець (было 140)
         const slowStart = Math.floor(steps * 0.65);
+
+        const totalPlanned = steps;
 
         const tick = () => {
             active = mod(active + 1, N);
             layout();
-
             steps--;
 
             if (steps <= 0) {
                 rolling = false;
-                // зупинились на target
                 active = target;
                 layout();
                 updateInfo();
@@ -327,10 +379,10 @@
             }
 
             // плавне уповільнення
-            const done = (extraLoops * N + mod(target - active, N)) - steps;
+            const done = totalPlanned - steps;
             if (done > slowStart) {
-                const k = (done - slowStart) / Math.max(1, (extraLoops * N) - slowStart);
-                delay = Math.min(delayMax, 30 + k * (delayMax - 30));
+                const k = (done - slowStart) / Math.max(1, totalPlanned - slowStart);
+                delay = Math.min(delayMax, 18 + k * (delayMax - 18));
             }
 
             window.setTimeout(tick, delay);
@@ -387,7 +439,7 @@
         const objs = rowsToObjects(rows);
 
         const filtered = objs
-            .filter(o => String(o.CODE || "").trim() !== "")
+            .filter((o) => String(o.CODE || "").trim() !== "")
             .slice(0, LIMIT);
 
         return filtered;
@@ -408,20 +460,22 @@
 
     // ====== EVENTS ======
     btnRoll.addEventListener("click", roll);
-    btnPrev.addEventListener("click", () => step(-1));
-    btnNext.addEventListener("click", () => step(1));
+    btnPrev.addEventListener("click", (e) => { e.preventDefault();
+        step(-1); }, { passive: false });
+    btnNext.addEventListener("click", (e) => { e.preventDefault();
+        step(1); }, { passive: false });
 
-    btnReset.addEventListener("click", () => {
+    btnReset.addEventListener("click", (e) => {
+        e.preventDefault();
         localStorage.removeItem(STORAGE_KEY);
         opened.clear();
         for (const el of cardEls) el.classList.remove("is-open");
-        updateCounters();
         // повертаємось у режим розкриття
-        const firstClosed = players.findIndex(p => !opened.has(String(p.CODE || "").trim()));
+        const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
         active = firstClosed >= 0 ? firstClosed : 0;
         layout();
         updateMode();
-    });
+    }, { passive: false });
 
     window.addEventListener("resize", () => layout());
 

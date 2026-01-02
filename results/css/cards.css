@@ -25,23 +25,56 @@ body {
     height: 100%
 }
 
+
+/* Disable iOS double-tap zoom focus/selection feel */
+
+button,
+.card {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent
+}
+
 body.mbha-cards {
     font-family: "Pixelify Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--txt);
-    background: radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
+    /* bg-base.png behind everything */
+    background: url("../img/bg-base.png") center/cover no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
     overflow: hidden;
 }
 
+
+/* ===== iPhone SE CANVAS (desktop looks like iPhone SE) ===== */
+
 .stage {
-    min-height: 100%;
+    width: 375px;
+    height: 667px;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 16px;
+    margin: 0 auto;
+}
+
+
+/* On smaller screens, scale to fit while keeping the SE layout */
+
+@media (max-width: 390px),
+(max-height: 690px) {
+    .stage {
+        transform-origin: top center;
+        transform: scale(min(calc(100vw / 375), calc(100vh / 667)));
+    }
+    body.mbha-cards {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 10px;
+    }
 }
 
 .status {
-    position: fixed;
+    position: absolute;
     top: 14px;
     left: 14px;
     right: 14px;
@@ -98,7 +131,7 @@ body.mbha-cards {
 
 .wheel-track {
     position: absolute;
-    inset: 0;
+    inset: 0
 }
 
 
@@ -136,7 +169,7 @@ body.mbha-cards {
 }
 
 .card:focus-visible {
-    box-shadow: 0 0 0 2px rgba(255, 45, 85, .55);
+    box-shadow: 0 0 0 2px rgba(255, 45, 85, .55)
 }
 
 .card__inner {
@@ -147,7 +180,7 @@ body.mbha-cards {
 }
 
 .card.is-open .card__inner {
-    transform: rotateY(180deg);
+    transform: rotateY(180deg)
 }
 
 .face {
@@ -171,7 +204,7 @@ body.mbha-cards {
 }
 
 
-/* ЛИЦЕВА: тільки аватар + затемнення (без інших картинок) */
+/* ЛИЦЕВА: аватар + затемнення + бейдж команди (без текстового TEAM) */
 
 .face.front {
     transform: rotateY(180deg);
@@ -202,6 +235,9 @@ body.mbha-cards {
     background: rgba(2, 6, 23, .62);
     border: 1px solid rgba(255, 255, 255, .12);
     backdrop-filter: blur(6px);
+    display: grid;
+    justify-items: center;
+    gap: 8px;
 }
 
 .name {
@@ -209,17 +245,18 @@ body.mbha-cards {
     letter-spacing: .04em;
     text-transform: uppercase;
     line-height: 1.05;
+    text-align: center;
 }
 
-.team {
-    margin-top: 6px;
-    font-size: 12px;
-    letter-spacing: .03em;
-    color: rgba(248, 250, 252, .78);
+.team-badge {
+    width: 160px;
+    height: 44px;
+    object-fit: contain;
+    image-rendering: auto;
 }
 
 
-/* ===== INFO PANEL ===== */
+/* ===== INFO PANEL (hidden until opened) ===== */
 
 .info {
     width: 100%;
@@ -230,6 +267,16 @@ body.mbha-cards {
     border: 1px solid var(--stroke2);
     backdrop-filter: blur(6px);
     text-align: center;
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+}
+
+.info.is-on {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .info__name {
@@ -238,18 +285,21 @@ body.mbha-cards {
     text-transform: uppercase;
 }
 
-.info__team {
-    margin-top: 6px;
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: .04em;
+.info__badge {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
 }
 
-.info__sub {
-    margin-top: 10px;
-    font-size: 12px;
-    color: rgba(248, 250, 252, .78);
-    letter-spacing: .03em;
+.info__badge img {
+    width: 160px;
+    height: 44px;
+    object-fit: contain;
+    display: none;
+}
+
+.info__badge img.is-on {
+    display: block
 }
 
 
@@ -286,19 +336,29 @@ body.mbha-cards {
     background: rgba(255, 45, 85, .10);
 }
 
-.btn-reset {
-    border-color: rgba(255, 255, 255, .22);
-}
-
 .nav {
     display: flex;
-    gap: 12px;
+    gap: 12px
 }
 
 .btn-nav {
     width: 74px;
     padding: 14px 0;
     font-size: 18px;
+}
+
+
+/* RESET top-right ALWAYS */
+
+.btn-reset-top {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 60;
+    padding: 10px 14px;
+    border-color: rgba(255, 255, 255, .22);
+    background: rgba(0, 0, 0, .25);
+    backdrop-filter: blur(6px);
 }
 
 
@@ -339,7 +399,7 @@ body.mbha-cards {
 }
 
 
-/* ===== MOBILE ===== */
+/* ===== MOBILE tweaks ===== */
 
 @media (max-width:430px) {
      :root {

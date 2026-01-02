@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <!-- Fixed "iPhone SE canvas" + disable zoom -->
+    <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <title>MBHA • Розкриття карт</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +16,9 @@
 
 <body class="mbha-cards">
     <main class="stage">
+        <!-- RESET всегда активен (правый верх) -->
+        <button class="btn btn-reset-top" id="btnReset" type="button">RESET</button>
+
         <div class="status" id="status">
             <span class="loader"></span>
             <span id="statusText">Завантажую гравців…</span>
@@ -29,22 +33,21 @@
                 <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
             </div>
 
-            <!-- Панель (поки мінімальна; далі докрутимо) -->
-            <div class="info" id="info">
+            <!-- Подпись (появляется ТОЛЬКО после открытия текущей карты) -->
+            <div class="info" id="info" aria-live="polite">
                 <div class="info__name" id="infoName">—</div>
-                <div class="info__team" id="infoTeam">—</div>
-                <div class="info__sub" id="infoSub">Відкрито: <b id="openedCount">0</b> / <b id="totalCount">18</b></div>
+                <div class="info__badge">
+                    <img id="infoBadge" alt="" />
+                </div>
             </div>
 
             <div class="controls">
                 <button class="btn btn-roll" id="btnRoll" type="button">ROLL</button>
 
                 <div class="nav" id="nav" hidden>
-                    <button class="btn btn-nav" id="btnPrev" type="button">←</button>
-                    <button class="btn btn-nav" id="btnNext" type="button">→</button>
+                    <button class="btn btn-nav" id="btnPrev" type="button" aria-label="Previous">←</button>
+                    <button class="btn btn-nav" id="btnNext" type="button" aria-label="Next">→</button>
                 </div>
-
-                <button class="btn btn-reset" id="btnReset" type="button" hidden>СКИНУТИ</button>
             </div>
         </section>
     </main>
