@@ -8,10 +8,8 @@
     --accent: #ff2d55;
     --r: 18px;
     --cardR: 22px;
-    /* карусель */
     --cardW: 210px;
     --gap: 140px;
-    /* МЕНШЕ = ближче */
 }
 
 * {
@@ -26,7 +24,7 @@ body {
 }
 
 
-/* Disable iOS double-tap zoom focus/selection feel */
+/* ===== Disable zoom ===== */
 
 button,
 .card {
@@ -34,83 +32,37 @@ button,
     -webkit-tap-highlight-color: transparent;
 }
 
+
+/* ===== BODY / BG ===== */
+
 body.mbha-cards {
-    font-family: "Pixelify Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-family: "Pixelify Sans", system-ui, sans-serif;
     color: var(--txt);
-    /* bg-base.png строго як iPhone SE (375x667), без розтягування */
     background: url("../img/bg/bg-base.png") center top no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
+    /* bg-base.png строго як iPhone SE (375x667), без розтягування */
     background-size: 375px 667px, auto, auto, auto;
     overflow: hidden;
 }
 
 
-/* ===== iPhone SE CANVAS (desktop looks like iPhone SE) ===== */
+/* ===== iPhone SE stage ===== */
 
 .stage {
     width: 375px;
     height: 667px;
     position: relative;
+    margin: 0 auto;
+    padding: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
-    margin: 0 auto;
 }
-
-
-/* On smaller screens, scale to fit while keeping the SE layout */
 
 @media (max-width: 390px),
 (max-height: 690px) {
     .stage {
         transform-origin: top center;
         transform: scale(min(calc(100vw / 375), calc(100vh / 667)));
-    }
-    body.mbha-cards {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        padding-top: 10px;
-    }
-}
-
-
-/* ===== Status ===== */
-
-.status {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    right: 14px;
-    display: none;
-    gap: 10px;
-    align-items: center;
-    padding: 12px 14px;
-    background: rgba(255, 255, 255, .03);
-    border: 1px solid var(--stroke2);
-    border-radius: var(--r);
-    backdrop-filter: blur(6px);
-    font-size: 12px;
-    letter-spacing: .03em;
-    z-index: 50;
-}
-
-.status.is-on {
-    display: flex;
-}
-
-.loader {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, .18);
-    border-top-color: rgba(255, 255, 255, .9);
-    animation: spin 900ms linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
     }
 }
 
@@ -119,7 +71,6 @@ body.mbha-cards {
 
 .wheel {
     width: 100%;
-    max-width: 1100px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -141,16 +92,12 @@ body.mbha-cards {
     inset: 0;
 }
 
-
-/* легка підсвітка центру */
-
 .center-mark {
     position: absolute;
     inset: 18px;
     border-radius: 24px;
     pointer-events: none;
     background: radial-gradient(500px 220px at 50% 55%, rgba(255, 255, 255, .08), transparent 60%);
-    opacity: .9;
 }
 
 
@@ -163,20 +110,13 @@ body.mbha-cards {
     width: var(--cardW);
     aspect-ratio: 3/4;
     transform: translate(-50%, -50%);
-    border: 0;
-    padding: 0;
     background: transparent;
     border-radius: var(--cardR);
     perspective: 1200px;
     cursor: pointer;
-    user-select: none;
     outline: none;
-    will-change: transform;
-    transition: transform 260ms ease, opacity 260ms ease, filter 260ms ease;
-}
-
-.card:focus-visible {
-    box-shadow: 0 0 0 2px rgba(255, 45, 85, .55);
+    border: 0;
+    padding: 0;
 }
 
 .card__inner {
@@ -194,46 +134,50 @@ body.mbha-cards {
     position: absolute;
     inset: 0;
     border-radius: var(--cardR);
-    overflow: hidden;
     backface-visibility: hidden;
+    overflow: hidden;
     border: 1px solid var(--stroke);
     box-shadow: 0 10px 26px rgba(0, 0, 0, .35);
 }
 
 
-/* РУБАШКА: заповнює 100% */
+/* back */
 
 .face.back {
-    background-image: url("../img/cards/card-back.png");
-    background-size: 100% 100%;
-    background-position: center;
-    background-repeat: no-repeat;
+    background: url("../img/cards/card-back.png") center/100% 100% no-repeat;
 }
 
 
-/* ЛИЦЕВА: аватар + затемнення + бейдж команди (БЕЗ імені/рамки) */
+/* front */
 
 .face.front {
     transform: rotateY(180deg);
     background: rgba(255, 255, 255, .02);
 }
 
+
+/* avatar */
+
 .front__img {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-    image-rendering: pixelated;
+    z-index: 1;
 }
+
+
+/* shade */
 
 .front__shade {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0, 0, 0, .10), rgba(0, 0, 0, .76));
+    background: linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .75));
+    z-index: 2;
 }
 
 
-/* Если где-то в JS ещё остался front__meta/name — принудительно скрываем */
+/* hide any leftovers */
 
 .front__meta,
 .name {
@@ -241,43 +185,70 @@ body.mbha-cards {
 }
 
 
-/* TEAM BADGE — просто картинка, без рамки */
+/* ===== TEAM BADGE (VISIBLE) ===== */
 
 .team-badge {
     position: absolute;
     left: 50%;
-    bottom: 14px;
+    bottom: 18px;
     transform: translateX(-50%);
     width: 150px;
-    height: auto;
-    object-fit: contain;
-    image-rendering: auto;
+    z-index: 6;
+    /* above shade */
     pointer-events: none;
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .6));
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .7));
 }
 
 
-/* ===== INFO PANEL (name only, shows only when opened via JS) ===== */
+/* ===== ACTIVE CARD GOLD GLOW (only center) ===== */
+
+.card.is-active::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: calc(var(--cardR) + 6px);
+    pointer-events: none;
+    background: linear-gradient( 135deg, rgba(255, 220, 140, .95), rgba(255, 175, 55, .55), rgba(255, 220, 140, .95));
+    filter: blur(14px);
+    opacity: .85;
+    animation: glowPulse 2.6s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0% {
+        opacity: .55;
+    }
+    50% {
+        opacity: .98;
+    }
+    100% {
+        opacity: .55;
+    }
+}
+
+.card.is-active {
+    z-index: 2000;
+}
+
+
+/* ===== INFO (name only) ===== */
 
 .info {
     width: 100%;
-    max-width: 520px;
     padding: 12px 14px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, .03);
+    background: rgba(255, 255, 255, .05);
     border: 1px solid var(--stroke2);
     backdrop-filter: blur(6px);
     text-align: center;
     opacity: 0;
     transform: translateY(6px);
-    pointer-events: none;
-    transition: opacity .18s ease, transform .18s ease;
+    transition: .18s;
 }
 
 .info.is-on {
     opacity: 1;
     transform: translateY(0);
-    pointer-events: auto;
 }
 
 .info__name {
@@ -297,93 +268,51 @@ body.mbha-cards {
     flex-wrap: wrap;
 }
 
+
+/* ===== BUTTONS (VOLUME) ===== */
+
 .btn {
     font-family: inherit;
-    color: var(--txt);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, .18);
-    background: rgba(255, 255, 255, .05);
-    padding: 12px 16px;
-    letter-spacing: .06em;
+    color: #fff;
+    border-radius: 18px;
+    padding: 14px 18px;
     cursor: pointer;
-    user-select: none;
-    transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, .02)), rgba(20, 20, 30, .55);
+    border: 1px solid rgba(255, 255, 255, .28);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 8px 18px rgba(0, 0, 0, .55);
+    backdrop-filter: blur(6px);
+    letter-spacing: .08em;
 }
 
 .btn:active {
-    transform: translateY(1px) scale(.99);
+    transform: translateY(2px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 4px 10px rgba(0, 0, 0, .6);
 }
 
 .btn-roll {
-    padding: 14px 26px;
-    border-color: rgba(255, 45, 85, .35);
-    background: rgba(255, 45, 85, .10);
-}
-
-.nav {
-    display: flex;
-    gap: 12px;
+    background: linear-gradient(180deg, rgba(255, 90, 120, .55), rgba(120, 20, 40, .55)), rgba(255, 45, 85, .35);
+    border-color: rgba(255, 90, 120, .9);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 10px 24px rgba(255, 45, 85, .55);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, .6);
 }
 
 .btn-nav {
-    width: 74px;
-    padding: 14px 0;
-    font-size: 18px;
+    width: 76px;
+    font-size: 20px;
 }
 
 
-/* RESET top-right ALWAYS */
+/* RESET */
 
 .btn-reset-top {
     position: absolute;
     top: 12px;
     right: 12px;
     z-index: 60;
-    padding: 10px 14px;
-    border-color: rgba(255, 255, 255, .22);
-    background: rgba(0, 0, 0, .25);
-    backdrop-filter: blur(6px);
 }
 
 
-/* ===== FX (без PNG, легкий) ===== */
-
-.fx-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 30;
-}
-
-.fx-dot {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .9);
-    box-shadow: 0 0 18px rgba(255, 255, 255, .55);
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    animation: fx 520ms ease-out forwards;
-}
-
-@keyframes fx {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(.8);
-    }
-    15% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s));
-    }
-}
-
-
-/* ===== MOBILE tweaks ===== */
+/* ===== MOBILE ===== */
 
 @media (max-width: 430px) {
      :root {
@@ -393,11 +322,8 @@ body.mbha-cards {
     .wheel-viewport {
         height: 360px;
     }
-    .info__name {
-        font-size: 16px;
-    }
     .team-badge {
         width: 140px;
-        bottom: 12px;
+        bottom: 14px;
     }
 }

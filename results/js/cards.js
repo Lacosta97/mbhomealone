@@ -17,7 +17,6 @@
         kevin: "../img/icons/team-kevin.png",
     };
 
-
     // ====== SETTINGS ======
     const STORAGE_KEY = "mbha_cards_opened_v2";
     const LIMIT = 18;
@@ -46,13 +45,11 @@
     let rolling = false;
 
     // ====== Anti-zoom (Safari) ======
-    // (meta viewport already set; this blocks gesture zoom + dbltap zoom)
     document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
     document.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
     document.addEventListener("gestureend", (e) => e.preventDefault(), { passive: false });
     document.addEventListener("dblclick", (e) => e.preventDefault(), { passive: false });
 
-    // GAP беремо з CSS змінної (менше лагів, ніж хардкодити)
     function getGapPx() {
         const v = getComputedStyle(document.documentElement).getPropertyValue("--gap").trim();
         const n = parseFloat(v);
@@ -93,12 +90,9 @@
     function normTeamKey(raw) {
         const t = String(raw || "").trim().toLowerCase();
         if (!t) return "kevin";
-
-        // flexible mapping
         if (t.includes("band") || t.includes("банд") || t.includes("wet")) return "bandits";
         if (t.includes("boss") || t.includes("босс") || t.includes("шеф") || t.includes("admin")) return "boss";
         if (t.includes("kevin") || t.includes("кев")) return "kevin";
-
         if (t === "bandits" || t === "boss" || t === "kevin") return t;
         return "kevin";
     }
@@ -107,7 +101,7 @@
         return TEAM_BADGES[teamKey] || TEAM_BADGES.kevin;
     }
 
-    // ====== CSV PARSER (твій нормальний, з кавичками) ======
+    // ====== CSV PARSER ======
     function parseCSV(text) {
         const rows = [];
         let row = [];
@@ -179,45 +173,36 @@
         <div class="face front">
           <div class="front__img" style="background-image:url('${escapeAttr(avatarFor(code))}')"></div>
           <div class="front__shade"></div>
-          <img class="team-badge team-badge--solo" src="${escapeAttr(badgeFor(teamKey))}" alt="">
-
+          <img class="team-badge" src="${escapeAttr(badgeFor(teamKey))}" alt="">
         </div>
       </div>
     `;
 
         if (opened.has(code)) el.classList.add("is-open");
 
-        el.addEventListener(
-            "click",
-            (e) => {
-                e.preventDefault();
-                if (rolling) return;
+        el.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (rolling) return;
 
-                // відкриваємо тільки центральну
-                const centerEl = cardEls[active];
-                if (el !== centerEl) return;
+            const centerEl = cardEls[active];
+            if (el !== centerEl) return;
 
-                if (opened.has(code)) {
-                    burstFx(centerEl, 10);
-                    // show info for opened
-                    updateInfo();
-                    return;
-                }
+            if (opened.has(code)) {
+                burstFx(centerEl, 10);
+                updateInfo();
+                return;
+            }
 
-                opened.add(code);
-                saveOpened();
-                centerEl.classList.add("is-open");
-                burstFx(centerEl, 18);
+            opened.add(code);
+            saveOpened();
+            centerEl.classList.add("is-open");
+            burstFx(centerEl, 18);
 
-                updateInfo(); // now shows (only after open)
-                updateMode();
+            updateInfo();
+            updateMode();
 
-                // після відкриття — якщо не фінал, ROLL повертається
-                if (!isAllOpened()) {
-                    btnRoll.hidden = false;
-                }
-            }, { passive: false }
-        );
+            if (!isAllOpened()) btnRoll.hidden = false;
+        }, { passive: false });
 
         return el;
     }
@@ -227,7 +212,6 @@
         cardEls = players.map((p) => createCard(p));
         for (const el of cardEls) track.appendChild(el);
 
-        // активну ставимо на першу закриту (щоб не крутився по вже відкритих)
         const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
         active = firstClosed >= 0 ? firstClosed : 0;
 
@@ -236,7 +220,7 @@
         updateMode();
     }
 
-    // ====== LAYOUT (легкий, без лагів) ======
+    // ====== LAYOUT ======
     function mod(n, m) {
         return ((n % m) + m) % m;
     }
@@ -245,19 +229,20 @@
         if (!cardEls.length) return;
         const gap = getGapPx();
         const N = cardEls.length;
-
-        // показуємо лише сусідів на фоні
-        const visibleRange = 3; // зліва/справа
+        const visibleRange = 3;
 
         for (let i = 0; i < N; i++) {
             const el = cardEls[i];
 
-            // мінімальна циклічна відстань від активної
             let d = i - active;
             if (d > N / 2) d -= N;
             if (d < -N / 2) d += N;
 
-            // ховаємо далекі (менше DOM роботи + менше лагів)
+            const isCenter = d === 0;
+
+            // ✅ GOLD GLOW only for active card
+            el.classList.toggle("is-active", isCenter);
+
             if (Math.abs(d) > visibleRange) {
                 el.style.opacity = "0";
                 el.style.pointerEvents = "none";
@@ -269,7 +254,6 @@
             el.style.pointerEvents = "auto";
 
             const x = d * gap;
-            const isCenter = d === 0;
 
             const scale = isCenter ? 1 : Math.abs(d) === 1 ? 0.86 : 0.74;
             const blur = isCenter ? "none" : "saturate(.9) brightness(.78)";
@@ -281,7 +265,6 @@
         updateInfo();
     }
 
-    // подпись снизу: появляется только если центральная карта ОТКРЫТА
     function updateInfo() {
         if (!players.length) return;
 
@@ -289,7 +272,6 @@
         const code = String(p.CODE || "").trim();
         const isOpen = opened.has(code);
 
-        // имя показываем ТОЛЬКО после открытия текущей карты
         if (!isOpen) {
             info.classList.remove("is-on");
             infoName.textContent = "—";
@@ -301,27 +283,18 @@
         info.classList.add("is-on");
     }
 
-
     function isAllOpened() {
-        // рахуємо тільки по тим, що реально завантажили
         const total = players.length || LIMIT;
         return opened.size >= total && total > 0;
     }
 
-    // ====== MODES ======
     function updateMode() {
         const all = isAllOpened();
-
-        // ROLL тільки поки не все відкрите
         btnRoll.hidden = all;
-
-        // Стрілки тільки після фіналу
         nav.hidden = !all;
-
-        // RESET всегда доступен — ничего не скрываем
     }
 
-    // ====== ROLL (ускорили в 2 раза) ======
+    // ====== ROLL (x2 faster) ======
     function pickRandomClosedIndex() {
         const closed = [];
         for (let i = 0; i < players.length; i++) {
@@ -329,8 +302,7 @@
             if (!opened.has(code)) closed.push(i);
         }
         if (!closed.length) return active;
-        const r = Math.floor(Math.random() * closed.length);
-        return closed[r];
+        return closed[Math.floor(Math.random() * closed.length)];
     }
 
     function roll() {
@@ -340,19 +312,15 @@
         rolling = true;
         btnRoll.hidden = true;
 
-        // куди маємо зупинитись
         const target = pickRandomClosedIndex();
 
-        // скільки "кроків" прокрутити (для відчуття барабана)
         const N = players.length;
-        const extraLoops = 2 + Math.floor(Math.random() * 2); // keep feel
+        const extraLoops = 2 + Math.floor(Math.random() * 2);
         let steps = extraLoops * N + mod(target - active, N);
 
-        // анімація: швидко → повільно (в 2 раза швидше)
-        let delay = 18; // старт (было 30)
-        const delayMax = 80; // кінець (было 140)
+        let delay = 18;
+        const delayMax = 80;
         const slowStart = Math.floor(steps * 0.65);
-
         const totalPlanned = steps;
 
         const tick = () => {
@@ -365,11 +333,9 @@
                 active = target;
                 layout();
                 updateInfo();
-                // тепер юзер має натиснути по центру
                 return;
             }
 
-            // плавне уповільнення
             const done = totalPlanned - steps;
             if (done > slowStart) {
                 const k = (done - slowStart) / Math.max(1, totalPlanned - slowStart);
@@ -382,14 +348,14 @@
         tick();
     }
 
-    // ====== NAV (після фіналу) ======
+    // ====== NAV ======
     function step(dir) {
         const N = players.length;
         active = mod(active + dir, N);
         layout();
     }
 
-    // ====== FX (без PNG) ======
+    // ====== FX ======
     function burstFx(cardEl, amount = 14) {
         const rect = cardEl.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
@@ -429,20 +395,9 @@
         const rows = parseCSV(csv);
         const objs = rowsToObjects(rows);
 
-        const filtered = objs
+        return objs
             .filter((o) => String(o.CODE || "").trim() !== "")
             .slice(0, LIMIT);
-
-        return filtered;
-    }
-
-    function escapeHtml(str) {
-        return String(str)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
     }
 
     function escapeAttr(str) {
@@ -451,23 +406,20 @@
 
     // ====== EVENTS ======
     btnRoll.addEventListener("click", roll);
-    btnPrev.addEventListener("click", (e) => {
-        e.preventDefault();
-        step(-1);
-    }, { passive: false });
-    btnNext.addEventListener("click", (e) => {
-        e.preventDefault();
-        step(1);
-    }, { passive: false });
+    btnPrev.addEventListener("click", (e) => { e.preventDefault();
+        step(-1); }, { passive: false });
+    btnNext.addEventListener("click", (e) => { e.preventDefault();
+        step(1); }, { passive: false });
 
     btnReset.addEventListener("click", (e) => {
         e.preventDefault();
         localStorage.removeItem(STORAGE_KEY);
         opened.clear();
         for (const el of cardEls) el.classList.remove("is-open");
-        // повертаємось у режим розкриття
+
         const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
         active = firstClosed >= 0 ? firstClosed : 0;
+
         layout();
         updateMode();
     }, { passive: false });
