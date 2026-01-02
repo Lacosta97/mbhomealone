@@ -179,10 +179,8 @@
         <div class="face front">
           <div class="front__img" style="background-image:url('${escapeAttr(avatarFor(code))}')"></div>
           <div class="front__shade"></div>
-          <div class="front__meta">
-            <div class="name">${escapeHtml(name)}</div>
-            <img class="team-badge" src="${escapeAttr(badgeFor(teamKey))}" alt="">
-          </div>
+          <img class="team-badge team-badge--solo" src="${escapeAttr(badgeFor(teamKey))}" alt="">
+
         </div>
       </div>
     `;

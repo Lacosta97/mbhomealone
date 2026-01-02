@@ -17,12 +17,12 @@
 * {
     box-sizing: border-box;
     margin: 0;
-    padding: 0
+    padding: 0;
 }
 
 html,
 body {
-    height: 100%
+    height: 100%;
 }
 
 
@@ -31,14 +31,15 @@ body {
 button,
 .card {
     touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent
+    -webkit-tap-highlight-color: transparent;
 }
 
 body.mbha-cards {
     font-family: "Pixelify Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--txt);
-    /* bg-base.png behind everything */
-    background: url("../img/bg/bg-base.png") center/cover no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
+    /* bg-base.png строго як iPhone SE (375x667), без розтягування */
+    background: url("../img/bg/bg-base.png") center top no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
+    background-size: 375px 667px, auto, auto, auto;
     overflow: hidden;
 }
 
@@ -73,6 +74,9 @@ body.mbha-cards {
     }
 }
 
+
+/* ===== Status ===== */
+
 .status {
     position: absolute;
     top: 14px;
@@ -92,7 +96,7 @@ body.mbha-cards {
 }
 
 .status.is-on {
-    display: flex
+    display: flex;
 }
 
 .loader {
@@ -106,9 +110,12 @@ body.mbha-cards {
 
 @keyframes spin {
     to {
-        transform: rotate(360deg)
+        transform: rotate(360deg);
     }
 }
+
+
+/* ===== Wheel ===== */
 
 .wheel {
     width: 100%;
@@ -131,7 +138,7 @@ body.mbha-cards {
 
 .wheel-track {
     position: absolute;
-    inset: 0
+    inset: 0;
 }
 
 
@@ -147,7 +154,7 @@ body.mbha-cards {
 }
 
 
-/* ===== КАРТКА ===== */
+/* ===== Card ===== */
 
 .card {
     position: absolute;
@@ -169,7 +176,7 @@ body.mbha-cards {
 }
 
 .card:focus-visible {
-    box-shadow: 0 0 0 2px rgba(255, 45, 85, .55)
+    box-shadow: 0 0 0 2px rgba(255, 45, 85, .55);
 }
 
 .card__inner {
@@ -180,7 +187,7 @@ body.mbha-cards {
 }
 
 .card.is-open .card__inner {
-    transform: rotateY(180deg)
+    transform: rotateY(180deg);
 }
 
 .face {
@@ -194,7 +201,7 @@ body.mbha-cards {
 }
 
 
-/* РУБАШКА: без обрізання — заповнює 100% */
+/* РУБАШКА: заповнює 100% */
 
 .face.back {
     background-image: url("../img/cards/card-back.png");
@@ -204,7 +211,7 @@ body.mbha-cards {
 }
 
 
-/* ЛИЦЕВА: аватар + затемнення + бейдж команди (без текстового TEAM) */
+/* ЛИЦЕВА: аватар + затемнення + бейдж команди (БЕЗ імені/рамки) */
 
 .face.front {
     transform: rotateY(180deg);
@@ -225,38 +232,32 @@ body.mbha-cards {
     background: linear-gradient(180deg, rgba(0, 0, 0, .10), rgba(0, 0, 0, .76));
 }
 
-.front__meta {
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    padding: 10px;
-    border-radius: 14px;
-    background: rgba(2, 6, 23, .62);
-    border: 1px solid rgba(255, 255, 255, .12);
-    backdrop-filter: blur(6px);
-    display: grid;
-    justify-items: center;
-    gap: 8px;
+
+/* Если где-то в JS ещё остался front__meta/name — принудительно скрываем */
+
+.front__meta,
+.name {
+    display: none !important;
 }
 
-.name {
-    font-size: 14px;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    line-height: 1.05;
-    text-align: center;
-}
+
+/* TEAM BADGE — просто картинка, без рамки */
 
 .team-badge {
-    width: 160px;
-    height: 44px;
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    width: 150px;
+    height: auto;
     object-fit: contain;
     image-rendering: auto;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .6));
 }
 
 
-/* ===== INFO PANEL (hidden until opened) ===== */
+/* ===== INFO PANEL (name only, shows only when opened via JS) ===== */
 
 .info {
     width: 100%;
@@ -310,7 +311,7 @@ body.mbha-cards {
 }
 
 .btn:active {
-    transform: translateY(1px) scale(.99)
+    transform: translateY(1px) scale(.99);
 }
 
 .btn-roll {
@@ -321,7 +322,7 @@ body.mbha-cards {
 
 .nav {
     display: flex;
-    gap: 12px
+    gap: 12px;
 }
 
 .btn-nav {
@@ -370,21 +371,21 @@ body.mbha-cards {
 @keyframes fx {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(.8)
+        transform: translate(-50%, -50%) scale(.8);
     }
     15% {
-        opacity: 1
+        opacity: 1;
     }
     100% {
         opacity: 0;
-        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s))
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s));
     }
 }
 
 
 /* ===== MOBILE tweaks ===== */
 
-@media (max-width:430px) {
+@media (max-width: 430px) {
      :root {
         --cardW: 180px;
         --gap: 120px;
@@ -394,5 +395,9 @@ body.mbha-cards {
     }
     .info__name {
         font-size: 16px;
+    }
+    .team-badge {
+        width: 140px;
+        bottom: 12px;
     }
 }
