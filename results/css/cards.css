@@ -2,14 +2,12 @@
     --bg0: #020617;
     --bg1: #0b1224;
     --txt: #f8fafc;
-    --muted: rgba(248, 250, 252, .68);
     --stroke: rgba(255, 255, 255, .18);
     --stroke2: rgba(255, 255, 255, .08);
     --accent: #ff2d55;
-    --good: #32d74b;
     --r: 18px;
-    --shadow2: 0 10px 26px rgba(0, 0, 0, .35);
     --cardR: 22px;
+    --shadow: 0 10px 26px rgba(0, 0, 0, .35)
 }
 
 * {
@@ -24,10 +22,9 @@ body {
 }
 
 body.mbha-cards {
-    font-family: "Pixelify Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-family: "Pixelify Sans", sans-serif;
     color: var(--txt);
-    background: radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .18), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
-    overflow-x: hidden;
+    background: radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .18), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .1), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
 }
 
 .cards-page {
@@ -41,66 +38,39 @@ body.mbha-cards {
 .cards-top {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
     padding: 14px;
     background: rgba(255, 255, 255, .03);
     border: 1px solid var(--stroke2);
-    border-radius: var(--r);
-    box-shadow: var(--shadow2);
-    backdrop-filter: blur(6px)
-}
-
-.cards-top__left {
-    display: flex;
-    gap: 12px;
-    align-items: center
-}
-
-.cards-badge {
-    width: 64px;
-    height: 44px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 45, 85, .14);
-    border: 1px solid rgba(255, 45, 85, .35);
-    letter-spacing: .08em;
-    font-weight: 600
+    border-radius: var(--r)
 }
 
 .cards-title__h {
-    font-size: 20px;
-    letter-spacing: .06em
+    font-size: 20px
 }
 
 .cards-title__s {
     font-size: 12px;
-    color: var(--muted);
-    margin-top: 4px
+    opacity: .7
 }
 
 .cards-btn {
-    font-family: inherit;
-    color: var(--txt);
-    background: rgba(255, 255, 255, .04);
+    background: rgba(255, 255, 255, .05);
     border: 1px solid var(--stroke);
-    border-radius: 14px;
+    color: #fff;
     padding: 10px 12px;
-    cursor: pointer
+    border-radius: 14px
 }
 
 .cards-main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px
+    gap: 12px
 }
 
 .cards-status {
     display: none;
-    padding: 12px 14px;
-    background: rgba(255, 255, 255, .03);
+    padding: 12px;
     border: 1px solid var(--stroke2);
     border-radius: var(--r)
 }
@@ -125,59 +95,53 @@ body.mbha-cards {
 }
 
 
-/* ===== КАРУСЕЛЬ ===== */
+/* ==== КАРУСЕЛЬ ==== */
 
 .carousel-wrap {
-    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px
+    gap: 8px
 }
 
 .carousel-viewport {
     width: 100%;
     max-width: 1100px;
     height: 420px;
-    overflow: hidden;
-    touch-action: pan-y
+    overflow: hidden
 }
 
 .carousel-track {
     position: relative;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
     will-change: transform
 }
 
 .carousel-hint {
     font-size: 12px;
-    color: var(--muted)
+    opacity: .6
 }
 
 
-/* ===== КАРТКА (перевикористання) ===== */
+/* ==== КАРТКА ==== */
 
 .card {
     position: absolute;
-    width: 220px;
+    width: 210px;
     aspect-ratio: 3/4;
     border-radius: var(--cardR);
     perspective: 1200px;
     cursor: pointer;
-    border: 0;
-    background: transparent
 }
 
 .card__inner {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
-    transition: transform .78s cubic-bezier(.2, .9, .2, 1)
+    transition: transform .7s cubic-bezier(.2, .9, .2, 1)
 }
 
 .card.is-open .card__inner {
@@ -188,22 +152,19 @@ body.mbha-cards {
     position: absolute;
     inset: 0;
     border-radius: var(--cardR);
-    overflow: hidden;
     backface-visibility: hidden;
+    overflow: hidden;
     border: 1px solid var(--stroke);
-    box-shadow: var(--shadow2)
+    box-shadow: var(--shadow)
 }
 
 .face.back {
-    background-image: url("../img/ui/card-back.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat
+    background: url("../img/cards/card-back.png") center/cover no-repeat;
 }
 
 .face.front {
     transform: rotateY(180deg);
-    background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .02))
+    background: url("../img/cards/card-face-bg.png") center/cover no-repeat;
 }
 
 .front__img {
@@ -217,7 +178,7 @@ body.mbha-cards {
 .front__overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0, 0, 0, .08), rgba(0, 0, 0, .18) 55%, rgba(0, 0, 0, .74))
+    background: linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .7))
 }
 
 .front__meta {
@@ -225,10 +186,9 @@ body.mbha-cards {
     left: 10px;
     right: 10px;
     bottom: 10px;
-    border-radius: 16px;
+    background: rgba(0, 0, 0, .6);
     padding: 10px;
-    background: rgba(2, 6, 23, .62);
-    border: 1px solid rgba(255, 255, 255, .16)
+    border-radius: 14px
 }
 
 .name {
@@ -236,33 +196,55 @@ body.mbha-cards {
     font-size: 14px
 }
 
-.teamline {
-    font-size: 12px;
-    color: rgba(248, 250, 252, .8)
-}
-
 .card__frame {
     position: absolute;
     inset: 0;
+    background: url("../img/cards/card-frame.png") center/100% 100% no-repeat;
     pointer-events: none;
-    z-index: 4;
-    background: url("../img/ui/card-frame.png") center/100% 100% no-repeat
 }
 
-.card__shine {
+.cards-foot {
+    padding: 10px;
+    border: 1px solid var(--stroke2);
+    border-radius: var(--r)
+}
+
+.cards-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block
+}
+
+
+/* ==== FX ==== */
+
+.cards-fx-layer {
     position: absolute;
-    inset: -2px;
-    opacity: 0;
-    background: radial-gradient(380px 200px at 20% 10%, rgba(255, 255, 255, .18), transparent 60%);
-    mix-blend-mode: screen
+    inset: 0;
+    pointer-events: none
 }
 
-.card.is-open .card__shine {
-    opacity: .25
+.fx {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    animation: fx .7s ease-out forwards
+}
+
+@keyframes fx {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(.8)
+    }
+    to {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) scale(1.4)
+    }
 }
 
 
-/* ===== МАСКА-ПОРТАЛ (БЕЗ PNG) ===== */
+/* ==== ПОРТАЛ ==== */
 
 .portal {
     position: absolute;
@@ -270,8 +252,7 @@ body.mbha-cards {
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
-    z-index: 10
+    pointer-events: none
 }
 
 .portal::before {
@@ -279,51 +260,16 @@ body.mbha-cards {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: radial-gradient(circle, #fff 0%, rgba(255, 255, 255, .9) 40%, rgba(255, 255, 255, 0) 60%);
-    animation: portal .34s ease-out forwards
+    background: radial-gradient(circle, #fff 0%, rgba(255, 255, 255, .8) 40%, rgba(255, 255, 255, 0) 70%);
+    animation: portal .35s ease-out forwards
 }
 
 @keyframes portal {
     from {
-        transform: scale(.2);
-        opacity: 1
+        transform: scale(.2)
     }
     to {
-        transform: scale(12);
+        transform: scale(14);
         opacity: 0
-    }
-}
-
-
-/* ===== FOOTER ===== */
-
-.cards-foot {
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, .03);
-    border: 1px solid var(--stroke2);
-    border-radius: var(--r)
-}
-
-.cards-foot__hint {
-    font-size: 12px;
-    color: rgba(248, 250, 252, .78);
-    display: flex;
-    gap: 10px
-}
-
-.cards-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(255, 45, 85, .75);
-    box-shadow: 0 0 16px rgba(255, 45, 85, .5)
-}
-
-@media (max-width:430px) {
-    .carousel-viewport {
-        height: 360px
-    }
-    .card {
-        width: 180px
     }
 }
