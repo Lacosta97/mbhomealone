@@ -1,621 +1,88 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<html lang="uk">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>MB Home Alone · MBHA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>MBHA • HOLD</title>
 
-    <!-- Стили -->
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/nye.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="./css/hold.css" />
 </head>
 
-<body>
+<body class="mbha-hold">
+    <main class="screen" role="main" aria-label="MBHA HOLD">
 
-    <!-- Оверлей для DONT PUSH -->
-    <div id="dontPushOverlay" class="dont-push-overlay">
-        <img src="img/icons/okak1.png" alt="dont push image">
-    </div>
-    <!-- ===== NEW YEAR EASTER EGG (KYIV) ===== -->
-    <div id="nyeWidget" class="nye-widget" aria-hidden="true">
-        <div class="nye-title">HAPPY NEW YEAR FAMILY!</div>
+        <!-- subtle animated background layers -->
 
-        <button id="nyeEnvelopeBtn" class="nye-envelope" type="button" aria-label="Open letter">
-    <span>OPEN</span>
-  </button>
-    </div>
+        <div class="bg bg--mist" aria-hidden="true"></div>
+        <div class="bg bg--snow" aria-hidden="true"></div>
 
-    <div class="nye-letter" id="nyeLetter" aria-hidden="true">
-        <div class="nye-letter__backdrop" id="nyeLetterBackdrop"></div>
 
-        <div class="nye-letter__content" role="dialog" aria-modal="true" aria-labelledby="nyeLetterTitle">
-            <button class="nye-letter__close" id="nyeLetterCloseBtn" type="button">✕</button>
+        <!-- SLOT MACHINE CABINET (static image) -->
+        <img class="cabinet" src="./img/slot/cabinet.png" alt="Slot machine" draggable="false" />
 
-            <div id="nyeLetterTitle" class="nye-letter__text">
-                I wish all your wishes come true! Live in the here and now, because there is only a moment, and you are in it, and everything else doesn't matter! Love! Laugh! Set goals and achieve them! You can do it! Be happy!
+        <!-- BULBS (overlay, YOU MOVE THEM VIA CSS) -->
+        <div class="bulbs" aria-hidden="true">
+            <span class="bulb b1"></span>
+            <span class="bulb b2"></span>
+            <span class="bulb b3"></span>
+            <span class="bulb b4"></span>
+            <span class="bulb b5"></span>
+            <span class="bulb b6"></span>
+        </div>
+
+        <!-- LEVER (click to spin) -->
+        <button class="lever" id="lever" type="button" aria-label="Pull lever"></button>
+
+        <!-- TOP PANELS -->
+        <section class="panels" aria-label="Teams">
+            <div class="panel panel--kevin" aria-label="Team Kevin panel">
+                <div class="panel__title">TEAM KEVIN</div>
+                <div class="digits" id="digitsKevin" aria-label="Team Kevin amount"></div>
             </div>
 
-            <button id="nyeHeartBtn" class="nye-heart" type="button" aria-label="Heart">
-      <i></i>
-    </button>
-        </div>
-    </div>
+            <div class="panel panel--bandits" aria-label="Team of Bandits panel">
+                <div class="panel__title">TEAM OF BANDITS</div>
+                <div class="digits" id="digitsBandits" aria-label="Team Bandits amount"></div>
+            </div>
+        </section>
 
+        <!-- CENTER TYPEWRITER -->
+        <section class="center" aria-label="Status">
+            <div class="terminal-line">
+                <span class="terminal-text" id="typeText"></span><span class="caret" aria-hidden="true">█</span>
+            </div>
 
-    <div class="page">
+            <!-- SLOT (AUTO) -->
+            <div class="slot-ui" aria-label="Hryvnia slot">
+                <div class="win-fx" id="winFx" aria-hidden="true"></div>
 
-        <!-- === ДОМ === -->
-        <div class="house-wrap">
-            <div class="house-inner">
-
-                <!-- === СНЕГ ВОКРУГ ДОМА === -->
-                <div class="snow-layer">
-                    <div class="snow-layer__layer snow-layer--far"></div>
-                    <div class="snow-layer__layer snow-layer--mid"></div>
-                    <div class="snow-layer__layer snow-layer--near"></div>
+                <div class="hryvnia" aria-label="Hryvnia reels">
+                    <span class="reel" data-reel="1"><span class="slot-face" id="slot1">₴</span></span>
+                    <span class="reel" data-reel="2"><span class="slot-face" id="slot2">₴</span></span>
+                    <span class="reel" data-reel="3"><span class="slot-face" id="slot3">₴</span></span>
                 </div>
 
-                <!-- === ОГОНЬКИ (звёзды, гирлянды, ёлка) === -->
-                <div class="lights-layer">
-
-                    <!-- ⭐ 20 звёзд -->
-                    <div class="light-dot star star-1"></div>
-                    <div class="light-dot star star-2"></div>
-                    <div class="light-dot star star-3"></div>
-                    <div class="light-dot star star-4"></div>
-                    <div class="light-dot star star-5"></div>
-                    <div class="light-dot star star-6"></div>
-                    <div class="light-dot star star-7"></div>
-                    <div class="light-dot star star-8"></div>
-                    <div class="light-dot star star-9"></div>
-                    <div class="light-dot star star-10"></div>
-                    <div class="light-dot star star-11"></div>
-                    <div class="light-dot star star-12"></div>
-                    <div class="light-dot star star-13"></div>
-                    <div class="light-dot star star-14"></div>
-                    <div class="light-dot star star-15"></div>
-                    <div class="light-dot star star-16"></div>
-                    <div class="light-dot star star-17"></div>
-                    <div class="light-dot star star-18"></div>
-                    <div class="light-dot star star-19"></div>
-                    <div class="light-dot star star-20"></div>
-
-                    <!-- 🎄 ВЕРХНЯЯ ГИРЛЯНДА -->
-                    <div class="garland garland-top garland-1 color-yellow"></div>
-                    <div class="garland garland-top garland-2 color-red"></div>
-                    <div class="garland garland-top garland-3 color-green"></div>
-                    <div class="garland garland-top garland-4 color-blue"></div>
-                    <div class="garland garland-top garland-5 color-pink"></div>
-                    <div class="garland garland-top garland-6 color-yellow"></div>
-                    <div class="garland garland-top garland-7 color-red"></div>
-                    <div class="garland garland-top garland-8 color-green"></div>
-                    <div class="garland garland-top garland-9 color-blue"></div>
-                    <div class="garland garland-top garland-10 color-pink"></div>
-                    <div class="garland garland-top garland-11 color-yellow"></div>
-
-                    <!-- 🎄 ЛЕВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА -->
-                    <div class="garland garland-vert garland-left garland-left-1 color-red"></div>
-                    <div class="garland garland-vert garland-left garland-left-2 color-yellow"></div>
-                    <div class="garland garland-vert garland-left garland-left-3 color-green"></div>
-                    <div class="garland garland-vert garland-left garland-left-4 color-blue"></div>
-                    <div class="garland garland-vert garland-left garland-left-5 color-pink"></div>
-                    <div class="garland garland-vert garland-left garland-left-6 color-yellow"></div>
-                    <div class="garland garland-vert garland-left garland-left-7 color-red"></div>
-
-                    <!-- 🎄 ПРАВАЯ ВЕРТИКАЛЬНАЯ ГИРЛЯНДА -->
-                    <div class="garland garland-vert garland-right garland-right-1 color-red"></div>
-                    <div class="garland garland-vert garland-right garland-right-2 color-yellow"></div>
-                    <div class="garland garland-vert garland-right garland-right-3 color-green"></div>
-                    <div class="garland garland-vert garland-right garland-right-4 color-blue"></div>
-                    <div class="garland garland-vert garland-right garland-right-5 color-pink"></div>
-                    <div class="garland garland-vert garland-right garland-right-6 color-yellow"></div>
-                    <div class="garland garland-vert garland-right garland-right-7 color-red"></div>
-
-                    <!-- 🎄 ОГОНЬКИ НА ЁЛКЕ -->
-                    <div class="tree-light tree-red tree-1"></div>
-                    <div class="tree-light tree-blue tree-2"></div>
-                    <div class="tree-light tree-red tree-3"></div>
-                    <div class="tree-light tree-blue tree-4"></div>
-                    <div class="tree-light tree-red tree-5"></div>
-                    <div class="tree-light tree-blue tree-6"></div>
-                    <div class="tree-light tree-red tree-7"></div>
-                </div>
-
-                <!-- КНОПКА-КОЛОНКА -->
-                <button class="music-icon-btn" id="musicBtn" aria-label="Music">
-                    <img src="img/icons/speaker.png" alt="music icon">
-                </button>
-
-                <!-- === КАРТИНКА ДОМА === -->
-                <img src="img/bg2.jpg" alt="MBHA Home Alone" class="house-img" />
-
+                <button class="btn-roll" id="btnRoll" type="button">ROLL</button>
             </div>
-        </div>
+        </section>
 
-        <!-- =========================
-             MBHA SCENES (HOUSE)
-        ========================== -->
-
-        <!-- === ✅ IDLE === -->
-        <div class="ha-scene ha-scene--idle">
-            <div class="ha-character ha-kevin">
-                <img src="img/sprites/kevin/kevin_idle_01.png" alt="Kevin">
+        <!-- SPRITES -->
+        <section class="sprites" aria-label="Characters">
+            <img class="sprite sprite--marv" id="marvSprite" alt="Marv" />
+            <div class="sprite sprite--kevin" id="kevinWrap" aria-label="Kevin">
+                <img class="sprite__img" id="kevinSprite" alt="Kevin" />
             </div>
-            <div class="ha-character ha-marv">
-                <img src="img/sprites/marv/marv_idle_01.png" alt="Marv">
-            </div>
-            <div class="ha-character ha-harry">
-                <img src="img/sprites/harry/harry_idle_01.png" alt="Harry">
-            </div>
-        </div>
+            <img class="sprite sprite--harry" id="harrySprite" alt="Harry" />
+        </section>
 
-        <!-- === ✅ SCENE 1 === -->
-        <div class="ha-scene ha-scene--scene1">
-            <div class="ha-character ha-kevin-scene1">
-                <img src="img/sprites/kevin/kevin_scene1_01.png" alt="Kevin scene 1">
-            </div>
-            <div class="ha-character ha-marv-scene1">
-                <img src="img/sprites/marv/marv_scene1_01.png" alt="Marv scene 1">
-            </div>
-            <div class="ha-character ha-harry-scene1">
-                <img src="img/sprites/harry/harry_scene1_01.png" alt="Harry scene 1">
-            </div>
-        </div>
+    </main>
 
-        <!-- === ✅ SCENE 2 === -->
-        <div class="ha-scene ha-scene--scene2">
-            <div class="ha-character ha-kevin-scene2">
-                <img src="img/sprites/kevin/kevin_scene2_01.png" alt="Kevin scene 2">
-            </div>
-            <div class="ha-character ha-marv-scene2">
-                <img src="img/sprites/marv/marv_scene2_01.png" alt="Marv scene 2">
-            </div>
-            <div class="ha-character ha-harry-scene2">
-                <img src="img/sprites/harry/harry_scene2_01.png" alt="Harry scene 2">
-            </div>
-        </div>
-
-        <!-- === ✅ SCENE 3 (TOTAL >= 2 800 000) === -->
-        <div class="ha-scene ha-scene--scene3">
-            <div class="ha-character ha-kevin-scene3">
-                <img src="img/sprites/kevin/kevin_scene3_01.png" alt="Kevin scene 3">
-            </div>
-            <div class="ha-character ha-marv-scene3">
-                <img src="img/sprites/marv/marv_scene3_01.png" alt="Marv scene 3">
-            </div>
-            <div class="ha-character ha-harry-scene3">
-                <img src="img/sprites/harry/harry_scene3_01.png" alt="Harry scene 3">
-            </div>
-        </div>
-
-        <!-- === ✅ SCENE 4 (TOTAL >= 3 000 000) === -->
-        <div class="ha-scene ha-scene--scene4">
-            <div class="ha-character ha-kevin-scene4">
-                <img src="img/sprites/kevin/kevin_scene4_01.png" alt="Kevin scene 4">
-            </div>
-            <div class="ha-character ha-marv-scene4">
-                <img src="img/sprites/marv/marv_scene4_01.png" alt="Marv scene 4">
-            </div>
-            <div class="ha-character ha-harry-scene4">
-                <img src="img/sprites/harry/harry_scene4_01.png" alt="Harry scene 4">
-            </div>
-        </div>
-
-        <!-- === ✅ SCENE 5 (TOTAL >= 3 200 000) === -->
-        <div class="ha-scene ha-scene--scene5">
-            <div class="ha-character ha-kevin-scene5">
-                <img src="img/sprites/kevin/kevin_scene5_01.png" alt="Kevin scene 5">
-            </div>
-            <div class="ha-character ha-marv-scene5">
-                <img src="img/sprites/marv/marv_scene5_01.png" alt="Marv scene 5">
-            </div>
-            <div class="ha-character ha-harry-scene5">
-                <img src="img/sprites/harry/harry_scene5_01.png" alt="Harry scene 5">
-            </div>
-        </div>
-
-        <!-- === ✅ SCENE 6 (TOTAL >= 3 500 000) === -->
-        <div class="ha-scene ha-scene--scene6">
-            <div class="ha-character ha-kevin-scene6">
-                <img src="img/sprites/kevin/kevin_scene6_01.png" alt="Kevin scene 6">
-            </div>
-            <div class="ha-character ha-marv-scene6">
-                <img src="img/sprites/marv/marv_scene6_01.png" alt="Marv scene 6">
-            </div>
-            <div class="ha-character ha-harry-scene6">
-                <img src="img/sprites/harry/harry_scene6_01.png" alt="Harry scene 6">
-            </div>
-        </div>
-
-        <!-- === ✅ SCENE 7 (TOTAL >= 3 700 000) === -->
-        <div class="ha-scene ha-scene--scene7">
-            <div class="ha-character ha-kevin-scene7">
-                <img src="img/sprites/kevin/kevin_scene7_01.png" alt="Kevin scene 7">
-            </div>
-            <div class="ha-character ha-marv-scene7">
-                <img src="img/sprites/marv/marv_scene7_01.png" alt="Marv scene 7">
-            </div>
-            <div class="ha-character ha-harry-scene7">
-                <img src="img/sprites/harry/harry_scene7_01.png" alt="Harry scene 7">
-            </div>
-        </div>
-
-        <!-- === ✅ SCENE 8 (TOTAL >= 4 000 000) — СПРАЙТОВ ПОКА НЕТ, ЗАГЛУШКА IDLE === -->
-        <div class="ha-scene ha-scene--scene8">
-            <div class="ha-character ha-kevin-scene8">
-                <img src="img/sprites/kevin/kevin_idle_01.png" alt="Kevin scene 8 placeholder">
-            </div>
-            <div class="ha-character ha-marv-scene8">
-                <img src="img/sprites/marv/marv_idle_01.png" alt="Marv scene 8 placeholder">
-            </div>
-            <div class="ha-character ha-harry-scene8">
-                <img src="img/sprites/harry/harry_idle_01.png" alt="Harry scene 8 placeholder">
-            </div>
-        </div>
-
-        <!-- === ✅ SCENE FIN (TOTAL >= 4 500 000) — СПРАЙТОВ ПОКА НЕТ, ЗАГЛУШКА IDLE === -->
-        <div class="ha-scene ha-scene--fin">
-            <div class="ha-character ha-kevin-fin">
-                <img src="img/sprites/kevin/kevin_idle_01.png" alt="Kevin fin placeholder">
-            </div>
-            <div class="ha-character ha-marv-fin">
-                <img src="img/sprites/marv/marv_idle_01.png" alt="Marv fin placeholder">
-            </div>
-            <div class="ha-character ha-harry-fin">
-                <img src="img/sprites/harry/harry_idle_01.png" alt="Harry fin placeholder">
-            </div>
-        </div>
-
-        <!-- =========================
-             END MBHA SCENES
-        ========================== -->
-
-
-        <!-- === БЛОК ПОЛЬЗОВАТЕЛЯ === -->
-        <div class="user-section">
-            <div class="user-info">
-
-                <div class="user-main">
-                    <div class="user-photo">
-                        <img src="img/user_placeholder.png" alt="User photo">
-                    </div>
-
-                    <div class="user-text">
-                        <div class="username">USERNAME</div>
-                        <div class="user-flappy-score" id="flappyUserScore">FLAPPY CAKE: —</div>
-                        <div class="user-account">
-                            PERSONAL ACCOUNT: <span id="personal_value">12345</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="total-panel">
-                    <div class="total-panel-title">TOTAL</div>
-                    <div class="total-panel-value" id="total_value">999999</div>
-
-                    <div class="total-teams">
-                        <div class="team team-kevin">
-                            TEAM KEVIN<br>
-                            <span id="kevin_value">100000</span>
-                        </div>
-                        <div class="team team-bandits">
-                            TEAM OF BANDITS<br>
-                            <span id="bandits_value">80000</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FLAPPY TOP-3 -->
-                <div class="flappy-panel">
-                    <div class="flappy-panel-title">FLAPPY CAKE · TOP-3</div>
-                    <ol id="flappyTop3" class="flappy-list"></ol>
-                    <div class="flappy-panel-note">Рекорди гостей не зберігаються</div>
-                </div>
-
-                <!-- SAPPER TOP-3 -->
-                <div class="flappy-panel">
-                    <div class="flappy-panel-title">SAPPER · TOP-3</div>
-                    <ol id="sapperTop3" class="flappy-list"></ol>
-                    <div class="flappy-panel-note">Рекорди гостей не зберігаються</div>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-
-    <!-- RULES -->
-    <button class="rules-icon-btn" id="rulesBtn" aria-label="Rules">
-        <img src="img/icons/rules-book.png" alt="rules icon">
-    </button>
-
-    <!-- GAME -->
-    <a class="game-icon-btn" id="gameBtn" href="flappy/flappy.html">
-        <img src="flappy/img/tort.png" alt="FLAPPY CAKE">
-    </a>
-
-    <!-- SAPPER -->
-    <a class="game-icon-btn game-icon-btn--sapper" href="sapper/sapper.html">
-        <img src="sapper/img/sapper.png" alt="SAPPER">
-    </a>
-
-    <!-- ✅ LOGOUT -->
-    <button class="logout-icon-btn" id="logoutBtn" aria-label="Logout">OUT</button>
-
-
-    <!-- RULES MODAL -->
-    <div class="rules-modal" id="rulesModal">
-        <div class="rules-modal__backdrop" id="rulesBackdrop"></div>
-        <div class="rules-modal__content">
-            <button class="rules-modal__close" id="rulesCloseBtn">✕</button>
-            <h2 class="rules-modal__title">RULES</h2>
-            <div class="rules-modal__text custom-scroll">
-                Привіт! Раз ти читаєш це повідомлення — значить, ти став учасником нашої зимової гри, створеної у атмосфері “Home Alone” та святкового хаосу, який переслідує нас протягом усього грудня, Нового року та зимових свят. Ти — безпосередній учасник всього, що
-                тут відбувається. За кулісами вже планують своє пограбування бандити, а Кевін готує свої пастки. І саме ти впливаєш на розвиток цієї історії. Твої продажі новорічної продукції — це твій реальний вплив на сюжет. Все, що ти робиш, просуває
-                одну зі сторін вперед. І ВСЕ ЦЕ ти побачиш на власні очі ТУТ. Команду ресторану таємно поділено на дві групи, але ніхто не знає, до якої належить. Інтрига збережеться до самого фіналу. На сайті ти зможеш: • бачити свій особистий прогрес,
-                • бачити прогрес команди. А якщо ти уважний — то знайдеш тут багато того, що ретельно сховано. Коли команда досягає певної суми — тебе чекає новий цікавий поворот сюжету. У фіналі переможе та група, яка набере більше. І саме вона отримає
-                закриту святкову вечірку, де можна буде розслабитись, посміятись та відпочити. Ти тут не випадково. Ти — частина історії, що розгортається прямо зараз. І все залежить від тебе. Гра почалась 🎄
-            </div>
-
-            <button id="dont-push-btn" class="dont-push-btn">DONT PUSH</button>
-        </div>
-    </div>
-
-
-    <!-- INTRO COMICS MODAL -->
-    <div class="intro-modal" id="introModal">
-        <div class="intro-modal__backdrop"></div>
-
-        <div class="intro-modal__content">
-            <button class="intro-modal__close" id="introCloseBtn">✕</button>
-
-            <div class="intro-modal__comic">
-                <img src="img/comics/intro/page-1.png" alt="Intro comics" class="intro-modal__image" id="introImage">
-
-                <div class="intro-modal__avatar" id="introAvatar">
-                    <img src="img/user_placeholder.png" alt="User avatar">
-                </div>
-
-                <div id="introStartBtn" class="intro-modal__start-label">
-                    <span>START GAME</span>
-                </div>
-
-                <button class="intro-modal__nav intro-modal__nav--prev" type="button" id="introPrevBtn" aria-label="Previous page">
-                    ‹
-                </button>
-
-                <button class="intro-modal__nav intro-modal__nav--next" type="button" id="introNextBtn" aria-label="Next page">
-                    ›
-                </button>
-
-                <div class="intro-modal__counter" id="introCounter">1 / 3</div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- SCENE-01 (400K TOTAL) COMIC MODAL -->
-    <div class="scene400-modal" id="scene400Modal">
-        <div class="scene400-modal__backdrop"></div>
-
-        <div class="scene400-modal__content">
-            <button class="scene400-modal__close" id="scene400CloseBtn">✕</button>
-
-            <div class="scene400-modal__comic">
-                <img src="img/comics/scene-01/page-1.png" alt="MBHA Scene 01" class="scene400-modal__image">
-            </div>
-        </div>
-    </div>
-
-    <!-- SCENE-02 (1 100 000 TOTAL) COMIC MODAL -->
-    <div class="scene1100-modal" id="scene1100Modal">
-        <div class="scene1100-modal__backdrop"></div>
-
-        <div class="scene1100-modal__content">
-            <button class="scene1100-modal__close" id="scene1100CloseBtn">✕</button>
-
-            <div class="scene1100-modal__comic">
-                <img src="img/comics/scene-02/page-1.png" alt="MBHA Scene 02" class="scene1100-modal__image" id="scene1100Image" />
-
-                <button class="scene1100-modal__nav scene1100-modal__nav--prev" type="button" id="scene1100PrevBtn" aria-label="Previous page"></button>
-                <button class="scene1100-modal__nav scene1100-modal__nav--next" type="button" id="scene1100NextBtn" aria-label="Next page"></button>
-
-                <div class="scene1100-modal__counter" id="scene1100Counter">1 / 3</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCENE-03 (2 800 000 TOTAL) COMIC MODAL -->
-    <div class="scene2800-modal" id="scene2800Modal">
-        <div class="scene2800-modal__backdrop"></div>
-
-        <div class="scene2800-modal__content">
-            <button class="scene2800-modal__close" id="scene2800CloseBtn">✕</button>
-
-            <div class="scene2800-modal__comic">
-                <img src="img/comics/scene-03/page-1.png" alt="MBHA Scene 03" class="scene2800-modal__image" id="scene2800Image" />
-
-                <button class="scene2800-modal__nav scene2800-modal__nav--prev" type="button" id="scene2800PrevBtn" aria-label="Previous page"></button>
-                <button class="scene2800-modal__nav scene2800-modal__nav--next" type="button" id="scene2800NextBtn" aria-label="Next page"></button>
-
-                <div class="scene2800-modal__counter" id="scene2800Counter">1 / 2</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCENE-04 (3 000 000 TOTAL) COMIC MODAL -->
-    <div class="scene3000-modal" id="scene3000Modal">
-        <div class="scene3000-modal__backdrop"></div>
-
-        <div class="scene3000-modal__content">
-            <button class="scene3000-modal__close" id="scene3000CloseBtn">✕</button>
-
-            <div class="scene3000-modal__comic">
-                <img src="img/comics/scene-04/page-1.png" alt="MBHA Scene 04" class="scene3000-modal__image" id="scene3000Image" />
-
-                <button class="scene3000-modal__nav scene3000-modal__nav--prev" type="button" id="scene3000PrevBtn" aria-label="Previous page"></button>
-                <button class="scene3000-modal__nav scene3000-modal__nav--next" type="button" id="scene3000NextBtn" aria-label="Next page"></button>
-
-                <div class="scene3000-modal__counter" id="scene3000Counter">1 / 3</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCENE-05 (3 200 000 TOTAL) COMIC MODAL -->
-    <div class="scene3200-modal" id="scene3200Modal">
-        <div class="scene3200-modal__backdrop"></div>
-
-        <div class="scene3200-modal__content">
-            <button class="scene3200-modal__close" id="scene3200CloseBtn">✕</button>
-
-            <div class="scene3200-modal__comic">
-                <img src="img/comics/scene-05/page-1.png" alt="MBHA Scene 05" class="scene3200-modal__image" id="scene3200Image" />
-
-                <button class="scene3200-modal__nav scene3200-modal__nav--prev" type="button" id="scene3200PrevBtn" aria-label="Previous page"></button>
-                <button class="scene3200-modal__nav scene3200-modal__nav--next" type="button" id="scene3200NextBtn" aria-label="Next page"></button>
-
-                <div class="scene3200-modal__counter" id="scene3200Counter">1 / 3</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCENE-06 (3 500 000 TOTAL) COMIC MODAL -->
-    <div class="scene3500-modal" id="scene3500Modal">
-        <div class="scene3500-modal__backdrop"></div>
-
-        <div class="scene3500-modal__content">
-            <button class="scene3500-modal__close" id="scene3500CloseBtn">✕</button>
-
-            <div class="scene3500-modal__comic">
-                <img src="img/comics/scene-06/page-1.png" alt="MBHA Scene 06" class="scene3500-modal__image" id="scene3500Image" />
-
-                <button class="scene3500-modal__nav scene3500-modal__nav--prev" type="button" id="scene3500PrevBtn" aria-label="Previous page"></button>
-                <button class="scene3500-modal__nav scene3500-modal__nav--next" type="button" id="scene3500NextBtn" aria-label="Next page"></button>
-
-                <div class="scene3500-modal__counter" id="scene3500Counter">1 / 2</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCENE-07 (3 700 000 TOTAL) COMIC MODAL -->
-    <div class="scene3700-modal" id="scene3700Modal">
-        <div class="scene3700-modal__backdrop"></div>
-
-        <div class="scene3700-modal__content">
-            <button class="scene3700-modal__close" id="scene3700CloseBtn">✕</button>
-
-            <div class="scene3700-modal__comic">
-                <img src="img/comics/scene-07/page-1.png" alt="MBHA Scene 07" class="scene3700-modal__image" id="scene3700Image" />
-
-                <button class="scene3700-modal__nav scene3700-modal__nav--prev" type="button" id="scene3700PrevBtn" aria-label="Previous page"></button>
-                <button class="scene3700-modal__nav scene3700-modal__nav--next" type="button" id="scene3700NextBtn" aria-label="Next page"></button>
-
-                <div class="scene3700-modal__counter" id="scene3700Counter">1 / 2</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCENE-08 (4 000 000 TOTAL) COMIC MODAL -->
-    <div class="scene4000-modal" id="scene4000Modal">
-        <div class="scene4000-modal__backdrop"></div>
-
-        <div class="scene4000-modal__content">
-            <button class="scene4000-modal__close" id="scene4000CloseBtn">✕</button>
-
-            <div class="scene4000-modal__comic">
-                <img src="img/comics/scene-08/page-1.png" alt="MBHA Scene 08" class="scene4000-modal__image" id="scene4000Image" />
-
-                <button class="scene4000-modal__nav scene4000-modal__nav--prev" type="button" id="scene4000PrevBtn" aria-label="Previous page"></button>
-                <button class="scene4000-modal__nav scene4000-modal__nav--next" type="button" id="scene4000NextBtn" aria-label="Next page"></button>
-
-                <div class="scene4000-modal__counter" id="scene4000Counter">1 / 2</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCENE-FIN (4 500 000 TOTAL) COMIC MODAL -->
-    <div class="scene4500-modal" id="scene4500Modal">
-        <div class="scene4500-modal__backdrop"></div>
-
-        <div class="scene4500-modal__content">
-            <button class="scene4500-modal__close" id="scene4500CloseBtn">✕</button>
-
-            <div class="scene4500-modal__comic">
-                <img src="img/comics/scene-fin/page-1.png" alt="MBHA Scene FIN" class="scene4500-modal__image" id="scene4500Image" />
-
-                <button class="scene4500-modal__nav scene4500-modal__nav--prev" type="button" id="scene4500PrevBtn" aria-label="Previous page"></button>
-                <button class="scene4500-modal__nav scene4500-modal__nav--next" type="button" id="scene4500NextBtn" aria-label="Next page"></button>
-
-                <div class="scene4500-modal__counter" id="scene4500Counter">1 / 5</div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- TEAM INTRO MODAL -->
-    <div class="team-modal" id="teamModal">
-        <div class="team-modal__backdrop"></div>
-
-        <div class="team-modal__content">
-            <button class="team-modal__close" id="teamModalClose">✕</button>
-
-            <div class="team-modal__user">
-                <div class="team-modal__photo">
-                    <img src="img/user_placeholder.png" alt="User">
-                </div>
-                <div class="team-modal__about" id="teamAboutText"></div>
-            </div>
-
-            <div class="team-modal__question">Яку команду обираєш?</div>
-
-            <div class="team-modal__buttons">
-                <button class="team-modal__btn team-modal__btn--kevin" id="teamKevinBtn">KEVINS TEAM</button>
-                <button class="team-modal__btn team-modal__btn--bandits" id="teamBanditsBtn">TEAM OF BANDIT</button>
-            </div>
-
-            <div class="team-modal__message" id="teamMessage"></div>
-        </div>
-    </div>
-
-    <!-- CODE LOGIN MODAL -->
-    <div class="code-modal" id="codeModal">
-        <div class="code-modal__backdrop"></div>
-        <div class="code-modal__content">
-            <h2 class="code-modal__title">ENTER YOUR CODE</h2>
-
-            <input type="text" id="codeInput" class="code-modal__input" maxlength="4" autocomplete="off" placeholder="XXXX">
-
-            <button id="codeSubmitBtn" class="code-modal__btn code-modal__btn--primary">ENTER</button>
-
-            <button id="codeGuestBtn" class="code-modal__btn code-modal__btn--ghost">
-                I DON'T HAVE A CODE, I'M CURIOUS
-            </button>
-
-            <p class="code-modal__error" id="codeError"></p>
-            <div class="code-modal__browser-note">
-                Best viewed in Safari. Other browsers may display visuals incorrectly.
-            </div>
-        </div>
-    </div>
-
-    <!-- SITE LOCK -->
-    <div class="site-lock" id="siteLock">
-        <div class="site-lock__content">
-            <div class="site-lock__title">MBHA</div>
-            <div class="site-lock__text">
-                Сайт ще не запущено.<br> Технічні роботи тривають ⚙️
-            </div>
-        </div>
-    </div>
-
-    <!-- SCRIPTS -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/nye.js"></script>
-
+    <script src="./js/hold.js"></script>
 </body>
 
 </html>
