@@ -547,3 +547,71 @@ body.mbha-cards {
     inset: 0;
     overflow: hidden;
 }
+
+
+/* ===============================
+   RESULTS — iPhone SE CANVAS (375x667) even on desktop
+   (Overrides; nothing removed)
+================================ */
+
+
+/* Center a fixed 375x667 canvas inside fullscreen black overlay */
+
+.results {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Make the stage a fixed iPhone SE canvas */
+
+.results__stage {
+    width: 375px;
+    height: 667px;
+    position: relative;
+    inset: auto;
+    /* override previous absolute inset */
+    overflow: hidden;
+    transform-origin: top center;
+}
+
+
+/* Scale down only when viewport smaller than the canvas */
+
+@media (max-width: 375px),
+(max-height: 667px) {
+    .results__stage {
+        transform: scale(min(calc(100vw / 375), calc(100vh / 667)));
+    }
+}
+
+
+/* ===============================
+   RESULTS — Visible iPhone SE frame
+================================ */
+
+
+/* Soft white-blue spiral-like glow frame */
+
+.results__stage {
+    box-shadow: 0 0 0 2px rgba(220, 240, 255, 0.9), 0 0 24px rgba(180, 220, 255, 0.55), inset 0 0 12px rgba(200, 230, 255, 0.35);
+    border-radius: 16px;
+}
+
+
+/* Optional subtle animated shimmer */
+
+@keyframes resultsFrameGlow {
+    0%,
+    100% {
+        box-shadow: 0 0 0 2px rgba(220, 240, 255, 0.85), 0 0 22px rgba(170, 215, 255, 0.45), inset 0 0 10px rgba(200, 230, 255, 0.30);
+    }
+    50% {
+        box-shadow: 0 0 0 2px rgba(240, 250, 255, 1), 0 0 32px rgba(190, 230, 255, 0.75), inset 0 0 16px rgba(210, 240, 255, 0.45);
+    }
+}
+
+.results__stage {
+    animation: resultsFrameGlow 3.2s ease-in-out infinite;
+}
