@@ -1,0 +1,969 @@
+/* ===============================
+   MBHA HOLD — iPhone SE canon
+   Fixed stage 375x667, no stretch
+================================ */
+
+:root {
+    --w: 375px;
+    --h: 667px;
+    --bg0: #020617;
+    --kevin: #22c55e;
+    --bandits: #fb7185;
+    --panel-bg: rgba(2, 6, 23, 0.88);
+    --panel-border: rgba(226, 232, 240, 0.12);
+    --pix: "Pixelify Sans", system-ui, -apple-system, Segoe UI, sans-serif;
+    /* ===== SPRITES CONTROL ===== */
+    --marvScale: 0.30;
+    --harryScale: 0.30;
+    --kevinScale: 0.20;
+    --marvLeft: -68px;
+    --harryRight: -68px;
+    --spritesBottom: 14px;
+    --spritesHeight: 150px;
+    /* ===== LEVER CONTROL (YOU WILL TUNE) ===== */
+    --leverX: 205px;
+    /* позиция рычага по X (внутри 375px сцены) */
+    --leverY: 10px;
+    /* позиция рычага по Y */
+    --leverScale: 0.46;
+    /* масштаб рычага */
+    --leverOriginX: 50%;
+    /* точка “оси” вращения */
+    --leverOriginY: 90%;
+    /* ===== LEVER TUNING (rotate/tilt as you like) ===== */
+    --leverRot: 0deg;
+    /* базовый поворот рычага */
+    --leverTX: 0px;
+    /* микро-сдвиг внутри (тонкая подгонка) */
+    --leverTY: 0px;
+    --leverSkewX: 0deg;
+    /* перспективный наклон при желании */
+    --leverSkewY: 0deg;
+    /* pull animation strength (adds on top of --leverRot) */
+    --leverPullRot: 6deg;
+    /* сколько докручивать при pull */
+    --leverPullY: 10px;
+    /* сколько опускать вниз при pull */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body.mbha-hold {
+    background: #000;
+    color: #e5e7eb;
+    font-family: var(--pix);
+    overflow: hidden;
+}
+
+
+/* fixed stage centered */
+
+.screen {
+    width: var(--w);
+    height: var(--h);
+    position: relative;
+    margin: 0 auto;
+    background: radial-gradient(140% 120% at 50% 20%, #0f172a 0%, var(--bg0) 55%, #000 100%);
+    overflow: hidden;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@media (max-height: 667px) {
+    .screen {
+        top: 0;
+        transform: none;
+    }
+}
+
+
+/* ===============================
+   FINAL BACKGROUND (NO SEAMS)
+   - keep snow
+   - remove scan/noise completely
+   - keep subtle silhouette + static spotlight + vignette
+================================ */
+
+
+/* Smooth base background (no horizontal seam) */
+
+.screen {
+    background: radial-gradient(120% 100% at 50% 35%, #0f172a 0%, #020617 48%, #01030a 72%, #000 100%);
+}
+
+
+/* Silhouette + spotlight (STATIC) */
+
+.screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    /* above base, below cabinet */
+    background: /* spotlight */
+    radial-gradient(60% 48% at 50% 36%, rgba(250, 204, 21, 0.14) 0%, rgba(59, 130, 246, 0.08) 28%, transparent 70%), /* subtle house silhouette */
+    radial-gradient(90% 70% at 50% 55%, rgba(120, 180, 255, 0.06) 0%, transparent 62%), conic-gradient(from 180deg at 50% 62%, rgba(255, 255, 255, 0.030) 0deg 25deg, transparent 25deg 335deg, rgba(255, 255, 255, 0.025) 335deg 360deg);
+}
+
+
+/* Vignette + bottom haze */
+
+.screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9;
+    background: radial-gradient(55% 22% at 50% 88%, rgba(59, 130, 246, 0.08) 0%, transparent 65%);
+    box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.55);
+}
+
+
+/* ===== Background layers ===== */
+
+.bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.bg--mist {
+    display: none;
+    /* disabled (use snow instead) */
+    opacity: 0.25;
+    background: radial-gradient(60% 40% at 30% 35%, rgba(96, 165, 250, 0.12) 0%, transparent 70%), radial-gradient(55% 35% at 70% 45%, rgba(34, 197, 94, 0.08) 0%, transparent 72%), radial-gradient(55% 35% at 55% 60%, rgba(236, 72, 153, 0.06) 0%, transparent 70%);
+    filter: blur(10px);
+    animation: mistFloat 9s ease-in-out infinite alternate;
+}
+
+@keyframes mistFloat {
+    from {
+        transform: translate3d(-8px, -6px, 0) scale(1.02);
+    }
+    to {
+        transform: translate3d(10px, 8px, 0) scale(1.06);
+    }
+}
+
+
+/* ===== CABINET IMAGE (static) ===== */
+
+.cabinet {
+    position: absolute;
+    left: 50%;
+    top: 53%;
+    transform: translate(-50%, -50%);
+    /* ты сам подгонишь размер */
+    height: 420px;
+    width: auto;
+    z-index: 3;
+    /* над фоном, под UI */
+    pointer-events: none;
+    /* клики проходят */
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.12)) drop-shadow(0 0 80px rgba(250, 204, 21, 0.08));
+}
+
+
+/* ===== LEVER (overlay) =====
+   Как будет работать:
+   - .lever — кликабельный слой поверх автомата
+   - :active даёт “быстрый pull” сразу (мобилка тоже)
+   - класс .is-pulled (позже из JS) даёт красивую анимацию и блокировку
+*/
+
+.lever {
+    position: absolute;
+    left: var(--leverX);
+    top: var(--leverY);
+    z-index: 7;
+    /* выше корпуса и UI, но ниже можно поставить 8 если надо */
+    transform: translate(var(--leverTX), var(--leverTY)) scale(var(--leverScale)) rotate(var(--leverRot)) skew(var(--leverSkewX), var(--leverSkewY));
+    transform-origin: var(--leverOriginX) var(--leverOriginY);
+    width: 220px;
+    /* базовая коробка клика, подгонишь */
+    height: 420px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+    /* чтобы по тапу не было синего выделения */
+    -webkit-tap-highlight-color: transparent;
+}
+
+.lever::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("../img/slot/lever.png") center / contain no-repeat;
+    image-rendering: auto;
+    /* PNG не пиксельный, оставляем гладко */
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55));
+}
+
+
+/* быстрый “пул” при удержании */
+
+.lever:active {
+    animation: leverPull 320ms ease-out both;
+}
+
+
+/* основная анимация (позже из JS: lever.classList.add("is-pulled")) */
+
+.lever.is-pulled {
+    animation: leverPull 420ms cubic-bezier(.2, .9, .2, 1) both;
+}
+
+
+/* если надо блокировать рычаг пока крутится */
+
+.lever.is-disabled {
+    pointer-events: none;
+    opacity: 0.9;
+    filter: saturate(0.9);
+}
+
+@keyframes leverPull {}
+
+
+/* ===== Panels ===== */
+
+.panels {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    z-index: 5;
+}
+
+.panel {
+    width: 165px;
+    padding: 10px;
+    border-radius: 14px;
+    background: rgba(2, 6, 23, 0.88);
+    border: 1px solid rgba(226, 232, 240, 0.12);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.45);
+}
+
+.panel__title {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.panel--kevin .panel__title {
+    color: #22c55e;
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.7), 0 0 18px rgba(34, 197, 94, 0.35);
+}
+
+.panel--bandits .panel__title {
+    color: #fb7185;
+    text-shadow: 0 0 10px rgba(251, 113, 133, 0.7), 0 0 18px rgba(251, 113, 133, 0.35);
+}
+
+
+/* digits row */
+
+.digits {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.digit {
+    width: 18px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    letter-spacing: 1px;
+    box-shadow: inset 0 0 0 1px rgba(2, 6, 23, 0.55);
+}
+
+.panel--kevin .digit {
+    color: #22c55e;
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.75);
+}
+
+.panel--bandits .digit {
+    color: #fb7185;
+    text-shadow: 0 0 8px rgba(251, 113, 133, 0.75);
+}
+
+
+/* ===== Center text ===== */
+
+.center {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 330px;
+    text-align: center;
+    z-index: 5;
+}
+
+.terminal-line {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(2, 6, 23, 0.78);
+    border: 1px solid rgba(226, 232, 240, 0.14);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
+    transform: translateY(-170px);
+}
+
+.terminal-text {
+    font-size: 16px;
+    letter-spacing: 1px;
+    color: #e2e8f0;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    white-space: pre;
+}
+
+.caret {
+    font-size: 16px;
+    opacity: 0.85;
+    animation: caretBlink 1s steps(1) infinite;
+}
+
+@keyframes caretBlink {
+    0%,
+    50% {
+        opacity: 0.85;
+    }
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+
+/* ===== SLOT UI (AUTO) ===== */
+
+.slot-ui {
+    margin-top: 12px;
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+    position: relative;
+    /* for win fx */
+    transform: translateY(-60px);
+}
+
+.hryvnia {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+}
+
+.reel {
+    --cell: 36px;
+    width: 36px;
+    height: var(--cell);
+    overflow: hidden;
+    border-radius: 10px;
+    position: relative;
+    background: rgba(2, 6, 23, 0.55);
+    border: 1px solid rgba(226, 232, 240, 0.12);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(2, 6, 23, 0.45);
+    color: #facc15;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.75), 0 0 18px rgba(250, 204, 21, 0.35);
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.slot-face {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* hidden result (when not ₴) but keep layout */
+
+.reel.is-empty .slot-face {
+    opacity: 0.08;
+    filter: blur(0.6px);
+}
+
+
+/* spinning visual */
+
+.reel.is-spinning .slot-face {
+    animation: slotJitter 0.12s linear infinite;
+    filter: blur(0.9px);
+}
+
+@keyframes slotJitter {}
+
+
+/* WIN highlight */
+
+.slot-ui.is-win .reel {
+    border-color: rgba(250, 204, 21, 0.35);
+    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(250, 204, 21, 0.22);
+    transform: translateY(-1px);
+}
+
+
+/* ROLL button */
+
+.btn-roll {
+    font-family: var(--pix);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(226, 232, 240, 0.16);
+    background: rgba(2, 6, 23, 0.72);
+    color: #e2e8f0;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(2, 6, 23, 0.45);
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+}
+
+.btn-roll:active {
+    transform: translateY(1px);
+}
+
+.btn-roll[disabled] {
+    opacity: 0.55;
+    cursor: default;
+}
+
+
+/* ===== WIN FX (fireworks/sparkles) ===== */
+
+.win-fx {
+    position: absolute;
+    left: 50%;
+    top: 22px;
+    transform: translateX(-50%);
+    width: 260px;
+    height: 120px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+}
+
+.slot-ui.is-win .win-fx {
+    opacity: 1;
+    animation: winPulse 900ms ease-out 1;
+}
+
+@keyframes winPulse {}
+
+
+/* individual spark */
+
+.spark {
+    position: absolute;
+    left: calc(var(--x) * 1%);
+    top: calc(var(--y) * 1%);
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: rgba(250, 204, 21, 0.95);
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.75), 0 0 18px rgba(250, 204, 21, 0.35);
+    transform: translate(-50%, -50%) scale(0.8);
+    animation: sparkFly 900ms ease-out forwards;
+}
+
+.spark::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 10px;
+    background: radial-gradient(circle, rgba(250, 204, 21, 0.22) 0%, transparent 65%);
+}
+
+@keyframes sparkFly {}
+
+
+/* ===== Ground shadow under sprites ===== */
+
+.sprites::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    width: 320px;
+    height: 70px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.25) 35%, transparent 70%);
+    filter: blur(8px);
+    opacity: .85;
+    z-index: 0;
+}
+
+.sprite {
+    z-index: 1;
+}
+
+
+/* ===== Sprites ===== */
+
+.sprites {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--spritesBottom);
+    height: var(--spritesHeight);
+    z-index: 6;
+}
+
+.sprite {
+    position: absolute;
+    bottom: 0;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    transform-origin: bottom center;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55));
+}
+
+
+/* Marv / Harry */
+
+.sprite--marv {
+    left: var(--marvLeft);
+    transform: scale(var(--marvScale));
+}
+
+.sprite--harry {
+    right: var(--harryRight);
+    transform: scale(var(--harryScale));
+}
+
+
+/* Kevin WRAPPER */
+
+.sprite--kevin {
+    left: 188px;
+    transform: translateX(-50%) scale(var(--kevinScale));
+    filter: none;
+}
+
+
+/* Kevin IMG */
+
+.sprite--kevin .sprite__img {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55));
+}
+
+.btn-roll {
+    display: none !important;
+}
+
+
+/* ===============================
+   BULBS (SMALL YELLOW LAMPS)
+   Move ONLY positions below 👇
+================================ */
+
+.bulbs {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    /* выше cabinet (3), ниже lever (7) */
+    pointer-events: none;
+}
+
+.bulb {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #facc15;
+    box-shadow: 0 0 4px rgba(250, 204, 21, 0.9), 0 0 8px rgba(250, 204, 21, 0.55);
+}
+
+
+/* === POSITIONS — ДВИГАЕШЬ ТУТ === */
+
+.b1 {
+    top: 269px;
+    left: 97px;
+}
+
+.b2 {
+    top: 269px;
+    right: 97px;
+}
+
+.b3 {
+    top: 281px;
+    left: 97px;
+}
+
+.b4 {
+    top: 281px;
+    right: 97px;
+}
+
+.b5 {
+    top: 293px;
+    left: 97px;
+}
+
+.b6 {
+    top: 293px;
+    right: 97px;
+}
+
+@keyframes bulbBlink {}
+
+.bulb {
+    animation: bulbBlink 1.6s infinite ease-in-out;
+}
+
+.b1 {
+    animation-delay: 0s;
+}
+
+.b2 {
+    animation-delay: 0.2s;
+}
+
+.b3 {
+    animation-delay: 0.4s;
+}
+
+.b4 {
+    animation-delay: 0.6s;
+}
+
+.b5 {
+    animation-delay: 0.8s;
+}
+
+.b6 {
+    animation-delay: 1s;
+}
+
+
+/* ===============================
+   PANEL DIGITS — slot-like roll
+================================ */
+
+.digits {
+    user-select: none;
+}
+
+.digit {
+    position: relative;
+    overflow: hidden;
+}
+
+.digit__face {
+    display: inline-block;
+    will-change: transform, filter, opacity;
+}
+
+
+/* press animation */
+
+.panel {
+    transition: transform 120ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.panel.is-pressed {
+    transform: translateY(1px);
+}
+
+
+/* glow while rolling */
+
+.panel.is-rolling.panel--kevin {
+    border-color: rgba(34, 197, 94, 0.55);
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.18), 0 14px 26px rgba(0, 0, 0, 0.55);
+}
+
+.panel.is-rolling.panel--bandits {
+    border-color: rgba(251, 113, 133, 0.55);
+    box-shadow: 0 0 0 2px rgba(251, 113, 133, 0.18), 0 14px 26px rgba(0, 0, 0, 0.55);
+}
+
+
+/* per-digit spin */
+
+.digit.is-spinning .digit__face {
+    animation: digitSpin 240ms linear infinite;
+    filter: blur(0.8px);
+    opacity: 0.95;
+}
+
+@keyframes digitSpin {}
+
+
+/* ===============================
+   PANEL DIGITS — slot-like roll
+================================ */
+
+.panel {
+    transition: transform 120ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.panel.is-pressed {
+    transform: translateY(1px);
+}
+
+.panel.is-rolling.panel--kevin {
+    border-color: rgba(34, 197, 94, 0.55);
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.18), 0 14px 26px rgba(0, 0, 0, 0.55);
+}
+
+.panel.is-rolling.panel--bandits {
+    border-color: rgba(251, 113, 133, 0.55);
+    box-shadow: 0 0 0 2px rgba(251, 113, 133, 0.18), 0 14px 26px rgba(0, 0, 0, 0.55);
+}
+
+.digit {
+    position: relative;
+    overflow: hidden;
+}
+
+.digit__face {
+    display: inline-block;
+    will-change: transform, filter, opacity;
+}
+
+.digit.is-spinning .digit__face {
+    animation: digitSpin 240ms linear infinite;
+    filter: blur(0.8px);
+    opacity: 0.95;
+}
+
+@keyframes digitSpin {}
+
+
+/* ===============================
+   PANELS: hover glow + 3D feel
+================================ */
+
+
+/* базовый 3D-контекст */
+
+.panels {
+    perspective: 800px;
+}
+
+
+/* 3D “карточка” */
+
+.panel {
+    transform-style: preserve-3d;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, filter 180ms ease;
+    cursor: pointer;
+}
+
+
+/* объём + мягкий блик сверху */
+
+.panel::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: 14px;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent 55%);
+    opacity: 0;
+    transition: opacity 180ms ease;
+}
+
+
+/* hover: небольшой наклон + подсветка */
+
+.panel:hover {
+    transform: translateY(-2px) rotateX(6deg);
+    filter: saturate(1.05);
+}
+
+.panel:hover::after {
+    opacity: 1;
+}
+
+
+/* hover glow по цвету команды */
+
+.panel--kevin:hover {
+    border-color: rgba(34, 197, 94, 0.45);
+    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.60), 0 0 0 2px rgba(34, 197, 94, 0.16), 0 0 24px rgba(34, 197, 94, 0.22);
+}
+
+.panel--bandits:hover {
+    border-color: rgba(251, 113, 133, 0.45);
+    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.60), 0 0 0 2px rgba(251, 113, 133, 0.16), 0 0 24px rgba(251, 113, 133, 0.22);
+}
+
+
+/* на мобилке hover не нужен, делаем “тап-отклик” */
+
+@media (hover: none) {
+    .panel:active {
+        transform: translateY(1px) scale(0.99);
+    }
+}
+
+
+/* ===============================
+   NETFLIX SNOW — FINAL
+   static depth, no sliding
+================================ */
+
+.bg--snow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    /* над фоном, под автоматом */
+    opacity: 0.55;
+}
+
+
+/* мелкие дальние точки */
+
+.bg--snow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, .35) 0 1px, transparent 2px), radial-gradient(circle, rgba(255, 255, 255, .18) 0 1px, transparent 2px);
+    background-size: 90px 90px, 140px 140px;
+    background-position: 0 0, 40px 60px;
+}
+
+
+/* редкие крупные хлопья */
+
+.bg--snow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, .22) 0 1.6px, transparent 3px), radial-gradient(circle, rgba(255, 255, 255, .14) 0 2px, transparent 4px);
+    background-size: 220px 220px, 320px 320px;
+    background-position: 20px 40px, 120px 180px;
+    filter: blur(0.3px);
+}
+
+
+/* ===============================
+   NETFLIX SNOW — ANIMATED (soft)
+================================ */
+
+.bg--snow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    /* над фоном, под автоматом */
+    opacity: 0.55;
+    overflow: hidden;
+}
+
+.bg--snow::before,
+.bg--snow::after {
+    content: "";
+    position: absolute;
+    inset: -80px;
+    /* запас, чтобы не было “краёв” */
+    background-repeat: repeat;
+    will-change: transform;
+}
+
+
+/* дальний мелкий снег (медленно) */
+
+.bg--snow::before {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, .30) 0 1px, transparent 2px), radial-gradient(circle, rgba(255, 255, 255, .16) 0 1px, transparent 2px);
+    background-size: 90px 90px, 140px 140px;
+    background-position: 0 0, 40px 60px;
+    opacity: 0.85;
+    animation: snowFallFar 28s linear infinite;
+}
+
+
+/* ближние хлопья (чуть крупнее + чуть быстрее) */
+
+.bg--snow::after {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, .22) 0 1.6px, transparent 3px), radial-gradient(circle, rgba(255, 255, 255, .12) 0 2px, transparent 4px);
+    background-size: 220px 220px, 320px 320px;
+    background-position: 20px 40px, 120px 180px;
+    opacity: 0.65;
+    filter: blur(0.35px);
+    animation: snowFallNear 18s linear infinite;
+}
+
+
+/* ключ: двигаем не background-position, а весь слой через transform (меньше “едет плоскостью”) */
+
+@keyframes snowFallFar {
+    0% {
+        transform: translate3d(0, -120px, 0);
+    }
+    100% {
+        transform: translate3d(-40px, 760px, 0);
+    }
+    /* лёгкий диагональный дрейф */
+}
+
+@keyframes snowFallNear {
+    0% {
+        transform: translate3d(0, -160px, 0);
+    }
+    100% {
+        transform: translate3d(-70px, 820px, 0);
+    }
+}
+
+
+/* на слабых устройствах можно облегчить */
+
+@media (prefers-reduced-motion: reduce) {
+    .bg--snow::before,
+    .bg--snow::after {
+        animation: none;
+    }
+}

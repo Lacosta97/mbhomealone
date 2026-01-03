@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="uk">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=375, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>MBHA • HOLD</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./css/hold.css" />
+</head>
+
+<body class="mbha-hold">
+  <main class="screen" role="main" aria-label="MBHA HOLD">
+
+    <!-- subtle animated background layers -->
+    <div class="bg bg--noise" aria-hidden="true"></div>
+    <div class="bg bg--scan" aria-hidden="true"></div>
+    <div class="bg bg--mist" aria-hidden="true"></div>
+
+    <!-- TOP PANELS -->
+    <section class="panels" aria-label="Teams">
+      <div class="panel panel--kevin" aria-label="Team Kevin panel">
+        <div class="panel__title">TEAM KEVIN</div>
+        <div class="digits" id="digitsKevin" aria-label="Team Kevin amount"></div>
+      </div>
+
+      <div class="panel panel--bandits" aria-label="Team of Bandits panel">
+        <div class="panel__title">TEAM OF BANDITS</div>
+        <div class="digits" id="digitsBandits" aria-label="Team Bandits amount"></div>
+      </div>
+    </section>
+
+    <!-- CENTER TYPEWRITER -->
+    <section class="center" aria-label="Status">
+      <div class="terminal-line">
+        <span class="terminal-text" id="typeText"></span><span class="caret" aria-hidden="true">█</span>
+      </div>
+
+      <!-- SLOT (AUTO) -->
+      <div class="slot-ui" aria-label="Hryvnia slot">
+        <div class="hryvnia" aria-label="Hryvnia reels">
+          <span class="reel" data-reel="1"><span class="slot-face" id="slot1">₴</span></span>
+          <span class="reel" data-reel="2"><span class="slot-face" id="slot2">₴</span></span>
+          <span class="reel" data-reel="3"><span class="slot-face" id="slot3">₴</span></span>
+        </div>
+
+        <button class="btn-roll" id="btnRoll" type="button">ROLL</button>
+      </div>
+    </section>
+
+    <!-- SPRITES -->
+    <section class="sprites" aria-label="Characters">
+      <img class="sprite sprite--marv" id="marvSprite" alt="Marv" />
+      <div class="sprite sprite--kevin" id="kevinWrap" aria-label="Kevin">
+        <img class="sprite__img" id="kevinSprite" alt="Kevin" />
+      </div>
+      <img class="sprite sprite--harry" id="harrySprite" alt="Harry" />
+    </section>
+
+  </main>
+
+  <script src="./js/hold.js"></script>
+</body>
+
+</html>
