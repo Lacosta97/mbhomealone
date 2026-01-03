@@ -615,3 +615,43 @@ body.mbha-cards {
 .results__stage {
     animation: resultsFrameGlow 3.2s ease-in-out infinite;
 }
+
+
+/* ===============================
+   RESULTS — Alternating blue/white spiral frame (modem style)
+================================ */
+
+.results__stage {
+    position: relative;
+    /* ensure pseudo-element positioning */
+}
+
+
+/* Spiral frame overlay */
+
+.results__stage::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    /* frame thickness */
+    border-radius: 18px;
+    pointer-events: none;
+    background: conic-gradient( from 0deg, #ffffff 0deg, #7fb8ff 15deg, #ffffff 30deg, #4fa3ff 45deg, #ffffff 60deg, #7fb8ff 75deg, #ffffff 90deg);
+    filter: blur(0.2px);
+    animation: resultsSpiral 8s linear infinite;
+    z-index: 1;
+}
+
+
+/* Keep content above the frame */
+
+.results__stage>* {
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes resultsSpiral {
+    to {
+        transform: rotate(360deg);
+    }
+}
