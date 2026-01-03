@@ -485,3 +485,65 @@ body.mbha-cards {
         max-height: 112px;
     }
 }
+
+
+/* ===============================
+   RESULTS (button + fullscreen overlay)
+   Appears only when 18/18 opened (JS controls [hidden] or .is-on)
+================================ */
+
+.btn-results {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 95;
+}
+
+
+/* Optional pulse when visible */
+
+.btn-results.is-on {
+    animation: resultsPulse 1.35s ease-in-out infinite;
+}
+
+@keyframes resultsPulse {
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        transform: translateX(-50%) scale(1.08);
+    }
+}
+
+
+/* Fullscreen overlay */
+
+.results {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+}
+
+.results.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.results__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+}
+
+.results__stage {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}

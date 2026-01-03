@@ -341,6 +341,7 @@
     }
 
     function updateMode() {
+        if (btnResults) btnResults.hidden = !isAllOpened();
         const all = isAllOpened();
         if (btnRoll) btnRoll.hidden = all;
         if (nav) nav.hidden = !all;
@@ -491,6 +492,27 @@
                 updateMode();
             }, { passive: false }
         );
+
+
+    // ====== RESULTS (button + overlay) ======
+    const btnResults = document.getElementById("btnResults");
+    const results = document.getElementById("results");
+    const btnResultsClose = document.getElementById("btnResultsClose");
+
+    function openResults() {
+        if (!results) return;
+        results.classList.add("is-open");
+        results.setAttribute("aria-hidden", "false");
+    }
+
+    function closeResults() {
+        if (!results) return;
+        results.classList.remove("is-open");
+        results.setAttribute("aria-hidden", "true");
+    }
+
+    if (btnResults) btnResults.addEventListener("click", openResults);
+    if (btnResultsClose) btnResultsClose.addEventListener("click", closeResults);
 
     window.addEventListener("resize", () => layout());
 

@@ -3,7 +3,6 @@
 
 <head>
     <meta charset="utf-8" />
-    <!-- Fixed "iPhone SE canvas" + disable zoom -->
     <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <title>MBHA • Розкриття карт</title>
 
@@ -16,39 +15,51 @@
 
 <body class="mbha-cards">
     <main class="stage">
-        <!-- RESET всегда активен (правый верх) -->
+
         <button class="btn btn-reset-top" id="btnReset" type="button">RESET</button>
+
+        <!-- RESULTS button (hidden until all opened) -->
+        <button class="btn btn-results" id="btnResults" type="button" hidden>RESULTS</button>
 
         <div class="status" id="status">
             <span class="loader"></span>
             <span id="statusText">Завантажую гравців…</span>
         </div>
 
-        <section class="wheel" aria-label="Карусель карт">
+        <section class="wheel">
             <div class="wheel-viewport" id="viewport">
                 <div class="wheel-track" id="track"></div>
-
-                <div class="center-mark" aria-hidden="true"></div>
-
-                <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
+                <div class="center-mark"></div>
+                <div class="fx-layer" id="fxLayer"></div>
             </div>
 
-            <!-- Подпись (появляется ТОЛЬКО после открытия текущей карты) -->
-            <div class="info" id="info" aria-live="polite">
+            <div class="info" id="info">
                 <div class="info__name" id="infoName">—</div>
-                <div class="info__pa" id="infoPA" aria-label="Personal Account"></div>
-                <div class="info__about" id="infoAbout" aria-label="About"></div>
+                <div class="info__pa" id="infoPA"></div>
+                <div class="info__about" id="infoAbout"></div>
             </div>
 
             <div class="controls">
                 <button class="btn btn-roll" id="btnRoll" type="button">ROLL</button>
 
                 <div class="nav" id="nav" hidden>
-                    <button class="btn btn-nav" id="btnPrev" type="button" aria-label="Previous">←</button>
-                    <button class="btn btn-nav" id="btnNext" type="button" aria-label="Next">→</button>
+                    <button class="btn btn-nav" id="btnPrev" type="button">←</button>
+                    <button class="btn btn-nav" id="btnNext" type="button">→</button>
                 </div>
             </div>
         </section>
+
+        <!-- RESULTS OVERLAY -->
+        <section class="results" id="results" aria-hidden="true">
+            <button class="btn results__close" id="btnResultsClose">CLOSE</button>
+
+            <div class="results__stage">
+                <div class="results__placeholder">
+                    RESULTS STAGE
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <script src="./js/cards.js"></script>
