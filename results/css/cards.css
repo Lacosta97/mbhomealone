@@ -678,13 +678,13 @@ body.mbha-cards {
 
 .results__stage::before {
     inset: -6px;
-    background: conic-gradient( from 0deg, #ffffff 0deg, #a9d8ff 20deg, #ffffff 40deg, #6fb7f2 60deg, #ffffff 80deg, #9fd1ff 100deg, #ffffff 120deg);
-    /* mask the center so gradient stays on the frame only */
+    /* ICE FRAME */
+    background: conic-gradient( from 0deg, #f8fdff 0deg, #cfefff 12deg, #ffffff 22deg, #9fdcff 35deg, #e8f7ff 48deg, #7cc7f2 60deg, #ffffff 72deg, #b6e6ff 85deg, #f8fdff 100deg);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     padding: 6px;
-    /* frame thickness */
 }
 
 
