@@ -584,6 +584,15 @@
         // reset classes
         rsRoot.className = "rs";
         rsRoot.style.transform = "";
+
+        // reset transforms
+        deerLeft.style.transform = "";
+        deerRight.style.transform = "";
+        cauldron.style.transform = "";
+        pipeLeft.style.transform = "";
+        pipeRight.style.transform = "";
+        bottles.style.transform = "";
+
         // reset visuals
         deerLeft.style.opacity = "0";
         deerRight.style.opacity = "0";
@@ -625,7 +634,7 @@
         finalRunning = true;
         clearTimers();
 
-        // make sure root is visible (CSS already lives inside results__stage)
+        // make sure root is visible
         rsRoot.classList.add("is-on");
 
         // prepare avatars (Kevin winners)
@@ -639,7 +648,6 @@
 
         // Run timeline
         timelineKevinWins(targetKevin, targetBandits).catch(() => {
-            // if anything goes wrong, stop cleanly
             stopFinalScene();
         });
     }
@@ -663,7 +671,6 @@
             if (team === "bandits") sumBandits += n;
         }
 
-        // If sheet doesn't have PA totals, still show something non-zero (avoids boring scene)
         if (sumKevin === 0 && sumBandits === 0) {
             sumKevin = 1854320;
             sumBandits = 1739010;
@@ -676,7 +683,6 @@
         if (!winnerAvatars) return;
         winnerAvatars.innerHTML = "";
 
-        // 7 winners from Kevin team
         const codes = [];
         for (const p of players) {
             const code = String(p.CODE || "").trim();
@@ -714,7 +720,7 @@
         return { x: r.left - rr.left + r.width / 2, y: r.top - rr.top + r.height / 2 };
     }
 
-    function spawnCoin(fromX, fromY, toX, toY, dur = 650) {
+    function spawnCoin(fromX, fromY, toX, toY, dur = 850) {
         if (!coinsLayer) return;
         const c = document.createElement("div");
         c.className = "rs__coin";
@@ -724,8 +730,8 @@
         c.style.opacity = "1";
 
         const rot = (Math.random() * 720 - 360) | 0;
-        const midX = fromX + (toX - fromX) * (0.35 + Math.random() * 0.15) + (Math.random() * 60 - 30);
-        const midY = fromY + (toY - fromY) * (0.45 + Math.random() * 0.15) - (50 + Math.random() * 60);
+        const midX = fromX + (toX - fromX) * (0.35 + Math.random() * 0.18) + (Math.random() * 70 - 35);
+        const midY = fromY + (toY - fromY) * (0.45 + Math.random() * 0.18) - (60 + Math.random() * 70);
 
         c.animate(
             [
@@ -752,7 +758,7 @@
             t = !t;
             setBgFromData(pipeLeft, t ? "b" : "a");
             setBgFromData(pipeRight, t ? "b" : "a");
-        }, 120);
+        }, 140); // чуть медленнее
     }
 
     function startChaosCounters() {
@@ -760,7 +766,7 @@
             if (!finalRunning) return;
             setCounter(countKevin, Math.floor(Math.random() * 9999999), 7);
             setCounter(countBandits, Math.floor(Math.random() * 9999999), 7);
-        }, 70);
+        }, 80);
     }
 
     function stopChaosCounters() {
@@ -796,12 +802,10 @@
     function startKevinSprite() {
         if (!winnerSprite) return;
 
-        // Kevin sprite sheet guess: 6 frames (3x2). You can change these numbers safely later.
         const frames = 6;
         const cols = 3;
         const rows = 2;
 
-        // set sizing so background steps work
         winnerSprite.style.backgroundRepeat = "no-repeat";
         winnerSprite.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
 
@@ -818,113 +822,138 @@
         }, 120);
     }
 
-    async function timelineKevinWins(targetKevin, targetBandits) {
-        // Reset everything visual first
-        stopFinalScene(); // will clear & reset
-        finalRunning = true;
-        rsRoot.classList.add("is-on");
+    // ====== NEW: Outro (after red bottle disappears) ======
+    async function playFinalOutro() {
+        if (!finalRunning) return;
 
-        // Phase 0: black moment
-        await wait(180);
-
-        // Phase 1: deer slide in
-        deerLeft.style.opacity = "1";
-        deerRight.style.opacity = "1";
-
-        deerLeft.animate(
-            [{ transform: "translateX(0)" }, { transform: "translateX(240px)" }], { duration: 520, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
-        );
-        deerRight.animate(
-            [{ transform: "translateX(0)" }, { transform: "translateX(-240px)" }], { duration: 520, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
-        );
-
-        await wait(460);
-
-        // Phase 2: open mouths + start coins -> cauldron
-        setBgFromData(deerLeft, "open");
-        setBgFromData(deerRight, "open");
-
-        cauldron.style.opacity = "1";
-        cauldron.animate([{ transform: "translateX(-50%) scale(.98)" }, { transform: "translateX(-50%) scale(1)" }], {
-            duration: 320,
-            easing: "ease-out",
-            fill: "forwards",
-        });
-
-        // coins to cauldron center
-        const rootRect = rsRoot.getBoundingClientRect();
-        const caulCenter = rectCenterIn(cauldron, rsRoot);
-
-        coinTimer = window.setInterval(() => {
-            if (!finalRunning) return;
-            const leftM = rectCenterIn(deerLeft, rsRoot);
-            const rightM = rectCenterIn(deerRight, rsRoot);
-
-            // "mouth" area slightly lower
-            const mouthYOffset = 32;
-
-            spawnCoin(leftM.x + 54, leftM.y + mouthYOffset, caulCenter.x - 20, caulCenter.y - 10, 620);
-            spawnCoin(rightM.x - 54, rightM.y + mouthYOffset, caulCenter.x + 20, caulCenter.y - 10, 620);
-        }, 120);
-
-        // show pipes + bottles + chaos counters
-        await wait(680);
-
-        pipeLeft.style.opacity = "1";
-        pipeRight.style.opacity = "1";
-        bottles.style.opacity = "1";
-
-        startPipeAnim();
-        startChaosCounters();
-
-        // Phase 3: stop coins, close mouths, deer out, cauldron out
-        await wait(1600);
-
-        if (coinTimer) window.clearInterval(coinTimer);
-        coinTimer = null;
-
+        // close mouths first
         setBgFromData(deerLeft, "closed");
         setBgFromData(deerRight, "closed");
 
-        deerLeft.animate([{ transform: "translateX(240px)" }, { transform: "translateX(0)" }], {
-            duration: 420,
-            easing: "cubic-bezier(.2,.9,.2,1)",
-            fill: "forwards",
-        });
-        deerRight.animate([{ transform: "translateX(-240px)" }, { transform: "translateX(0)" }], {
-            duration: 420,
-            easing: "cubic-bezier(.2,.9,.2,1)",
-            fill: "forwards",
-        });
+        // drop cauldron + pipes
+        const dropDur = 650;
+        if (cauldron) {
+            cauldron.animate(
+                [{ transform: "translateX(-50%) scale(1)", opacity: 1 }, { transform: "translateX(-50%) translateY(280px) scale(.9)", opacity: 0 }], { duration: dropDur, easing: "cubic-bezier(.2,.0,.2,1)", fill: "forwards" }
+            );
+        }
+        if (pipeLeft) {
+            pipeLeft.animate(
+                [{ transform: getComputedStyle(pipeLeft).transform, opacity: 1 }, { transform: "translateY(280px) rotate(45deg)", opacity: 0 }], { duration: dropDur, easing: "cubic-bezier(.2,.0,.2,1)", fill: "forwards" }
+            );
+        }
+        if (pipeRight) {
+            pipeRight.animate(
+                [{ transform: getComputedStyle(pipeRight).transform, opacity: 1 }, { transform: "translateY(280px) rotate(-45deg)", opacity: 0 }], { duration: dropDur, easing: "cubic-bezier(.2,.0,.2,1)", fill: "forwards" }
+            );
+        }
 
-        cauldron.animate([{ transform: "translateX(-50%) scale(1)" }, { transform: "translateX(-50%) scale(.75) translateY(60px)" }], {
-            duration: 520,
-            easing: "ease-in",
-            fill: "forwards",
-        });
+        // deer go back out
+        const outDur = 900;
+        deerLeft.animate(
+            [{ transform: `translateX(${getDeerInX()}px)` }, { transform: "translateX(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+        deerRight.animate(
+            [{ transform: `translateX(-${getDeerInX()}px)` }, { transform: "translateX(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
 
-        await wait(520);
+        await wait(Math.max(dropDur, outDur));
         deerLeft.style.opacity = "0";
         deerRight.style.opacity = "0";
         cauldron.style.opacity = "0";
         pipeLeft.style.opacity = "0";
         pipeRight.style.opacity = "0";
+    }
 
-        // keep only bottles bigger
-        bottles.animate([{ transform: "scale(1)" }, { transform: "scale(1.08)" }], { duration: 420, easing: "ease-out", fill: "forwards" });
+    function getDeerInX() {
+        // match CSS (-220px base). If you change CSS offsets, change here too.
+        return 220;
+    }
 
+    async function timelineKevinWins(targetKevin, targetBandits) {
+        // Reset everything visual first
+        stopFinalScene();
+        finalRunning = true;
+        rsRoot.classList.add("is-on");
+
+        // Phase 0: black moment
+        await wait(220);
+
+        // Phase 1: deer slide in SLOW (closed mouths)
+        deerLeft.style.opacity = "1";
+        deerRight.style.opacity = "1";
+        setBgFromData(deerLeft, "closed");
+        setBgFromData(deerRight, "closed");
+
+        const deerInX = getDeerInX();
+        const deerInDur = 1450;
+
+        deerLeft.animate(
+            [{ transform: "translateX(0px)" }, { transform: `translateX(${deerInX}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+        deerRight.animate(
+            [{ transform: "translateX(0px)" }, { transform: `translateX(-${deerInX}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+
+        await wait(deerInDur + 160);
+
+        // Phase 1.5: остановились (пауза)
         await wait(420);
 
-        // Phase 4: glitch / shake 3 sec + impact
-        stopChaosCounters(); // stop chaos before shake? no — keep suspense
+        // Phase 2: mouths open, THEN coins
+        setBgFromData(deerLeft, "open");
+        setBgFromData(deerRight, "open");
+        await wait(180);
+
+        // show cauldron + pipes + bottles (stay visible until red bottle breaks)
+        cauldron.style.opacity = "1";
+        pipeLeft.style.opacity = "1";
+        pipeRight.style.opacity = "1";
+        bottles.style.opacity = "1";
+
+        cauldron.animate(
+            [{ transform: "translateX(-50%) scale(.985)" }, { transform: "translateX(-50%) scale(1)" }], { duration: 420, easing: "ease-out", fill: "forwards" }
+        );
+
+        startPipeAnim();
+
+        // coins to cauldron entry (slightly above center)
+        const caulCenter = rectCenterIn(cauldron, rsRoot);
+        const toX1 = caulCenter.x - 18;
+        const toX2 = caulCenter.x + 18;
+        const toY = caulCenter.y - 28;
+
+        coinTimer = window.setInterval(() => {
+            if (!finalRunning) return;
+            const leftC = rectCenterIn(deerLeft, rsRoot);
+            const rightC = rectCenterIn(deerRight, rsRoot);
+
+            // mouth areas (tuned)
+            const fromLeftX = leftC.x + 78;
+            const fromLeftY = leftC.y + 46;
+
+            const fromRightX = rightC.x - 78;
+            const fromRightY = rightC.y + 46;
+
+            // diagonal streams
+            spawnCoin(fromLeftX, fromLeftY, toX1, toY, 900);
+            spawnCoin(fromRightX, fromRightY, toX2, toY, 900);
+        }, 155);
+
+        // Phase 3: show chaos counters (coins keep going a bit, then stop but mouths stay open)
+        await wait(900);
         startChaosCounters();
 
+        await wait(1700);
+        if (coinTimer) window.clearInterval(coinTimer);
+        coinTimer = null;
+
+        // Phase 4: glitch / shake 3 sec + impact
         rsRoot.classList.add("is-shake");
         flashOnce(120);
         await wait(3000);
         rsRoot.classList.remove("is-shake");
 
-        // Impact -> reset to zeros
         flashOnce(120);
         stopChaosCounters();
         setCounter(countKevin, 0, 7);
@@ -934,21 +963,18 @@
 
         // Phase 5: count both up to intrigue value
         const intrigue = 1700000;
-        const bothTarget = Math.min(intrigue, Math.max(intrigue, 0)); // keep exactly intrigue
+        const bothTarget = intrigue;
         await Promise.all([
             animateCountTo(countKevin, 0, bothTarget, 2600, 7, easeInOutQuad),
             animateCountTo(countBandits, 0, bothTarget, 2600, 7, easeInOutQuad),
         ]);
 
-        // suspense slow flipping (5 sec)
         await slowFlipSuspense(5000);
 
         // Phase 6: Kevin accelerates to final, Bandits starts blinking then "breaks"
-        // Ensure Kevin is bigger (requested). If not, still animate as winner.
         const finalK = Math.max(targetKevin, intrigue + 1);
         const finalB = Math.min(targetBandits, finalK - 1);
 
-        // loser blink
         const blink = bottleBandits.animate(
             [{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 240, iterations: 10 }
         );
@@ -958,7 +984,7 @@
 
         await Promise.all([countK, countB]);
 
-        // "break" loser bottle: pop out
+        // "break" loser bottle: pop out (this is the trigger for outro)
         blink.cancel();
         bottleBandits.animate(
             [
@@ -967,16 +993,20 @@
                 { transform: "scale(.2) translateY(40px)", opacity: 0 },
             ], { duration: 520, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
+
         await wait(520);
 
-        // Phase 7: winner reveal (Kevin)
+        // NOW: pipes+cauldron fall away, deer close and exit
+        await playFinalOutro();
+
+        // Phase 7: winner reveal (Kevin) (can stay after outro if you want)
+        // (оставил как было — но если хочешь, мы потом подвинем по драме)
         if (winnerLayer) winnerLayer.style.opacity = "1";
         if (fireworks) fireworks.style.opacity = "1";
         if (winText) winText.style.opacity = "1";
         if (winnerAvatars) winnerAvatars.style.opacity = "1";
         if (winnerSprite) winnerSprite.style.opacity = "1";
 
-        // fireworks pulse
         if (fireworks) {
             fireworks.animate([{ opacity: 0.0 }, { opacity: 0.85 }, { opacity: 0.25 }], {
                 duration: 1200,
@@ -985,13 +1015,8 @@
             });
         }
 
-        // start sprite
         startKevinSprite();
-
-        // little final flash
         flashOnce(110);
-
-        // done
     }
 
     async function slowFlipSuspense(ms) {
@@ -1002,8 +1027,6 @@
                 const t = performance.now() - start;
                 if (t >= ms) return resolve();
 
-                // subtle digit jitter without changing magnitude much:
-                // keep first 2 digits stable, randomize last 3
                 const base = 1700000;
                 const jitter = Math.floor(Math.random() * 900);
                 setCounter(countKevin, base + jitter, 7);

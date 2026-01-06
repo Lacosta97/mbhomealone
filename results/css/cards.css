@@ -11,6 +11,21 @@
     --gap: 125px;
     /* RESULTS scene helpers */
     --rs-pad: 18px;
+    /* ===== FINAL SCENE TWEAKS (cosmetic) =====
+       Если захочешь потом микроподгонку — меняем только эти значения. */
+    --deer-in-x: 220px;
+    /* = ширина оленя + 10px (въезд ровно к краям) */
+    --cauldron-bottom: 250px;
+    /* было 210px -> выше */
+    --pipes-bottom: 262px;
+    /* подогнано под новый казан */
+    /* Поворот труб (верхние точки к казану) */
+    --pipe-rot-left: 45deg;
+    --pipe-rot-right: -45deg;
+    /* Микросдвиг труб (если нужно руками в DevTools) */
+    --pipe-left-x: 4px;
+    --pipe-right-x: -4px;
+    --pipe-y: 0px;
 }
 
 * {
@@ -578,7 +593,6 @@ body.mbha-cards {
 
 /* ===============================
    RESULTS FINAL SCENE (layout only)
-   (Animation will be controlled by JS later)
 ================================ */
 
 .rs {
@@ -646,7 +660,7 @@ body.mbha-cards {
 .rs__cauldron {
     position: absolute;
     left: 50%;
-    bottom: 210px;
+    bottom: var(--cauldron-bottom);
     width: 250px;
     height: 180px;
     transform: translateX(-50%);
@@ -660,20 +674,24 @@ body.mbha-cards {
 
 .rs__pipe {
     position: absolute;
-    bottom: 278px;
+    bottom: calc(var(--pipes-bottom) + var(--pipe-y));
     width: 220px;
     height: 120px;
     background: center/contain no-repeat;
     filter: drop-shadow(0 14px 20px rgba(0, 0, 0, .7));
     opacity: 0;
+    /* Важное: крутим так, чтобы "верхний конец" смотрел к казану */
+    transform-origin: 50% 18%;
 }
 
 .rs__pipe--left {
-    left: 10px;
+    left: calc(10px + var(--pipe-left-x));
+    transform: rotate(var(--pipe-rot-left));
 }
 
 .rs__pipe--right {
-    right: 10px;
+    right: calc(10px + var(--pipe-right-x));
+    transform: rotate(var(--pipe-rot-right));
 }
 
 
