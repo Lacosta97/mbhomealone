@@ -1,4 +1,4 @@
-/* MBHA Cards — FINAL CLEAN */
+/* MBHA Cards — FINAL CLEAN (with RESULTS Final Scene layout) */
 
 :root {
     --bg0: #020617;
@@ -9,6 +9,8 @@
     --cardR: 22px;
     --cardW: 210px;
     --gap: 125px;
+    /* RESULTS scene helpers */
+    --rs-pad: 18px;
 }
 
 * {
@@ -54,8 +56,8 @@ body.mbha-cards {
     justify-content: center;
 }
 
-@media (max-width:390px),
-(max-height:690px) {
+@media (max-width: 390px),
+(max-height: 690px) {
     .stage {
         transform-origin: top center;
         transform: scale(min(calc(100vw / 375), calc(100vh / 667)));
@@ -226,7 +228,7 @@ body.mbha-cards {
     background-position: center;
     z-index: 1;
     image-rendering: auto;
-    /* NEW: brighten avatars only */
+    /* brighten avatars only */
     filter: brightness(1.18) contrast(1.06);
 }
 
@@ -292,9 +294,6 @@ body.mbha-cards {
 }
 
 
-/* Info */
-
-
 /* Info — DARK readable */
 
 .info {
@@ -324,7 +323,7 @@ body.mbha-cards {
 }
 
 
-/* NEW: PA + ABOUT */
+/* PA + ABOUT */
 
 .info__pa {
     margin-top: 6px;
@@ -343,7 +342,6 @@ body.mbha-cards {
     white-space: pre-wrap;
     /* keep line breaks from Sheet */
     max-height: 120px;
-    /* scroll if too long */
     overflow-y: auto;
     padding-right: 6px;
 }
@@ -412,7 +410,7 @@ body.mbha-cards {
 }
 
 
-/* RESET always top-right (apply class in HTML/JS if needed) */
+/* RESET always top-right */
 
 .btn-reset-top {
     position: absolute;
@@ -461,7 +459,7 @@ body.mbha-cards {
 
 /* Mobile tweaks */
 
-@media (max-width:430px) {
+@media (max-width: 430px) {
      :root {
         --cardW: 180px;
         --gap: 115px;
@@ -476,7 +474,6 @@ body.mbha-cards {
     .info__name {
         font-size: 16px;
     }
-    /* NEW: tighten on iPhone SE */
     .info__pa {
         font-size: 14px;
     }
@@ -489,7 +486,6 @@ body.mbha-cards {
 
 /* ===============================
    RESULTS (button + fullscreen overlay)
-   Appears only when 18/18 opened (JS controls [hidden] or .is-on)
 ================================ */
 
 .btn-results {
@@ -501,7 +497,7 @@ body.mbha-cards {
 }
 
 
-/* Optional pulse when visible */
+/* Optional pulse when visible (kept as-is) */
 
 .btn-results.is-on {
     animation: resultsPulse 1.35s ease-in-out infinite;
@@ -528,6 +524,9 @@ body.mbha-cards {
     opacity: 0;
     pointer-events: none;
     transition: opacity .2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .results.is-open {
@@ -539,41 +538,23 @@ body.mbha-cards {
     position: absolute;
     top: 12px;
     right: 12px;
-    z-index: 5;
-}
-
-.results__stage {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
+    z-index: 10;
 }
 
 
-/* ===============================
-   RESULTS — iPhone SE CANVAS (375x667) even on desktop
-   (Overrides; nothing removed)
-================================ */
-
-
-/* Center a fixed 375x667 canvas inside fullscreen black overlay */
-
-.results {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
-/* Make the stage a fixed iPhone SE canvas */
+/* iPhone SE canvas */
 
 .results__stage {
     width: 375px;
     height: 667px;
     position: relative;
-    inset: auto;
-    /* override previous absolute inset */
     overflow: hidden;
     transform-origin: top center;
+    background: #000;
+    /* STATIC neon frame (no inner animation) */
+    border-radius: 16px;
+    border: 2px solid rgba(220, 240, 255, 0.92);
+    box-shadow: 0 0 0 2px rgba(220, 240, 255, 0.20), 0 0 22px rgba(180, 220, 255, 0.55), 0 0 60px rgba(180, 220, 255, 0.25), inset 0 0 12px rgba(200, 230, 255, 0.18);
 }
 
 
@@ -587,109 +568,266 @@ body.mbha-cards {
 }
 
 
-/* ===============================
-   RESULTS — Visible iPhone SE frame
-================================ */
+/* Kill any old spiral / pseudo frame, keep it CLEAN */
 
-
-/* Soft white-blue spiral-like glow frame */
-
-.results__stage {
-    box-shadow: 0 0 0 2px rgba(220, 240, 255, 0.9), 0 0 24px rgba(180, 220, 255, 0.55), inset 0 0 12px rgba(200, 230, 255, 0.35);
-    border-radius: 16px;
-}
-
-
-/* Optional subtle animated shimmer */
-
-@keyframes resultsFrameGlow {
-    0%,
-    100% {
-        box-shadow: 0 0 0 2px rgba(220, 240, 255, 0.85), 0 0 22px rgba(170, 215, 255, 0.45), inset 0 0 10px rgba(200, 230, 255, 0.30);
-    }
-    50% {
-        box-shadow: 0 0 0 2px rgba(240, 250, 255, 1), 0 0 32px rgba(190, 230, 255, 0.75), inset 0 0 16px rgba(210, 240, 255, 0.45);
-    }
-}
-
-.results__stage {
-    animation: resultsFrameGlow 3.2s ease-in-out infinite;
+.results__stage::before,
+.results__stage::after {
+    content: none !important;
 }
 
 
 /* ===============================
-   RESULTS — Alternating blue/white spiral frame (modem style)
+   RESULTS FINAL SCENE (layout only)
+   (Animation will be controlled by JS later)
 ================================ */
 
-.results__stage {
-    position: relative;
-    /* ensure pseudo-element positioning */
-}
-
-
-/* Spiral frame overlay */
-
-.results__stage::before {
-    content: "";
+.rs {
     position: absolute;
-    inset: -6px;
-    /* frame thickness */
-    border-radius: 18px;
-    pointer-events: none;
-    background: conic-gradient( from 0deg, #ffffff 0deg, #7fb8ff 15deg, #ffffff 30deg, #4fa3ff 45deg, #ffffff 60deg, #7fb8ff 75deg, #ffffff 90deg);
-    filter: blur(0.2px);
-    animation: resultsSpiral 8s linear infinite;
-    z-index: 1;
-}
-
-
-/* Keep content above the frame */
-
-.results__stage>* {
-    position: relative;
-    z-index: 2;
-}
-
-@keyframes resultsSpiral {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-
-/* ===============================
-   RESULTS — Spiral frame COLOR MATCH (blue/white like reference)
-================================ */
-
-
-/* Override spiral colors to match reference image */
-
-.results__stage::before {
-    background: conic-gradient( from 0deg, #ffffff 0deg, #a9d8ff 20deg, #ffffff 40deg, #6fb7f2 60deg, #ffffff 80deg, #9fd1ff 100deg, #ffffff 120deg);
-}
-
-
-/* ===============================
-   RESULTS — FIX: frame only, no inner fill
-================================ */
-
-
-/* Keep spiral ONLY on the border, center transparent */
-
-.results__stage::before {
-    inset: -6px;
-    /* ICE FRAME */
-    background: conic-gradient( from 0deg, #f8fdff 0deg, #cfefff 12deg, #ffffff 22deg, #9fdcff 35deg, #e8f7ff 48deg, #7cc7f2 60deg, #ffffff 72deg, #b6e6ff 85deg, #f8fdff 100deg);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    padding: 6px;
-}
-
-
-/* Ensure stage background stays black */
-
-.results__stage {
+    inset: 0;
     background: #000;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+
+/* Helpers: all scene parts above black */
+
+.rs * {
+    image-rendering: auto;
+}
+
+
+/* Deer heads */
+
+.rs__deer {
+    position: absolute;
+    top: 34px;
+    width: 210px;
+    height: 210px;
+    background: center/contain no-repeat;
+    filter: drop-shadow(0 14px 22px rgba(0, 0, 0, .65));
+    opacity: 0;
+    /* JS will fade/slide in */
+}
+
+.rs__deer--left {
+    left: -220px;
+}
+
+.rs__deer--right {
+    right: -220px;
+}
+
+
+/* Coins layer */
+
+.rs__coins {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+
+/* Coin particle (JS creates div.rs__coin and sets CSS vars) */
+
+.rs__coin {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: center/contain no-repeat;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .7));
+}
+
+
+/* Cauldron */
+
+.rs__cauldron {
+    position: absolute;
+    left: 50%;
+    bottom: 210px;
+    width: 250px;
+    height: 180px;
+    transform: translateX(-50%);
+    background: center/contain no-repeat;
+    filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .7));
+    opacity: 0;
+}
+
+
+/* Pipes */
+
+.rs__pipe {
+    position: absolute;
+    bottom: 278px;
+    width: 220px;
+    height: 120px;
+    background: center/contain no-repeat;
+    filter: drop-shadow(0 14px 20px rgba(0, 0, 0, .7));
+    opacity: 0;
+}
+
+.rs__pipe--left {
+    left: 10px;
+}
+
+.rs__pipe--right {
+    right: 10px;
+}
+
+
+/* Bottles row */
+
+.rs__bottles {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 22px;
+    opacity: 0;
+}
+
+.rs__bottle {
+    width: 150px;
+    height: 250px;
+    position: relative;
+    background: center/contain no-repeat;
+    transform: scale(.92);
+    filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .75));
+}
+
+
+/* Labels above bottles */
+
+.rs__label {
+    position: absolute;
+    left: 50%;
+    bottom: 262px;
+    transform: translateX(-50%);
+    font-size: 16px;
+    letter-spacing: .14em;
+    color: rgba(229, 231, 235, .95);
+    text-shadow: 0 0 10px rgba(255, 255, 255, .18);
+    white-space: nowrap;
+}
+
+
+/* Text counters */
+
+.rs__counter {
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    transform: translateX(-50%);
+    width: 156px;
+    text-align: center;
+    font-size: 26px;
+    letter-spacing: .18em;
+    color: rgba(229, 231, 235, .98);
+    text-shadow: 0 0 14px rgba(255, 255, 255, .25);
+}
+
+
+/* Winner layer */
+
+.rs__winner {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rs__fireworks {
+    position: absolute;
+    inset: 0;
+    background: center/520px 520px no-repeat;
+    opacity: 0;
+    filter: drop-shadow(0 0 18px rgba(255, 255, 255, .22));
+}
+
+.rs__sprite {
+    position: absolute;
+    left: 50%;
+    bottom: 140px;
+    width: 240px;
+    height: 240px;
+    transform: translateX(-50%);
+    background: center/contain no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .7));
+    opacity: 0;
+}
+
+.rs__winText {
+    position: absolute;
+    left: 50%;
+    bottom: 44px;
+    transform: translateX(-50%);
+    font-size: 18px;
+    letter-spacing: .16em;
+    color: rgba(240, 250, 255, .95);
+    text-shadow: 0 0 16px rgba(180, 220, 255, .35);
+    opacity: 0;
+    white-space: nowrap;
+}
+
+.rs__avatars {
+    position: absolute;
+    left: 50%;
+    bottom: 86px;
+    transform: translateX(-50%);
+    width: 330px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    opacity: 0;
+}
+
+.rs__avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+    background: center/cover no-repeat;
+    border: 1px solid rgba(255, 255, 255, .14);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .55);
+}
+
+
+/* Flash for impact */
+
+.rs__flash {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* Utility classes that JS will toggle later */
+
+.rs.is-on {
+    pointer-events: none;
+}
+
+.rs.show-deer .rs__deer,
+.rs.show-cauldron .rs__cauldron,
+.rs.show-pipes .rs__pipe,
+.rs.show-bottles .rs__bottles {
+    opacity: 1;
+}
+
+.rs.show-winner .rs__winner {
+    opacity: 1;
+}
+
+.rs.show-winner .rs__fireworks,
+.rs.show-winner .rs__sprite,
+.rs.show-winner .rs__winText,
+.rs.show-winner .rs__avatars {
+    opacity: 1;
 }

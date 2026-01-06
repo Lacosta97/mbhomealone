@@ -18,6 +18,11 @@
         kevin: "./img/icons/team-kevin.png",
     };
 
+    // Final scene assets live in: mbhomealone/results/img/final
+    const FINAL_ASSETS = {
+        coin: "./img/final/coin.png",
+    };
+
     // ====== SETTINGS ======
     const STORAGE_KEY = "mbha_cards_opened_v2";
     const LIMIT = 18;
@@ -39,12 +44,44 @@
     const infoPA = document.getElementById("infoPA");
     const infoAbout = document.getElementById("infoAbout");
 
+    // RESULTS (button + overlay)
+    const btnResults = document.getElementById("btnResults");
+    const results = document.getElementById("results");
+    const btnResultsClose = document.getElementById("btnResultsClose");
+
+    // Final scene DOM (optional; exists only if you use the prepared cards.html)
+    const rsRoot = document.getElementById("rsRoot");
+    const deerLeft = document.getElementById("deerLeft");
+    const deerRight = document.getElementById("deerRight");
+    const coinsLayer = document.getElementById("coinsLayer");
+    const cauldron = document.getElementById("cauldron");
+    const pipeLeft = document.getElementById("pipeLeft");
+    const pipeRight = document.getElementById("pipeRight");
+    const bottles = document.getElementById("bottles");
+    const bottleKevin = document.getElementById("bottleKevin");
+    const bottleBandits = document.getElementById("bottleBandits");
+    const countKevin = document.getElementById("countKevin");
+    const countBandits = document.getElementById("countBandits");
+    const winnerLayer = document.getElementById("winnerLayer");
+    const fireworks = document.getElementById("fireworks");
+    const winnerSprite = document.getElementById("winnerSprite");
+    const winText = document.getElementById("winText");
+    const winnerAvatars = document.getElementById("winnerAvatars");
+    const flash = document.getElementById("flash");
+
     // ====== STATE ======
     const opened = loadOpened();
     let players = [];
     let cardEls = [];
     let active = 0;
     let rolling = false;
+
+    // Final scene state
+    let finalRunning = false;
+    let coinTimer = null;
+    let pipeTimer = null;
+    let chaosTimer = null;
+    let spriteTimer = null;
 
     // ====== Anti-zoom (Safari) ======
     document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
@@ -165,7 +202,6 @@
     // ====== HELPERS: PA formatting ======
     function formatUAH(raw) {
         const s = String(raw === null || raw === undefined ? "" : raw).trim();
-
         if (!s) return "";
         const digits = s.replace(/\s+/g, "");
         if (/^-?\d+(\.\d+)?$/.test(digits)) {
@@ -175,6 +211,15 @@
         }
         // not a number (e.g., "∞ (IMPOSTOR)")
         return s;
+    }
+
+    function parseMoneyToInt(raw) {
+        const s = String((raw === null || raw === undefined) ? "" : raw).trim();
+        if (!s) return 0;
+        // keep digits only
+        const m = s.replace(/[^\d-]/g, "");
+        const n = Number(m);
+        return Number.isFinite(n) ? Math.max(0, Math.round(n)) : 0;
     }
 
     // ====== UI BUILD ======
@@ -315,20 +360,22 @@
 
         infoName.textContent = String(p.NAME || "Гість").toUpperCase();
 
-        // NEW: PA
+        // PA
         if (infoPA) {
             const paRaw =
-                (p["PERSONAL ACCOUNT"] !== null && p["PERSONAL ACCOUNT"] !== undefined ? p["PERSONAL ACCOUNT"] :
-                    (p.PA !== null && p.PA !== undefined ? p.PA : ""));
+                p["PERSONAL ACCOUNT"] !== null && p["PERSONAL ACCOUNT"] !== undefined ?
+                p["PERSONAL ACCOUNT"] :
+                p.PA !== null && p.PA !== undefined ?
+                p.PA :
+                "";
 
             const paFmt = formatUAH(paRaw);
             infoPA.textContent = paFmt ? `PA: ${paFmt}` : "";
         }
 
-        // NEW: ABOUT (keep full text + line breaks)
+        // ABOUT (keep full text + line breaks)
         if (infoAbout) {
-            const aboutRaw = (p["ABOUT"] !== null && p["ABOUT"] !== undefined) ? p["ABOUT"] : "";
-
+            const aboutRaw = p["ABOUT"] !== null && p["ABOUT"] !== undefined ? p["ABOUT"] : "";
             infoAbout.textContent = String(aboutRaw);
         }
 
@@ -493,28 +540,484 @@
             }, { passive: false }
         );
 
-
-    // ====== RESULTS (button + overlay) ======
-    const btnResults = document.getElementById("btnResults");
-    const results = document.getElementById("results");
-    const btnResultsClose = document.getElementById("btnResultsClose");
-
+    // ====== RESULTS open/close ======
     function openResults() {
         if (!results) return;
         results.classList.add("is-open");
         results.setAttribute("aria-hidden", "false");
+        startFinalScene(); // 🔥
     }
 
     function closeResults() {
         if (!results) return;
         results.classList.remove("is-open");
         results.setAttribute("aria-hidden", "true");
+        stopFinalScene();
     }
 
     if (btnResults) btnResults.addEventListener("click", openResults);
     if (btnResultsClose) btnResultsClose.addEventListener("click", closeResults);
 
     window.addEventListener("resize", () => layout());
+
+    // ====== FINAL SCENE (Kevin wins) ======
+    function hasFinalDOM() {
+        return !!(rsRoot && deerLeft && deerRight && coinsLayer && cauldron && pipeLeft && pipeRight && bottles && bottleKevin && bottleBandits && countKevin && countBandits);
+    }
+
+    function clearTimers() {
+        if (coinTimer) window.clearInterval(coinTimer);
+        if (pipeTimer) window.clearInterval(pipeTimer);
+        if (chaosTimer) window.clearInterval(chaosTimer);
+        if (spriteTimer) window.clearInterval(spriteTimer);
+        coinTimer = null;
+        pipeTimer = null;
+        chaosTimer = null;
+        spriteTimer = null;
+    }
+
+    function stopFinalScene() {
+        finalRunning = false;
+        clearTimers();
+        if (!hasFinalDOM()) return;
+
+        // reset classes
+        rsRoot.className = "rs";
+        rsRoot.style.transform = "";
+        // reset visuals
+        deerLeft.style.opacity = "0";
+        deerRight.style.opacity = "0";
+        cauldron.style.opacity = "0";
+        pipeLeft.style.opacity = "0";
+        pipeRight.style.opacity = "0";
+        bottles.style.opacity = "0";
+
+        if (winnerLayer) winnerLayer.style.opacity = "0";
+        if (fireworks) fireworks.style.opacity = "0";
+        if (winnerSprite) winnerSprite.style.opacity = "0";
+        if (winText) winText.style.opacity = "0";
+        if (winnerAvatars) winnerAvatars.style.opacity = "0";
+        if (flash) flash.style.opacity = "0";
+
+        // clear coins
+        if (coinsLayer) coinsLayer.innerHTML = "";
+
+        // reset counters
+        setCounter(countKevin, 0, 7);
+        setCounter(countBandits, 0, 7);
+
+        // reset pipes/deer frames to "closed"/"a"
+        setBgFromData(deerLeft, "closed");
+        setBgFromData(deerRight, "closed");
+        setBgFromData(pipeLeft, "a");
+        setBgFromData(pipeRight, "a");
+
+        // reset loser bottle (in case it was hidden)
+        bottleBandits.style.opacity = "";
+        bottleBandits.style.transform = "";
+        bottleBandits.style.filter = "";
+    }
+
+    function startFinalScene() {
+        if (!hasFinalDOM()) return; // safe if you didn't paste the final HTML yet
+        if (finalRunning) return;
+
+        finalRunning = true;
+        clearTimers();
+
+        // make sure root is visible (CSS already lives inside results__stage)
+        rsRoot.classList.add("is-on");
+
+        // prepare avatars (Kevin winners)
+        renderWinnerAvatars();
+
+        // compute team totals from sheet PA (fallback values if empty)
+        const totals = computeTeamTotalsFromPlayers();
+        // Force Kevin as winner (as requested)
+        const targetKevin = Math.max(0, totals.kevin || 0);
+        const targetBandits = Math.max(0, totals.bandits || 0);
+
+        // Run timeline
+        timelineKevinWins(targetKevin, targetBandits).catch(() => {
+            // if anything goes wrong, stop cleanly
+            stopFinalScene();
+        });
+    }
+
+    function computeTeamTotalsFromPlayers() {
+        let sumKevin = 0;
+        let sumBandits = 0;
+
+        for (const p of players) {
+            const team = normTeamKey(p.TEAM);
+            const paRaw =
+                p["PERSONAL ACCOUNT"] !== null && p["PERSONAL ACCOUNT"] !== undefined ?
+                p["PERSONAL ACCOUNT"] :
+                p.PA !== null && p.PA !== undefined ?
+                p.PA :
+                "";
+
+            const n = parseMoneyToInt(paRaw);
+
+            if (team === "kevin") sumKevin += n;
+            if (team === "bandits") sumBandits += n;
+        }
+
+        // If sheet doesn't have PA totals, still show something non-zero (avoids boring scene)
+        if (sumKevin === 0 && sumBandits === 0) {
+            sumKevin = 1854320;
+            sumBandits = 1739010;
+        }
+
+        return { kevin: sumKevin, bandits: sumBandits };
+    }
+
+    function renderWinnerAvatars() {
+        if (!winnerAvatars) return;
+        winnerAvatars.innerHTML = "";
+
+        // 7 winners from Kevin team
+        const codes = [];
+        for (const p of players) {
+            const code = String(p.CODE || "").trim();
+            if (!code) continue;
+            if (normTeamKey(p.TEAM) !== "kevin") continue;
+            const up = code.toUpperCase();
+            if (!codes.includes(up)) codes.push(up);
+            if (codes.length >= 7) break;
+        }
+
+        for (const code of codes) {
+            const d = document.createElement("div");
+            d.className = "rs__avatar";
+            d.style.backgroundImage = `url('${avatarUrl(code)}')`;
+            winnerAvatars.appendChild(d);
+        }
+    }
+
+    function setCounter(el, value, digits = 7) {
+        if (!el) return;
+        const v = Math.max(0, Math.floor(value));
+        el.textContent = String(v).padStart(digits, "0");
+    }
+
+    function setBgFromData(el, which) {
+        if (!el) return;
+        const key = which === "open" || which === "closed" ? which : which === "b" ? "b" : "a";
+        const src = el.dataset ? el.dataset[key] : "";
+        if (src) el.style.backgroundImage = `url('${src}')`;
+    }
+
+    function rectCenterIn(el, root) {
+        const r = el.getBoundingClientRect();
+        const rr = root.getBoundingClientRect();
+        return { x: r.left - rr.left + r.width / 2, y: r.top - rr.top + r.height / 2 };
+    }
+
+    function spawnCoin(fromX, fromY, toX, toY, dur = 650) {
+        if (!coinsLayer) return;
+        const c = document.createElement("div");
+        c.className = "rs__coin";
+        c.style.backgroundImage = `url('${FINAL_ASSETS.coin}')`;
+        c.style.left = `${fromX}px`;
+        c.style.top = `${fromY}px`;
+        c.style.opacity = "1";
+
+        const rot = (Math.random() * 720 - 360) | 0;
+        const midX = fromX + (toX - fromX) * (0.35 + Math.random() * 0.15) + (Math.random() * 60 - 30);
+        const midY = fromY + (toY - fromY) * (0.45 + Math.random() * 0.15) - (50 + Math.random() * 60);
+
+        c.animate(
+            [
+                { transform: `translate(-50%,-50%) rotate(0deg)`, offset: 0 },
+                { transform: `translate(${midX - fromX}px, ${midY - fromY}px) rotate(${rot / 2}deg)`, offset: 0.55 },
+                { transform: `translate(${toX - fromX}px, ${toY - fromY}px) rotate(${rot}deg)`, offset: 1 },
+            ], { duration: dur, easing: "cubic-bezier(.2,.8,.2,1)" }
+        );
+
+        coinsLayer.appendChild(c);
+        window.setTimeout(() => c.remove(), dur + 50);
+    }
+
+    function flashOnce(ms = 90) {
+        if (!flash) return;
+        flash.style.opacity = "0";
+        flash.animate([{ opacity: 0 }, { opacity: 0.85 }, { opacity: 0 }], { duration: ms, easing: "ease-out" });
+    }
+
+    function startPipeAnim() {
+        let t = false;
+        pipeTimer = window.setInterval(() => {
+            if (!finalRunning) return;
+            t = !t;
+            setBgFromData(pipeLeft, t ? "b" : "a");
+            setBgFromData(pipeRight, t ? "b" : "a");
+        }, 120);
+    }
+
+    function startChaosCounters() {
+        chaosTimer = window.setInterval(() => {
+            if (!finalRunning) return;
+            setCounter(countKevin, Math.floor(Math.random() * 9999999), 7);
+            setCounter(countBandits, Math.floor(Math.random() * 9999999), 7);
+        }, 70);
+    }
+
+    function stopChaosCounters() {
+        if (chaosTimer) window.clearInterval(chaosTimer);
+        chaosTimer = null;
+    }
+
+    async function animateCountTo(el, from, to, duration, digits = 7, easing = (t) => t) {
+        const start = performance.now();
+        setCounter(el, from, digits);
+
+        return new Promise((resolve) => {
+            const step = (now) => {
+                if (!finalRunning) return resolve();
+                const t = Math.min(1, (now - start) / Math.max(1, duration));
+                const v = Math.round(from + (to - from) * easing(t));
+                setCounter(el, v, digits);
+                if (t >= 1) return resolve();
+                requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+        });
+    }
+
+    function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    function easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    }
+
+    function startKevinSprite() {
+        if (!winnerSprite) return;
+
+        // Kevin sprite sheet guess: 6 frames (3x2). You can change these numbers safely later.
+        const frames = 6;
+        const cols = 3;
+        const rows = 2;
+
+        // set sizing so background steps work
+        winnerSprite.style.backgroundRepeat = "no-repeat";
+        winnerSprite.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
+
+        let frame = 0;
+        spriteTimer = window.setInterval(() => {
+            if (!finalRunning) return;
+            const f = frame % frames;
+            const cx = f % cols;
+            const cy = Math.floor(f / cols);
+            const x = (cols === 1) ? 0 : (cx * 100) / (cols - 1);
+            const y = (rows === 1) ? 0 : (cy * 100) / (rows - 1);
+            winnerSprite.style.backgroundPosition = `${x}% ${y}%`;
+            frame++;
+        }, 120);
+    }
+
+    async function timelineKevinWins(targetKevin, targetBandits) {
+        // Reset everything visual first
+        stopFinalScene(); // will clear & reset
+        finalRunning = true;
+        rsRoot.classList.add("is-on");
+
+        // Phase 0: black moment
+        await wait(180);
+
+        // Phase 1: deer slide in
+        deerLeft.style.opacity = "1";
+        deerRight.style.opacity = "1";
+
+        deerLeft.animate(
+            [{ transform: "translateX(0)" }, { transform: "translateX(240px)" }], { duration: 520, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+        deerRight.animate(
+            [{ transform: "translateX(0)" }, { transform: "translateX(-240px)" }], { duration: 520, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+
+        await wait(460);
+
+        // Phase 2: open mouths + start coins -> cauldron
+        setBgFromData(deerLeft, "open");
+        setBgFromData(deerRight, "open");
+
+        cauldron.style.opacity = "1";
+        cauldron.animate([{ transform: "translateX(-50%) scale(.98)" }, { transform: "translateX(-50%) scale(1)" }], {
+            duration: 320,
+            easing: "ease-out",
+            fill: "forwards",
+        });
+
+        // coins to cauldron center
+        const rootRect = rsRoot.getBoundingClientRect();
+        const caulCenter = rectCenterIn(cauldron, rsRoot);
+
+        coinTimer = window.setInterval(() => {
+            if (!finalRunning) return;
+            const leftM = rectCenterIn(deerLeft, rsRoot);
+            const rightM = rectCenterIn(deerRight, rsRoot);
+
+            // "mouth" area slightly lower
+            const mouthYOffset = 32;
+
+            spawnCoin(leftM.x + 54, leftM.y + mouthYOffset, caulCenter.x - 20, caulCenter.y - 10, 620);
+            spawnCoin(rightM.x - 54, rightM.y + mouthYOffset, caulCenter.x + 20, caulCenter.y - 10, 620);
+        }, 120);
+
+        // show pipes + bottles + chaos counters
+        await wait(680);
+
+        pipeLeft.style.opacity = "1";
+        pipeRight.style.opacity = "1";
+        bottles.style.opacity = "1";
+
+        startPipeAnim();
+        startChaosCounters();
+
+        // Phase 3: stop coins, close mouths, deer out, cauldron out
+        await wait(1600);
+
+        if (coinTimer) window.clearInterval(coinTimer);
+        coinTimer = null;
+
+        setBgFromData(deerLeft, "closed");
+        setBgFromData(deerRight, "closed");
+
+        deerLeft.animate([{ transform: "translateX(240px)" }, { transform: "translateX(0)" }], {
+            duration: 420,
+            easing: "cubic-bezier(.2,.9,.2,1)",
+            fill: "forwards",
+        });
+        deerRight.animate([{ transform: "translateX(-240px)" }, { transform: "translateX(0)" }], {
+            duration: 420,
+            easing: "cubic-bezier(.2,.9,.2,1)",
+            fill: "forwards",
+        });
+
+        cauldron.animate([{ transform: "translateX(-50%) scale(1)" }, { transform: "translateX(-50%) scale(.75) translateY(60px)" }], {
+            duration: 520,
+            easing: "ease-in",
+            fill: "forwards",
+        });
+
+        await wait(520);
+        deerLeft.style.opacity = "0";
+        deerRight.style.opacity = "0";
+        cauldron.style.opacity = "0";
+        pipeLeft.style.opacity = "0";
+        pipeRight.style.opacity = "0";
+
+        // keep only bottles bigger
+        bottles.animate([{ transform: "scale(1)" }, { transform: "scale(1.08)" }], { duration: 420, easing: "ease-out", fill: "forwards" });
+
+        await wait(420);
+
+        // Phase 4: glitch / shake 3 sec + impact
+        stopChaosCounters(); // stop chaos before shake? no — keep suspense
+        startChaosCounters();
+
+        rsRoot.classList.add("is-shake");
+        flashOnce(120);
+        await wait(3000);
+        rsRoot.classList.remove("is-shake");
+
+        // Impact -> reset to zeros
+        flashOnce(120);
+        stopChaosCounters();
+        setCounter(countKevin, 0, 7);
+        setCounter(countBandits, 0, 7);
+
+        await wait(250);
+
+        // Phase 5: count both up to intrigue value
+        const intrigue = 1700000;
+        const bothTarget = Math.min(intrigue, Math.max(intrigue, 0)); // keep exactly intrigue
+        await Promise.all([
+            animateCountTo(countKevin, 0, bothTarget, 2600, 7, easeInOutQuad),
+            animateCountTo(countBandits, 0, bothTarget, 2600, 7, easeInOutQuad),
+        ]);
+
+        // suspense slow flipping (5 sec)
+        await slowFlipSuspense(5000);
+
+        // Phase 6: Kevin accelerates to final, Bandits starts blinking then "breaks"
+        // Ensure Kevin is bigger (requested). If not, still animate as winner.
+        const finalK = Math.max(targetKevin, intrigue + 1);
+        const finalB = Math.min(targetBandits, finalK - 1);
+
+        // loser blink
+        const blink = bottleBandits.animate(
+            [{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 240, iterations: 10 }
+        );
+
+        const countK = animateCountTo(countKevin, intrigue, finalK, 2600, 7, easeOutCubic);
+        const countB = animateCountTo(countBandits, intrigue, finalB, 900, 7, easeOutCubic);
+
+        await Promise.all([countK, countB]);
+
+        // "break" loser bottle: pop out
+        blink.cancel();
+        bottleBandits.animate(
+            [
+                { transform: "scale(.92)", opacity: 1, filter: "drop-shadow(0 16px 22px rgba(0,0,0,.75))" },
+                { transform: "scale(1.03)", opacity: 1 },
+                { transform: "scale(.2) translateY(40px)", opacity: 0 },
+            ], { duration: 520, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+        await wait(520);
+
+        // Phase 7: winner reveal (Kevin)
+        if (winnerLayer) winnerLayer.style.opacity = "1";
+        if (fireworks) fireworks.style.opacity = "1";
+        if (winText) winText.style.opacity = "1";
+        if (winnerAvatars) winnerAvatars.style.opacity = "1";
+        if (winnerSprite) winnerSprite.style.opacity = "1";
+
+        // fireworks pulse
+        if (fireworks) {
+            fireworks.animate([{ opacity: 0.0 }, { opacity: 0.85 }, { opacity: 0.25 }], {
+                duration: 1200,
+                iterations: 999,
+                easing: "ease-in-out",
+            });
+        }
+
+        // start sprite
+        startKevinSprite();
+
+        // little final flash
+        flashOnce(110);
+
+        // done
+    }
+
+    async function slowFlipSuspense(ms) {
+        const start = performance.now();
+        return new Promise((resolve) => {
+            const tick = () => {
+                if (!finalRunning) return resolve();
+                const t = performance.now() - start;
+                if (t >= ms) return resolve();
+
+                // subtle digit jitter without changing magnitude much:
+                // keep first 2 digits stable, randomize last 3
+                const base = 1700000;
+                const jitter = Math.floor(Math.random() * 900);
+                setCounter(countKevin, base + jitter, 7);
+                setCounter(countBandits, base + (900 - jitter), 7);
+
+                window.setTimeout(tick, 140 + Math.random() * 120);
+            };
+            tick();
+        });
+    }
+
+    function wait(ms) {
+        return new Promise((r) => window.setTimeout(r, ms));
+    }
 
     // ====== BOOT ======
     (async() => {

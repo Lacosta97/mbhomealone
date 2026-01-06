@@ -51,12 +51,61 @@
 
         <!-- RESULTS OVERLAY -->
         <section class="results" id="results" aria-hidden="true">
-            <button class="btn results__close" id="btnResultsClose">CLOSE</button>
+            <button class="btn results__close" id="btnResultsClose" type="button">CLOSE</button>
 
-            <div class="results__stage">
-                <div class="results__placeholder">
-                    RESULTS STAGE
+            <!-- iPhone SE canvas inside fullscreen overlay (CSS controls sizing) -->
+            <div class="results__stage" id="resultsStage">
+
+                <!-- ===== MBHA FINAL SCENE (layout only; animation/logic later in JS) ===== -->
+                <div class="rs" id="rsRoot" aria-hidden="true">
+
+                    <!-- Deer heads (swap closed/open in JS) -->
+                    <div class="rs__deer rs__deer--left" id="deerLeft" data-closed="./img/final/deer-left-closed.png" data-open="./img/final/deer-left-open.png" style="background-image:url('./img/final/deer-left-closed.png');"></div>
+
+                    <div class="rs__deer rs__deer--right" id="deerRight" data-closed="./img/final/deer-right-closed.png" data-open="./img/final/deer-right-open.png" style="background-image:url('./img/final/deer-right-closed.png');"></div>
+
+                    <!-- Coins layer (JS will spawn coins here) -->
+                    <div class="rs__coins" id="coinsLayer"></div>
+
+                    <!-- Cauldron -->
+                    <div class="rs__cauldron" id="cauldron" style="background-image:url('./img/final/cauldron.png');"></div>
+
+                    <!-- Pipes (two-frame toggle a/b in JS) -->
+                    <div class="rs__pipe rs__pipe--left" id="pipeLeft" data-a="./img/final/pipe-left-a.png" data-b="./img/final/pipe-left-b.png" style="background-image:url('./img/final/pipe-left-a.png');"></div>
+
+                    <div class="rs__pipe rs__pipe--right" id="pipeRight" data-a="./img/final/pipe-right-a.png" data-b="./img/final/pipe-right-b.png" style="background-image:url('./img/final/pipe-right-a.png');"></div>
+
+                    <!-- Bottles + counters (text counters; JS animates digits) -->
+                    <div class="rs__bottles" id="bottles">
+                        <div class="rs__bottle rs__bottle--kevin" id="bottleKevin" style="background-image:url('./img/final/bottle-green.png');">
+                            <div class="rs__label">KEVIN</div>
+                            <div class="rs__counter" id="countKevin">0000000</div>
+                        </div>
+
+                        <div class="rs__bottle rs__bottle--bandits" id="bottleBandits" style="background-image:url('./img/final/bottle-red.png');">
+                            <div class="rs__label">BANDITS</div>
+                            <div class="rs__counter" id="countBandits">0000000</div>
+                        </div>
+                    </div>
+
+                    <!-- Winner finale layer -->
+                    <div class="rs__winner" id="winnerLayer" aria-hidden="true">
+                        <div class="rs__fireworks" id="fireworks" style="background-image:url('./img/final/firework.png');"></div>
+
+                        <!-- Kevin sprite sheet (JS will animate background-position) -->
+                        <div class="rs__sprite rs__sprite--kevin" id="winnerSprite" style="background-image:url('./img/final/kevin-sprite.png');"></div>
+
+                        <div class="rs__winText" id="winText">TEAM KEVIN WIN</div>
+
+                        <!-- Winner avatars (JS will inject 7 avatars from ../img/avatars/CODE.png) -->
+                        <div class="rs__avatars" id="winnerAvatars"></div>
+                    </div>
+
+                    <!-- Fullscreen flash for impact moments -->
+                    <div class="rs__flash" id="flash"></div>
                 </div>
+                <!-- ===== /MBHA FINAL SCENE ===== -->
+
             </div>
         </section>
 
