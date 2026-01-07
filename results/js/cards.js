@@ -98,6 +98,8 @@
     // ====== NEW: bottle fill state (0..1) ======
     let fillKevin = 0;
     let fillBandits = 0;
+    let fillMaxKevin = 1;
+    let fillMaxBandits = 1;
 
     // ====== Anti-zoom (Safari) ======
     document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
@@ -607,6 +609,8 @@
     function resetBottleFill() {
         fillKevin = 0;
         fillBandits = 0;
+        fillMaxKevin = 1;
+        fillMaxBandits = 1;
         setBottleFill(bottleKevin, 0);
         setBottleFill(bottleBandits, 0);
     }
@@ -645,6 +649,9 @@
 
         // clear coins
         if (coinsLayer) coinsLayer.innerHTML = "";
+
+        // reset bottle fill
+        resetBottleFill();
 
         // reset counters
         setCounter(countKevin, 0, 7);
@@ -686,6 +693,10 @@
         // Force Kevin as winner (as requested)
         const targetKevin = Math.max(0, totals.kevin || 0);
         const targetBandits = Math.max(0, totals.bandits || 0);
+
+        // bottle fill scales relative to final totals
+        fillMaxKevin = Math.max(1, targetKevin);
+        fillMaxBandits = Math.max(1, targetBandits);
 
         // Run timeline
         timelineKevinWins(targetKevin, targetBandits).catch(() => {
@@ -746,6 +757,16 @@
         if (!el) return;
         const v = Math.max(0, Math.floor(value));
         el.textContent = String(v).padStart(digits, "0");
+
+        // NEW: bottle fill follows counters (0..1), only in final scene
+        if (!finalRunning) return;
+        if (el === countKevin) {
+            fillKevin = v;
+            setBottleFill(bottleKevin, v / Math.max(1, fillMaxKevin));
+        } else if (el === countBandits) {
+            fillBandits = v;
+            setBottleFill(bottleBandits, v / Math.max(1, fillMaxBandits));
+        }
     }
 
     function setBgFromData(el, which) {
