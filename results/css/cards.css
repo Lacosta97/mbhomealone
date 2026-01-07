@@ -13,20 +13,20 @@
     --rs-pad: 18px;
     /* ===== FINAL SCENE TWEAKS (cosmetic) =====
        Если захочешь потом микроподгонку — меняем только эти значения. */
-    --deer-in-x: 220px;
+    --deer-in-x: 243px;
     /* = ширина оленя + 10px (въезд ровно к краям) */
-    --cauldron-bottom: 350px;
+    --cauldron-bottom: 380px;
     /* подняли казан на +100px */
     /* было 210px -> выше */
-    --pipes-bottom: 212px;
+    --pipes-bottom: 260px;
     /* опустили трубы на -50px */
     /* подогнано под новый казан */
     /* Поворот труб (верхние точки к казану) */
     --pipe-rot-left: 45deg;
     --pipe-rot-right: -45deg;
     /* Микросдвиг труб (если нужно руками в DevTools) */
-    --pipe-left-x: 4px;
-    --pipe-right-x: -4px;
+    --pipe-left-x: 20px;
+    --pipe-right-x: 20px;
     --pipe-y: 0px;
 }
 
@@ -669,6 +669,8 @@ body.mbha-cards {
     background: center/contain no-repeat;
     filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .7));
     opacity: 0;
+    z-index: 6;
+    /* cauldron above pipes */
 }
 
 
@@ -684,6 +686,7 @@ body.mbha-cards {
     opacity: 0;
     /* Важное: крутим так, чтобы "верхний конец" смотрел к казану */
     transform-origin: 50% 18%;
+    z-index: 5;
 }
 
 .rs__pipe--left {
@@ -703,12 +706,14 @@ body.mbha-cards {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 54px;
+    bottom: 70px;
+    /* FIXED */
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     padding: 0 22px;
     opacity: 0;
+    z-index: 7;
 }
 
 .rs__bottle {
@@ -716,8 +721,8 @@ body.mbha-cards {
     height: 250px;
     position: relative;
     background: center/contain no-repeat;
-    transform: scale(1.84);
-    /* бутылки x2 */
+    transform: scale(0.9);
+    /* FIXED */
     filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .75));
 }
 
