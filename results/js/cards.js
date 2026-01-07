@@ -27,6 +27,18 @@
     const STORAGE_KEY = "mbha_cards_opened_v2";
     const LIMIT = 18;
 
+
+
+    // ====== TUNE MODE (stop final scene after deer slide-in) ======
+    const TUNE_MODE = (() => {
+        try { return new URL(window.location.href).searchParams.get("tune") === "1"; } catch { return false; }
+    })();
+
+    function cssVarPx(name, fallback = 0) {
+        const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        const n = parseFloat(v);
+        return Number.isFinite(n) ? n : fallback;
+    }
     // ====== DOM ======
     const track = document.getElementById("track");
     const fxLayer = document.getElementById("fxLayer");
@@ -866,8 +878,8 @@
     }
 
     function getDeerInX() {
-        // match CSS (-220px base). If you change CSS offsets, change here too.
-        return 220;
+        // keep in sync with CSS var --deer-in-x (px)
+        return cssVarPx("--deer-in-x", 220);
     }
 
     async function timelineKevinWins(targetKevin, targetBandits) {
@@ -900,6 +912,27 @@
         // Phase 1.5: остановились (пауза)
         await wait(420);
 
+
+
+        // ✅ TUNE MODE: freeze here so you can tweak positions in DevTools
+        if (TUNE_MODE) {
+            // lock deer at the final position (in case browser drops animation state)
+            deerLeft.style.transform = `translateX(${deerInX}px)`;
+            deerRight.style.transform = `translateX(-${deerInX}px)`;
+
+            // keep mouths closed
+            setBgFromData(deerLeft, "closed");
+            setBgFromData(deerRight, "closed");
+
+            // show all major elements for composition tuning
+            if (cauldron) cauldron.style.opacity = "1";
+            if (pipeLeft) pipeLeft.style.opacity = "1";
+            if (pipeRight) pipeRight.style.opacity = "1";
+            if (bottles) bottles.style.opacity = "1";
+
+            // IMPORTANT: do not start coins/pipes/counters in tune mode
+            return;
+        }
         // Phase 2: mouths open, THEN coins
         setBgFromData(deerLeft, "open");
         setBgFromData(deerRight, "open");
