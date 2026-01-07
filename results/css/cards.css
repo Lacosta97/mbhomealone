@@ -15,9 +15,11 @@
        Если захочешь потом микроподгонку — меняем только эти значения. */
     --deer-in-x: 220px;
     /* = ширина оленя + 10px (въезд ровно к краям) */
-    --cauldron-bottom: 250px;
+    --cauldron-bottom: 350px;
+    /* подняли казан на +100px */
     /* было 210px -> выше */
-    --pipes-bottom: 262px;
+    --pipes-bottom: 212px;
+    /* опустили трубы на -50px */
     /* подогнано под новый казан */
     /* Поворот труб (верхние точки к казану) */
     --pipe-rot-left: 45deg;
@@ -714,8 +716,69 @@ body.mbha-cards {
     height: 250px;
     position: relative;
     background: center/contain no-repeat;
-    transform: scale(.92);
+    transform: scale(1.84);
+    /* бутылки x2 */
     filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .75));
+}
+
+
+/* ===============================
+   BOTTLE FILL (coins inside bottle)
+   JS will set: bottle.style.setProperty('--fill', '0..1')
+================================ */
+
+.rs__bottle {
+    --fill: 0;
+    /* 0..1 */
+}
+
+.rs__bottle::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.95;
+    /* coin pattern */
+    background-image: url("./img/final/coin.png");
+    background-repeat: repeat;
+    background-size: 34px 34px;
+    /* start from bottom */
+    transform-origin: bottom center;
+    transform: scaleY(var(--fill));
+    /* keep inside bottle silhouette */
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    mask-position: center;
+    z-index: 2;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .55));
+}
+
+.rs__bottle--kevin::before {
+    -webkit-mask-image: url("./img/final/bottle-green.png");
+    mask-image: url("./img/final/bottle-green.png");
+}
+
+.rs__bottle--bandits::before {
+    -webkit-mask-image: url("./img/final/bottle-red.png");
+    mask-image: url("./img/final/bottle-red.png");
+}
+
+
+/* keep bottle art above fill */
+
+.rs__bottle::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    /* uses the same bottle image */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    z-index: 4;
+    pointer-events: none;
 }
 
 
