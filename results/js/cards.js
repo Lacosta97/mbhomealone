@@ -400,7 +400,7 @@
     }
 
     function updateMode() {
-        if (btnResults) btnResults.hidden = !isAllOpened();
+        if (btnResults) btnResults.hidden = false; // TEMP: always active (we will вернуть обратно позже)
         const all = isAllOpened();
         if (btnRoll) btnRoll.hidden = all;
         if (nav) nav.hidden = !all;
@@ -835,7 +835,7 @@
     }
 
     // ====== NEW: Outro (after red bottle disappears) ======
-    async function playFinalOutro() {
+    async function playFinalOutro(deerInLeftX, deerInRightX) {
         if (!finalRunning) return;
 
         // close mouths first
@@ -863,10 +863,10 @@
         // deer go back out
         const outDur = 900;
         deerLeft.animate(
-            [{ transform: `translateX(${getDeerInX()}px)` }, { transform: "translateX(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [{ transform: `translateX(${deerInLeftX}px)` }, { transform: "translateX(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
         deerRight.animate(
-            [{ transform: `translateX(-${getDeerInX()}px)` }, { transform: "translateX(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [{ transform: `translateX(${deerInRightX}px)` }, { transform: "translateX(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
 
         await wait(Math.max(dropDur, outDur));
@@ -877,9 +877,14 @@
         pipeRight.style.opacity = "0";
     }
 
-    function getDeerInX() {
-        // keep in sync with CSS var --deer-in-x (px)
-        return cssVarPx("--deer-in-x", 220);
+    function getDeerEdgeInX() {
+        const leftRaw = getComputedStyle(deerLeft).left;
+        const rightRaw = getComputedStyle(deerRight).right;
+        const left = Number.isFinite(parseFloat(leftRaw)) ? parseFloat(leftRaw) : -220;
+        const right = Number.isFinite(parseFloat(rightRaw)) ? parseFloat(rightRaw) : -220;
+        const inLeftX = -left; // left: -220 -> +220
+        const inRightX = right; // right: -220 -> -220 (move left)
+        return { inLeftX, inRightX };
     }
 
     async function timelineKevinWins(targetKevin, targetBandits) {
@@ -897,14 +902,16 @@
         setBgFromData(deerLeft, "closed");
         setBgFromData(deerRight, "closed");
 
-        const deerInX = getDeerInX();
+        const deerEdge = getDeerEdgeInX();
+        const deerInLeftX = deerEdge.inLeftX;
+        const deerInRightX = deerEdge.inRightX;
         const deerInDur = 1450;
 
         deerLeft.animate(
-            [{ transform: "translateX(0px)" }, { transform: `translateX(${deerInX}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [{ transform: "translateX(0px)" }, { transform: `translateX(${deerInLeftX}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
         deerRight.animate(
-            [{ transform: "translateX(0px)" }, { transform: `translateX(-${deerInX}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [{ transform: "translateX(0px)" }, { transform: `translateX(${deerInRightX}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
 
         await wait(deerInDur + 160);
@@ -917,8 +924,8 @@
         // ✅ TUNE MODE: freeze here so you can tweak positions in DevTools
         if (TUNE_MODE) {
             // lock deer at the final position (in case browser drops animation state)
-            deerLeft.style.transform = `translateX(${deerInX}px)`;
-            deerRight.style.transform = `translateX(-${deerInX}px)`;
+            deerLeft.style.transform = `translateX(${deerInLeftX}px)`;
+            deerRight.style.transform = `translateX(${deerInRightX}px)`;
 
             // keep mouths closed
             setBgFromData(deerLeft, "closed");
@@ -1030,7 +1037,7 @@
         await wait(520);
 
         // NOW: pipes+cauldron fall away, deer close and exit
-        await playFinalOutro();
+        await playFinalOutro(deerInLeftX, deerInRightX);
 
         // Phase 7: winner reveal (Kevin) (can stay after outro if you want)
         // (оставил как было — но если хочешь, мы потом подвинем по драме)
