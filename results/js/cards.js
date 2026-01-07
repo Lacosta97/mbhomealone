@@ -835,7 +835,7 @@
     }
 
     // ====== NEW: Outro (after red bottle disappears) ======
-    async function playFinalOutro(deerInLeftX, deerInRightX) {
+    async function playFinalOutro(deerInLeftX, deerInRightX, deerInY) {
         if (!finalRunning) return;
 
         // close mouths first
@@ -863,10 +863,10 @@
         // deer go back out
         const outDur = 900;
         deerLeft.animate(
-            [{ transform: `translateX(${deerInLeftX}px)` }, { transform: "translateX(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [{ transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` }, { transform: "translateX(0px) translateY(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
         deerRight.animate(
-            [{ transform: `translateX(${deerInRightX}px)` }, { transform: "translateX(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [{ transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` }, { transform: "translateX(0px) translateY(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
 
         await wait(Math.max(dropDur, outDur));
@@ -881,7 +881,7 @@
         const OFFSET = -25; // FINAL TUNE: deer stop 25px before edge
         const LEFT_NUDGE = -10; // move LEFT deer total -10px
         const RIGHT_NUDGE = 35; // move RIGHT deer total +35px
-        const DEER_Y_NUDGE = -15; // lift deer up by 15px // move RIGHT deer 30px to the right from current
+        const DEER_Y_NUDGE = -15; // lift deer up by 15px
 
         const leftRaw = getComputedStyle(deerLeft).left;
         const rightRaw = getComputedStyle(deerRight).right;
@@ -889,7 +889,8 @@
         const right = Number.isFinite(parseFloat(rightRaw)) ? parseFloat(rightRaw) : -220;
         const inLeftX = -left + OFFSET + LEFT_NUDGE;
         const inRightX = right + OFFSET + RIGHT_NUDGE;
-        return { inLeftX, inRightX };
+        const inY = DEER_Y_NUDGE;
+        return { inLeftX, inRightX, inY };
     }
 
     async function timelineKevinWins(targetKevin, targetBandits) {
@@ -910,13 +911,14 @@
         const deerEdge = getDeerEdgeInX();
         const deerInLeftX = deerEdge.inLeftX;
         const deerInRightX = deerEdge.inRightX;
+        const deerInY = deerEdge.inY;
         const deerInDur = 1450;
 
         deerLeft.animate(
-            [{ transform: "translateX(0px)" }, { transform: `translateX(${deerInLeftX}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [{ transform: "translateX(0px) translateY(0px)" }, { transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
         deerRight.animate(
-            [{ transform: "translateX(0px)" }, { transform: `translateX(${deerInRightX}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [{ transform: "translateX(0px) translateY(0px)" }, { transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
 
         await wait(deerInDur + 160);
@@ -929,8 +931,8 @@
         // ✅ TUNE MODE: freeze here so you can tweak positions in DevTools
         if (TUNE_MODE) {
             // lock deer at the final position (in case browser drops animation state)
-            deerLeft.style.transform = `translateX(${deerInLeftX}px)`;
-            deerRight.style.transform = `translateX(${deerInRightX}px)`;
+            deerLeft.style.transform = `translateX(${deerInLeftX}px) translateY(${deerInY}px)`;
+            deerRight.style.transform = `translateX(${deerInRightX}px) translateY(${deerInY}px)`;
 
             // keep mouths closed
             setBgFromData(deerLeft, "closed");
@@ -1042,7 +1044,7 @@
         await wait(520);
 
         // NOW: pipes+cauldron fall away, deer close and exit
-        await playFinalOutro(deerInLeftX, deerInRightX);
+        await playFinalOutro(deerInLeftX, deerInRightX, deerInY);
 
         // Phase 7: winner reveal (Kevin) (can stay after outro if you want)
         // (оставил как было — но если хочешь, мы потом подвинем по драме)
