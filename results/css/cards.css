@@ -15,7 +15,7 @@
        Если захочешь потом микроподгонку — меняем только эти значения. */
     --deer-in-x: 243px;
     /* = ширина оленя + 10px (въезд ровно к краям) */
-    --cauldron-bottom: 380px;
+    --cauldron-bottom: 330px;
     /* подняли казан на +100px */
     /* было 210px -> выше */
     --pipes-bottom: 260px;
@@ -28,6 +28,18 @@
     --pipe-left-x: 20px;
     --pipe-right-x: 20px;
     --pipe-y: 0px;
+    /* Bottles + text tuning (FINAL) */
+    --bottle-scale: 1.4;
+    --bottle-x-kevin: -7px;
+    --bottle-x-bandits: 7px;
+    /* keep text size stable even when bottle is scaled (1/1.4) */
+    --bottle-text-scale: 0.7142857;
+    /* Labels + counters tuning (FINAL) */
+    --label-dy: 220px;
+    --counter-dy: -20px;
+    /* Team neon colors */
+    --neon-kevin: #39ff14;
+    --neon-bandits: #ff2a2a;
 }
 
 * {
@@ -721,9 +733,20 @@ body.mbha-cards {
     height: 250px;
     position: relative;
     background: center/contain no-repeat;
-    transform: scale(0.9);
+    transform: scale(var(--bottle-scale));
     /* FIXED */
     filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .75));
+}
+
+
+/* FINAL: bottle horizontal offsets */
+
+.rs__bottle--kevin {
+    transform: translateX(var(--bottle-x-kevin)) scale(var(--bottle-scale));
+}
+
+.rs__bottle--bandits {
+    transform: translateX(var(--bottle-x-bandits)) scale(var(--bottle-scale));
 }
 
 
@@ -793,7 +816,7 @@ body.mbha-cards {
     position: absolute;
     left: 50%;
     bottom: 262px;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(var(--label-dy)) scale(var(--bottle-text-scale));
     font-size: 16px;
     letter-spacing: .14em;
     color: rgba(229, 231, 235, .95);
@@ -808,10 +831,10 @@ body.mbha-cards {
     position: absolute;
     left: 50%;
     bottom: -6px;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(var(--counter-dy)) scale(var(--bottle-text-scale));
     width: 156px;
     text-align: center;
-    font-size: 26px;
+    font-size: 22px;
     letter-spacing: .18em;
     color: rgba(229, 231, 235, .98);
     text-shadow: 0 0 14px rgba(255, 255, 255, .25);
@@ -916,4 +939,19 @@ body.mbha-cards {
 .rs.show-winner .rs__winText,
 .rs.show-winner .rs__avatars {
     opacity: 1;
+}
+
+
+/* FINAL: team neon colors (labels + counters) */
+
+.rs__bottle--kevin .rs__label,
+.rs__bottle--kevin .rs__counter {
+    color: var(--neon-kevin);
+    text-shadow: 0 0 12px var(--neon-kevin), 0 0 24px var(--neon-kevin);
+}
+
+.rs__bottle--bandits .rs__label,
+.rs__bottle--bandits .rs__counter {
+    color: var(--neon-bandits);
+    text-shadow: 0 0 12px var(--neon-bandits), 0 0 24px var(--neon-bandits);
 }
