@@ -878,12 +878,14 @@
     }
 
     function getDeerEdgeInX() {
+        const OFFSET = -25; // FINAL TUNE: deer stop 25px before edge
+
         const leftRaw = getComputedStyle(deerLeft).left;
         const rightRaw = getComputedStyle(deerRight).right;
         const left = Number.isFinite(parseFloat(leftRaw)) ? parseFloat(leftRaw) : -220;
         const right = Number.isFinite(parseFloat(rightRaw)) ? parseFloat(rightRaw) : -220;
-        const inLeftX = -left; // left: -220 -> +220
-        const inRightX = right; // right: -220 -> -220 (move left)
+        const inLeftX = -left + OFFSET; // left edge minus 25px
+        const inRightX = right + OFFSET; // right edge minus 25px
         return { inLeftX, inRightX };
     }
 
