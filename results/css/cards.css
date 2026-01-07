@@ -766,7 +766,7 @@ body.mbha-cards {
     inset: 0;
     opacity: 0.95;
     /* coin pattern */
-    background-image: url("./img/final/coin.png");
+    background-image: url("../img/final/coin.png");
     background-repeat: repeat;
     background-size: 34px 34px;
     /* start from bottom */
@@ -784,13 +784,13 @@ body.mbha-cards {
 }
 
 .rs__bottle--kevin::before {
-    -webkit-mask-image: url("./img/final/bottle-green.png");
-    mask-image: url("./img/final/bottle-green.png");
+    -webkit-mask-image: url("../img/final/bottle-green.png");
+    mask-image: url("../img/final/bottle-green.png");
 }
 
 .rs__bottle--bandits::before {
-    -webkit-mask-image: url("./img/final/bottle-red.png");
-    mask-image: url("./img/final/bottle-red.png");
+    -webkit-mask-image: url("../img/final/bottle-red.png");
+    mask-image: url("../img/final/bottle-red.png");
 }
 
 

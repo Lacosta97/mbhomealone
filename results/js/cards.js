@@ -95,6 +95,10 @@
     let chaosTimer = null;
     let spriteTimer = null;
 
+    // ====== NEW: bottle fill state (0..1) ======
+    let fillKevin = 0;
+    let fillBandits = 0;
+
     // ====== Anti-zoom (Safari) ======
     document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
     document.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
@@ -588,6 +592,25 @@
         spriteTimer = null;
     }
 
+    // ====== NEW: bottle fill helpers ======
+    function clamp01(x) {
+        const n = Number(x);
+        if (!Number.isFinite(n)) return 0;
+        return Math.max(0, Math.min(1, n));
+    }
+
+    function setBottleFill(bottleEl, fill01) {
+        if (!bottleEl) return;
+        bottleEl.style.setProperty("--fill", String(clamp01(fill01)));
+    }
+
+    function resetBottleFill() {
+        fillKevin = 0;
+        fillBandits = 0;
+        setBottleFill(bottleKevin, 0);
+        setBottleFill(bottleBandits, 0);
+    }
+
     function stopFinalScene() {
         finalRunning = false;
         clearTimers();
@@ -627,6 +650,9 @@
         setCounter(countKevin, 0, 7);
         setCounter(countBandits, 0, 7);
 
+        // reset bottle fill
+        resetBottleFill();
+
         // reset pipes/deer frames to "closed"/"a"
         setBgFromData(deerLeft, "closed");
         setBgFromData(deerRight, "closed");
@@ -648,6 +674,9 @@
 
         // make sure root is visible
         rsRoot.classList.add("is-on");
+
+        // reset bottle fill at the beginning
+        resetBottleFill();
 
         // prepare avatars (Kevin winners)
         renderWinnerAvatars();
@@ -786,7 +815,7 @@
         chaosTimer = null;
     }
 
-    async function animateCountTo(el, from, to, duration, digits = 7, easing = (t) => t) {
+    async function animateCountTo(el, from, to, duration, digits = 7, easing = (t) => t, fillBottleEl = null, fillMax = 1) {
         const start = performance.now();
         setCounter(el, from, digits);
 
@@ -796,6 +825,13 @@
                 const t = Math.min(1, (now - start) / Math.max(1, duration));
                 const v = Math.round(from + (to - from) * easing(t));
                 setCounter(el, v, digits);
+
+                // NEW: fill bottles with coin pattern (0..1)
+                if (fillBottleEl) {
+                    const ratio = fillMax > 0 ? (v / fillMax) : 0;
+                    setBottleFill(fillBottleEl, ratio);
+                }
+
                 if (t >= 1) return resolve();
                 requestAnimationFrame(step);
             };
@@ -841,6 +877,10 @@
         // close mouths first
         setBgFromData(deerLeft, "closed");
         setBgFromData(deerRight, "closed");
+
+        // stop coins EXACTLY when mouths close (requested)
+        if (coinTimer) window.clearInterval(coinTimer);
+        coinTimer = null;
 
         // drop cauldron + pipes
         const dropDur = 650;
@@ -970,6 +1010,7 @@
         const toX2 = caulCenter.x + 18;
         const toY = caulCenter.y - 28;
 
+        // coins run UNTIL mouths close (requested)
         coinTimer = window.setInterval(() => {
             if (!finalRunning) return;
             const leftC = rectCenterIn(deerLeft, rsRoot);
@@ -985,15 +1026,19 @@
             // diagonal streams
             spawnCoin(fromLeftX, fromLeftY, toX1, toY, 900);
             spawnCoin(fromRightX, fromRightY, toX2, toY, 900);
+
+            // NEW: while coins stream, slowly fill both bottles (visual)
+            fillKevin = Math.min(0.28, fillKevin + 0.004);
+            fillBandits = Math.min(0.28, fillBandits + 0.004);
+            setBottleFill(bottleKevin, fillKevin);
+            setBottleFill(bottleBandits, fillBandits);
         }, 155);
 
-        // Phase 3: show chaos counters (coins keep going a bit, then stop but mouths stay open)
+        // Phase 3: show chaos counters (coins keep going; mouths stay open)
         await wait(900);
         startChaosCounters();
 
-        await wait(1700);
-        if (coinTimer) window.clearInterval(coinTimer);
-        coinTimer = null;
+        // keep coins running; no stop here anymore
 
         // Phase 4: glitch / shake 3 sec + impact
         rsRoot.classList.add("is-shake");
@@ -1006,19 +1051,23 @@
         setCounter(countKevin, 0, 7);
         setCounter(countBandits, 0, 7);
 
+        // NEW: after reset to 0, keep early fill (don’t drop)
+        setBottleFill(bottleKevin, fillKevin);
+        setBottleFill(bottleBandits, fillBandits);
+
         await wait(250);
 
-        // Phase 5: count both up to intrigue value
+        // Phase 5: count both up to intrigue value (+ fill bottles to this level)
         const intrigue = 1700000;
         const bothTarget = intrigue;
         await Promise.all([
-            animateCountTo(countKevin, 0, bothTarget, 2600, 7, easeInOutQuad),
-            animateCountTo(countBandits, 0, bothTarget, 2600, 7, easeInOutQuad),
+            animateCountTo(countKevin, 0, bothTarget, 2600, 7, easeInOutQuad, bottleKevin, bothTarget),
+            animateCountTo(countBandits, 0, bothTarget, 2600, 7, easeInOutQuad, bottleBandits, bothTarget),
         ]);
 
-        await slowFlipSuspense(5000);
+        await slowFlipSuspense(5000, bothTarget);
 
-        // Phase 6: Kevin accelerates to final, Bandits starts blinking then "breaks"
+        // Phase 6: Kevin accelerates to final, Bandits starts blinking then "breaks" (+ fill follows)
         const finalK = Math.max(targetKevin, intrigue + 1);
         const finalB = Math.min(targetBandits, finalK - 1);
 
@@ -1026,8 +1075,8 @@
             [{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 240, iterations: 10 }
         );
 
-        const countK = animateCountTo(countKevin, intrigue, finalK, 2600, 7, easeOutCubic);
-        const countB = animateCountTo(countBandits, intrigue, finalB, 900, 7, easeOutCubic);
+        const countK = animateCountTo(countKevin, intrigue, finalK, 2600, 7, easeOutCubic, bottleKevin, finalK);
+        const countB = animateCountTo(countBandits, intrigue, finalB, 900, 7, easeOutCubic, bottleBandits, finalK);
 
         await Promise.all([countK, countB]);
 
@@ -1043,7 +1092,7 @@
 
         await wait(520);
 
-        // NOW: pipes+cauldron fall away, deer close and exit
+        // NOW: pipes+cauldron fall away, deer close and exit (coins stop inside playFinalOutro)
         await playFinalOutro(deerInLeftX, deerInRightX, deerInY);
 
         // Phase 7: winner reveal (Kevin) (can stay after outro if you want)
@@ -1066,7 +1115,7 @@
         flashOnce(110);
     }
 
-    async function slowFlipSuspense(ms) {
+    async function slowFlipSuspense(ms, fillMax = 1) {
         const start = performance.now();
         return new Promise((resolve) => {
             const tick = () => {
@@ -1076,8 +1125,16 @@
 
                 const base = 1700000;
                 const jitter = Math.floor(Math.random() * 900);
-                setCounter(countKevin, base + jitter, 7);
-                setCounter(countBandits, base + (900 - jitter), 7);
+                const vK = base + jitter;
+                const vB = base + (900 - jitter);
+                setCounter(countKevin, vK, 7);
+                setCounter(countBandits, vB, 7);
+
+                // NEW: keep fill “alive” during suspense
+                if (fillMax > 0) {
+                    setBottleFill(bottleKevin, vK / fillMax);
+                    setBottleFill(bottleBandits, vB / fillMax);
+                }
 
                 window.setTimeout(tick, 140 + Math.random() * 120);
             };
