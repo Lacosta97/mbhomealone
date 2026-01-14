@@ -1,4 +1,4 @@
-/* MBHA Cards — FINAL CLEAN (with RESULTS Final Scene layout + BOXES + DYNAMITE) */
+/* MBHA Cards — FINAL CLEAN (RESULTS: boxes + dynamite + winner) */
 
 :root {
     --bg0: #020617;
@@ -11,7 +11,7 @@
     --gap: 125px;
     /* RESULTS scene helpers */
     --rs-pad: 18px;
-    /* FINAL SCENE TWEAKS (cosmetic) */
+    /* FINAL SCENE TWEAKS */
     --deer-in-x: 243px;
     --cauldron-bottom: 330px;
     --pipes-bottom: 260px;
@@ -20,15 +20,13 @@
     --pipe-left-x: 20px;
     --pipe-right-x: 20px;
     --pipe-y: 0px;
-    /* Boxes scale + offsets (used by bottles container) */
-    --box-scale: 1.25;
-    --box-x-kevin: -7px;
-    --box-x-bandits: 7px;
-    /* keep text size stable when scale changes */
-    --bottle-text-scale: 0.7142857;
-    /* Labels + counters tuning */
-    --label-dy: 220px;
-    --counter-dy: -20px;
+    /* Boxes */
+    --box-scale: 1.0;
+    --box-x-kevin: -6px;
+    --box-x-bandits: 6px;
+    /* Labels + counters */
+    --label-dy: 0px;
+    --counter-dy: 0px;
     /* Team neon colors */
     --neon-kevin: #39ff14;
     --neon-bandits: #ff2a2a;
@@ -65,7 +63,7 @@ body.mbha-cards {
 }
 
 
-/* iPhone SE stage */
+/* iPhone SE stage (desktop looks like SE) */
 
 .stage {
     width: 375px;
@@ -78,11 +76,11 @@ body.mbha-cards {
     justify-content: center;
 }
 
-@media (max-width:390px),
-(max-height:690px) {
+@media (max-width: 390px),
+(max-height: 690px) {
     .stage {
         transform-origin: top center;
-        transform: scale(min(calc(100vw/375), calc(100vh/667)))
+        transform: scale(min(calc(100vw / 375), calc(100vh / 667)));
     }
 }
 
@@ -107,7 +105,7 @@ body.mbha-cards {
 }
 
 .status.is-on {
-    display: flex
+    display: flex;
 }
 
 .loader {
@@ -121,7 +119,7 @@ body.mbha-cards {
 
 @keyframes spin {
     to {
-        transform: rotate(360deg)
+        transform: rotate(360deg);
     }
 }
 
@@ -133,7 +131,7 @@ body.mbha-cards {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px
+    gap: 14px;
 }
 
 .wheel-viewport {
@@ -148,7 +146,7 @@ body.mbha-cards {
 
 .wheel-track {
     position: absolute;
-    inset: 0
+    inset: 0;
 }
 
 .center-mark {
@@ -191,36 +189,36 @@ body.mbha-cards {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
-    transition: transform 720ms cubic-bezier(.2, .9, .2, 1)
+    transition: transform 720ms cubic-bezier(.2, .9, .2, 1);
 }
 
 .card.is-open .card__inner {
-    transform: rotateY(180deg)
+    transform: rotateY(180deg);
 }
 
 
 /* During roll animate INNER */
 
 .wheel-track.is-rolling .card__inner {
-    animation: innerShuffle 180ms ease-in-out infinite
+    animation: innerShuffle 180ms ease-in-out infinite;
 }
 
 .wheel-track.is-rolling .card.is-active .card__inner {
-    animation-duration: 140ms
+    animation-duration: 140ms;
 }
 
 @keyframes innerShuffle {
     0% {
-        transform: translateZ(0) rotate(-1.2deg) scale(.995);
-        filter: blur(.2px)
+        transform: translateZ(0) rotate(-1.2deg) scale(0.995);
+        filter: blur(.2px);
     }
     50% {
         transform: translateZ(0) rotate(1.4deg) scale(1.01);
-        filter: blur(0)
+        filter: blur(0px);
     }
     100% {
-        transform: translateZ(0) rotate(-1.2deg) scale(.995);
-        filter: blur(.2px)
+        transform: translateZ(0) rotate(-1.2deg) scale(0.995);
+        filter: blur(.2px);
     }
 }
 
@@ -235,12 +233,12 @@ body.mbha-cards {
 }
 
 .face.back {
-    background: url("../img/cards/card-back.png") center/100% 100% no-repeat
+    background: url("../img/cards/card-back.png") center/100% 100% no-repeat;
 }
 
 .face.front {
     transform: rotateY(180deg);
-    background: rgba(255, 255, 255, .02)
+    background: rgba(255, 255, 255, .02);
 }
 
 .front__img {
@@ -265,7 +263,7 @@ body.mbha-cards {
 
 .front__meta,
 .name {
-    display: none!important
+    display: none !important;
 }
 
 
@@ -287,7 +285,7 @@ body.mbha-cards {
 
 .card.is-active {
     isolation: isolate;
-    z-index: 1200
+    z-index: 1200;
 }
 
 .card.is-active::before {
@@ -315,13 +313,13 @@ body.mbha-cards {
 }
 
 
-/* Info — DARK readable */
+/* Info */
 
 .info {
     width: 100%;
     padding: 12px 14px;
     border-radius: 18px;
-    background: rgba(6, 10, 20, .88);
+    background: rgba(6, 10, 20, 0.88);
     border: 1px solid rgba(255, 255, 255, .10);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -334,17 +332,14 @@ body.mbha-cards {
 
 .info.is-on {
     opacity: 1;
-    transform: translateY(0)
+    transform: translateY(0);
 }
 
 .info__name {
     font-size: 18px;
     letter-spacing: .06em;
-    text-transform: uppercase
+    text-transform: uppercase;
 }
-
-
-/* PA + ABOUT */
 
 .info__pa {
     margin-top: 6px;
@@ -366,21 +361,18 @@ body.mbha-cards {
     padding-right: 6px;
 }
 
-
-/* slim scrollbar */
-
 .info__about::-webkit-scrollbar {
-    width: 4px
+    width: 4px;
 }
 
 .info__about::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, .22);
-    border-radius: 6px
+    border-radius: 6px;
 }
 
 .info__about::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, .06);
-    border-radius: 6px
+    border-radius: 6px;
 }
 
 
@@ -391,7 +383,7 @@ body.mbha-cards {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    flex-wrap: wrap
+    flex-wrap: wrap;
 }
 
 .btn {
@@ -409,7 +401,7 @@ body.mbha-cards {
 
 .btn:active {
     transform: translateY(2px);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .20), 0 4px 10px rgba(0, 0, 0, .60)
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .20), 0 4px 10px rgba(0, 0, 0, .60);
 }
 
 .btn-roll {
@@ -421,12 +413,12 @@ body.mbha-cards {
 
 .nav {
     display: flex;
-    gap: 12px
+    gap: 12px;
 }
 
 .btn-nav {
     width: 76px;
-    font-size: 20px
+    font-size: 20px;
 }
 
 
@@ -437,7 +429,7 @@ body.mbha-cards {
     top: 12px;
     right: 12px;
     z-index: 90;
-    padding: 10px 14px
+    padding: 10px 14px;
 }
 
 
@@ -447,7 +439,7 @@ body.mbha-cards {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 50
+    z-index: 50;
 }
 
 .fx-dot {
@@ -465,41 +457,41 @@ body.mbha-cards {
 @keyframes fx {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(.8)
+        transform: translate(-50%, -50%) scale(.8);
     }
     15% {
-        opacity: 1
+        opacity: 1;
     }
     100% {
         opacity: 0;
-        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s))
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s));
     }
 }
 
 
 /* Mobile tweaks */
 
-@media (max-width:430px) {
+@media (max-width: 430px) {
      :root {
         --cardW: 180px;
-        --gap: 115px
+        --gap: 115px;
     }
     .wheel-viewport {
-        height: 360px
+        height: 360px;
     }
     .team-badge {
         width: 190px;
-        bottom: -42px
+        bottom: -42px;
     }
     .info__name {
-        font-size: 16px
+        font-size: 16px;
     }
     .info__pa {
-        font-size: 14px
+        font-size: 14px;
     }
     .info__about {
         font-size: 12px;
-        max-height: 112px
+        max-height: 112px;
     }
 }
 
@@ -516,20 +508,17 @@ body.mbha-cards {
     z-index: 95;
 }
 
-
-/* Optional pulse when visible */
-
 .btn-results.is-on {
-    animation: resultsPulse 1.35s ease-in-out infinite
+    animation: resultsPulse 1.35s ease-in-out infinite;
 }
 
 @keyframes resultsPulse {
     0%,
     100% {
-        transform: translateX(-50%) scale(1)
+        transform: translateX(-50%) scale(1);
     }
     50% {
-        transform: translateX(-50%) scale(1.08)
+        transform: translateX(-50%) scale(1.08);
     }
 }
 
@@ -551,14 +540,14 @@ body.mbha-cards {
 
 .results.is-open {
     opacity: 1;
-    pointer-events: auto
+    pointer-events: auto;
 }
 
 .results__close {
     position: absolute;
     top: 12px;
     right: 12px;
-    z-index: 10
+    z-index: 10;
 }
 
 
@@ -572,23 +561,20 @@ body.mbha-cards {
     transform-origin: top center;
     background: #000;
     border-radius: 16px;
-    border: 2px solid rgba(220, 240, 255, .92);
-    box-shadow: 0 0 0 2px rgba(220, 240, 255, .20), 0 0 22px rgba(180, 220, 255, .55), 0 0 60px rgba(180, 220, 255, .25), inset 0 0 12px rgba(200, 230, 255, .18);
+    border: 2px solid rgba(220, 240, 255, 0.92);
+    box-shadow: 0 0 0 2px rgba(220, 240, 255, 0.20), 0 0 22px rgba(180, 220, 255, 0.55), 0 0 60px rgba(180, 220, 255, 0.25), inset 0 0 12px rgba(200, 230, 255, 0.18);
 }
 
-@media (max-width:375px),
-(max-height:667px) {
+@media (max-width: 375px),
+(max-height: 667px) {
     .results__stage {
-        transform: scale(min(calc(100vw/375), calc(100vh/667)))
+        transform: scale(min(calc(100vw / 375), calc(100vh / 667)));
     }
 }
 
-
-/* Kill any old spiral / pseudo frame */
-
 .results__stage::before,
 .results__stage::after {
-    content: none!important
+    content: none !important;
 }
 
 
@@ -605,7 +591,7 @@ body.mbha-cards {
 }
 
 .rs * {
-    image-rendering: auto
+    image-rendering: auto;
 }
 
 
@@ -622,20 +608,20 @@ body.mbha-cards {
 }
 
 .rs__deer--left {
-    left: -220px
+    left: -220px;
 }
 
 .rs__deer--right {
-    right: -220px
+    right: -220px;
 }
 
 
-/* Coins layer */
+/* Coins */
 
 .rs__coins {
     position: absolute;
     inset: 0;
-    pointer-events: none
+    pointer-events: none;
 }
 
 .rs__coin {
@@ -681,102 +667,75 @@ body.mbha-cards {
 
 .rs__pipe--left {
     left: calc(10px + var(--pipe-left-x));
-    transform: rotate(var(--pipe-rot-left))
+    transform: rotate(var(--pipe-rot-left));
 }
 
 .rs__pipe--right {
     right: calc(10px + var(--pipe-right-x));
-    transform: rotate(var(--pipe-rot-right))
+    transform: rotate(var(--pipe-rot-right));
 }
 
 
-/* Boxes row (re-using bottles container) */
+/* ===============================
+   BOXES (replace bottles)
+================================ */
 
-.rs__bottles {
+.rs__boxes {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 70px;
+    bottom: 78px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    padding: 0 22px;
+    padding: 0 18px;
     opacity: 0;
     z-index: 7;
 }
 
 
-/* Now boxes (same class name kept for JS compatibility) */
+/* each box is 1 image (wbk/wbb OR wbk1/wbb1) */
 
-.rs__bottle {
+.rs__box {
     width: 170px;
-    height: 220px;
+    height: 200px;
     position: relative;
     background: center/contain no-repeat;
     transform: scale(var(--box-scale));
     filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .75));
 }
 
-.rs__bottle--kevin {
-    transform: translateX(var(--box-x-kevin)) scale(var(--box-scale))
+.rs__box--kevin {
+    transform: translateX(var(--box-x-kevin)) scale(var(--box-scale));
 }
 
-.rs__bottle--bandits {
-    transform: translateX(var(--box-x-bandits)) scale(var(--box-scale))
-}
-
-
-/* Pulse for boxes (JS can toggle .is-pulse) */
-
-.rs__bottles.is-pulse .rs__bottle {
-    animation: boxPulse 860ms ease-in-out infinite;
-}
-
-@keyframes boxPulse {
-    0%,
-    100% {
-        transform: translateX(var(--_x, 0px)) scale(var(--box-scale))
-    }
-    50% {
-        transform: translateX(var(--_x, 0px)) scale(calc(var(--box-scale) * 1.04))
-    }
+.rs__box--bandits {
+    transform: translateX(var(--box-x-bandits)) scale(var(--box-scale));
 }
 
 
-/* per-side var helper */
-
-.rs__bottle--kevin {
-    --_x: var(--box-x-kevin)
-}
-
-.rs__bottle--bandits {
-    --_x: var(--box-x-bandits)
-}
-
-
-/* Labels above boxes */
+/* Labels under boxes (as in your screenshot) */
 
 .rs__label {
     position: absolute;
     left: 50%;
-    bottom: 262px;
-    transform: translateX(-50%) translateY(var(--label-dy)) scale(var(--bottle-text-scale));
+    bottom: -22px;
+    transform: translateX(-50%) translateY(var(--label-dy));
     font-size: 16px;
     letter-spacing: .14em;
-    color: rgba(229, 231, 235, .95);
-    text-shadow: 0 0 10px rgba(255, 255, 255, .18);
     white-space: nowrap;
+    text-shadow: 0 0 12px rgba(0, 0, 0, .55);
 }
 
 
-/* Counters under boxes */
+/* Counters (NEVER show in winner scene -> hidden there via CSS below) */
 
 .rs__counter {
     position: absolute;
     left: 50%;
-    bottom: -6px;
-    transform: translateX(-50%) translateY(var(--counter-dy)) scale(var(--bottle-text-scale));
-    width: 180px;
+    bottom: -62px;
+    transform: translateX(-50%) translateY(var(--counter-dy));
+    width: 190px;
     text-align: center;
     font-size: 22px;
     letter-spacing: .18em;
@@ -787,64 +746,59 @@ body.mbha-cards {
 
 /* Team neon colors (labels + counters) */
 
-.rs__bottle--kevin .rs__label,
-.rs__bottle--kevin .rs__counter {
+.rs__box--kevin .rs__label,
+.rs__box--kevin .rs__counter {
     color: var(--neon-kevin);
     text-shadow: 0 0 12px var(--neon-kevin), 0 0 24px var(--neon-kevin);
 }
 
-.rs__bottle--bandits .rs__label,
-.rs__bottle--bandits .rs__counter {
+.rs__box--bandits .rs__label,
+.rs__box--bandits .rs__counter {
     color: var(--neon-bandits);
     text-shadow: 0 0 12px var(--neon-bandits), 0 0 24px var(--neon-bandits);
 }
 
 
-/* DYNAMITE layer */
+/* Pulse during "boxcoins" (JS toggles .is-pulse on .rs__boxes) */
+
+.rs__boxes.is-pulse .rs__box {
+    animation: boxPulse 420ms ease-in-out infinite;
+}
+
+@keyframes boxPulse {
+    0%,
+    100% {
+        transform: translateX(var(--_x, 0px)) scale(var(--box-scale));
+        filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .75));
+    }
+    50% {
+        transform: translateX(var(--_x, 0px)) scale(calc(var(--box-scale) * 1.03));
+        filter: drop-shadow(0 18px 26px rgba(0, 0, 0, .85));
+    }
+}
+
+.rs__box--kevin {
+    --_x: var(--box-x-kevin);
+}
+
+.rs__box--bandits {
+    --_x: var(--box-x-bandits);
+}
+
+
+/* Dynamite */
 
 .rs__dynamite {
     position: absolute;
     left: 50%;
-    top: 210px;
+    top: 220px;
     width: 220px;
     height: 220px;
-    transform: translateX(-50%) scale(.96);
+    transform: translateX(-50%) scale(0.95);
     background: center/contain no-repeat;
     opacity: 0;
-    filter: drop-shadow(0 18px 26px rgba(0, 0, 0, .75));
     z-index: 20;
-}
-
-.rs__dynamite.is-on {
-    opacity: 1
-}
-
-.rs__dynamite.is-tick {
-    animation: dynaTick 120ms ease-in-out infinite;
-}
-
-@keyframes dynaTick {
-    0%,
-    100% {
-        transform: translateX(-50%) scale(.98);
-        filter: brightness(1)
-    }
-    50% {
-        transform: translateX(-50%) scale(1.06);
-        filter: brightness(1.15)
-    }
-}
-
-
-/* Flash for impact */
-
-.rs__flash {
-    position: absolute;
-    inset: 0;
-    background: #fff;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 999;
+    filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .75));
 }
 
 
@@ -854,18 +808,24 @@ body.mbha-cards {
     position: absolute;
     inset: 0;
     opacity: 0;
-    pointer-events: none
+    pointer-events: none;
+    z-index: 30;
 }
+
+
+/* Fireworks very top */
 
 .rs__fireworks {
     position: absolute;
     inset: 0;
     background: center/520px 520px no-repeat;
     background-position: center 14px;
-    /* very top */
     opacity: 0;
     filter: drop-shadow(0 0 18px rgba(255, 255, 255, .22));
 }
+
+
+/* Kevin sprite */
 
 .rs__sprite {
     position: absolute;
@@ -874,18 +834,20 @@ body.mbha-cards {
     width: 240px;
     height: 240px;
     transform: translateX(calc(-50% + 22px));
-    /* Kevin a bit right */
     background: center/contain no-repeat;
     image-rendering: pixelated;
     filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .7));
     opacity: 0;
 }
 
+
+/* TEAM WIN text — in the very top */
+
 .rs__winText {
     position: absolute;
     left: 50%;
-    bottom: 420px;
-    /* ABOVE fireworks */
+    top: 66px;
+    bottom: auto;
     transform: translateX(-50%);
     font-size: 18px;
     letter-spacing: .16em;
@@ -894,23 +856,22 @@ body.mbha-cards {
     opacity: 0;
     white-space: nowrap;
     animation: winGoldPulse 1.05s ease-in-out infinite;
-    z-index: 40;
 }
 
 @keyframes winGoldPulse {
     0%,
     100% {
         transform: translateX(-50%) scale(1);
-        filter: brightness(1)
+        filter: brightness(1);
     }
     50% {
         transform: translateX(-50%) scale(1.06);
-        filter: brightness(1.12)
+        filter: brightness(1.12);
     }
 }
 
 
-/* Winner avatars — keep 4 + 3 centered */
+/* Avatars: 4 + 3 centered like your mock */
 
 .rs__avatars {
     position: absolute;
@@ -920,6 +881,8 @@ body.mbha-cards {
     width: 330px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    justify-items: center;
+    align-items: center;
     gap: 10px;
     opacity: 0;
 }
@@ -933,64 +896,90 @@ body.mbha-cards {
     box-shadow: 0 10px 20px rgba(0, 0, 0, .55);
 }
 
+
+/* center second row (3) */
+
 .rs__avatar:nth-child(5) {
-    grid-column: 2
+    grid-column: 2;
 }
 
 .rs__avatar:nth-child(6) {
-    grid-column: 3
+    grid-column: 3;
 }
 
 .rs__avatar:nth-child(7) {
-    grid-column: 4
+    grid-column: 4;
+}
+
+
+/* Flash for impact (dynamite explosion) */
+
+.rs__flash {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 99;
 }
 
 
 /* Utility classes JS toggles */
 
 .rs.is-on {
-    pointer-events: none
+    pointer-events: none;
 }
 
 .rs.show-deer .rs__deer,
 .rs.show-cauldron .rs__cauldron,
 .rs.show-pipes .rs__pipe,
-.rs.show-bottles .rs__bottles {
-    opacity: 1
+.rs.show-boxes .rs__boxes {
+    opacity: 1;
+}
+
+.rs.show-dynamite .rs__dynamite {
+    opacity: 1;
 }
 
 .rs.show-winner .rs__winner {
-    opacity: 1
+    opacity: 1;
 }
 
 .rs.show-winner .rs__fireworks,
 .rs.show-winner .rs__sprite,
 .rs.show-winner .rs__winText,
 .rs.show-winner .rs__avatars {
-    opacity: 1
+    opacity: 1;
+}
+
+
+/* IMPORTANT: remove the bottom stray "BANDITS 0000000" in winner screen */
+
+.rs.show-winner .rs__boxes {
+    opacity: 0 !important;
 }
 
 
 /* Scene shake */
 
 .rs.is-shake {
-    animation: rsShake 120ms linear infinite
+    animation: rsShake 120ms linear infinite;
 }
 
 @keyframes rsShake {
     0% {
-        transform: translate(0, 0)
+        transform: translate(0, 0);
     }
     25% {
-        transform: translate(1px, -1px)
+        transform: translate(1px, -1px);
     }
     50% {
-        transform: translate(-1px, 1px)
+        transform: translate(-1px, 1px);
     }
     75% {
-        transform: translate(1px, 1px)
+        transform: translate(1px, 1px);
     }
     100% {
-        transform: translate(-1px, -1px)
+        transform: translate(-1px, -1px);
     }
 }
