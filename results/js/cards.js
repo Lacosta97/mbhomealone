@@ -27,8 +27,6 @@
     const STORAGE_KEY = "mbha_cards_opened_v2";
     const LIMIT = 18;
 
-
-
     // ====== TUNE MODE (stop final scene after deer slide-in) ======
     const TUNE_MODE = (() => {
         try { return new URL(window.location.href).searchParams.get("tune") === "1"; } catch { return false; }
@@ -39,6 +37,7 @@
         const n = parseFloat(v);
         return Number.isFinite(n) ? n : fallback;
     }
+
     // ====== DOM ======
     const track = document.getElementById("track");
     const fxLayer = document.getElementById("fxLayer");
@@ -98,8 +97,6 @@
     // ====== NEW: bottle fill state (0..1) ======
     let fillKevin = 0;
     let fillBandits = 0;
-    let fillMaxKevin = 1;
-    let fillMaxBandits = 1;
 
     // ====== Anti-zoom (Safari) ======
     document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
@@ -213,11 +210,15 @@
         return out;
     }
 
-    function escapeAttr(str) {
-        return String(str).replaceAll("'", "%27");
+    // ====== HELPERS: money ======
+    function parseMoneyToInt(raw) {
+        const s = String((raw === null || raw === undefined) ? "" : raw).trim();
+        if (!s) return 0;
+        const m = s.replace(/[^\d-]/g, "");
+        const n = Number(m);
+        return Number.isFinite(n) ? Math.max(0, Math.round(n)) : 0;
     }
 
-    // ====== HELPERS: PA formatting ======
     function formatUAH(raw) {
         const s = String(raw === null || raw === undefined ? "" : raw).trim();
         if (!s) return "";
@@ -227,17 +228,47 @@
             if (!Number.isFinite(n)) return s;
             return n.toLocaleString("uk-UA") + "₴";
         }
-        // not a number (e.g., "∞ (IMPOSTOR)")
         return s;
     }
 
-    function parseMoneyToInt(raw) {
-        const s = String((raw === null || raw === undefined) ? "" : raw).trim();
-        if (!s) return 0;
-        // keep digits only
-        const m = s.replace(/[^\d-]/g, "");
-        const n = Number(m);
-        return Number.isFinite(n) ? Math.max(0, Math.round(n)) : 0;
+    // ====== SHEET CELLS (Totals) ======
+    // Kevin TOTAL: F2, Bandits TOTAL: G2
+    function colLetterToIndex(letter) {
+        const s = String(letter || "").trim().toUpperCase();
+        if (!s) return -1;
+        let n = 0;
+        for (let i = 0; i < s.length; i++) {
+            const code = s.charCodeAt(i);
+            if (code < 65 || code > 90) return -1;
+            n = n * 26 + (code - 64);
+        }
+        return n - 1;
+    }
+
+    function getCell(rows, row1based, colLetter) {
+        const r = Math.max(1, Number(row1based || 1)) - 1;
+        const c = colLetterToIndex(colLetter);
+        if (!Array.isArray(rows) || r < 0 || c < 0) return "";
+        const row = rows[r];
+        if (!row || c >= row.length) return "";
+        return row[c] == null ? "" : String(row[c]).trim();
+    }
+
+    async function fetchTotalsFromSheetCells() {
+        const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("Sheet fetch failed: " + res.status);
+        const csv = await res.text();
+        const rows = parseCSV(csv);
+        const kevinRaw = getCell(rows, 2, "F"); // F2
+        const banditsRaw = getCell(rows, 2, "G"); // G2
+        const kevin = parseMoneyToInt(kevinRaw);
+        const bandits = parseMoneyToInt(banditsRaw);
+        if (!kevin && !bandits) return null;
+        return { kevin, bandits };
+    }
+
+    function escapeAttr(str) {
+        return String(str).replaceAll("'", "%27");
     }
 
     // ====== UI BUILD ======
@@ -269,33 +300,30 @@
 
         if (opened.has(code)) el.classList.add("is-open");
 
-        el.addEventListener(
-            "click",
-            (e) => {
-                e.preventDefault();
-                if (rolling) return;
+        el.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (rolling) return;
 
-                const centerEl = cardEls[active];
-                if (el !== centerEl) return;
+            const centerEl = cardEls[active];
+            if (el !== centerEl) return;
 
-                const codeNow = String(player.CODE || "").trim();
-                if (opened.has(codeNow)) {
-                    burstFx(centerEl, 10);
-                    updateInfo();
-                    return;
-                }
-
-                opened.add(codeNow);
-                saveOpened();
-                centerEl.classList.add("is-open");
-                burstFx(centerEl, 18);
-
+            const codeNow = String(player.CODE || "").trim();
+            if (opened.has(codeNow)) {
+                burstFx(centerEl, 10);
                 updateInfo();
-                updateMode();
+                return;
+            }
 
-                if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
-            }, { passive: false }
-        );
+            opened.add(codeNow);
+            saveOpened();
+            centerEl.classList.add("is-open");
+            burstFx(centerEl, 18);
+
+            updateInfo();
+            updateMode();
+
+            if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
+        }, { passive: false });
 
         return el;
     }
@@ -378,7 +406,6 @@
 
         infoName.textContent = String(p.NAME || "Гість").toUpperCase();
 
-        // PA
         if (infoPA) {
             const paRaw =
                 p["PERSONAL ACCOUNT"] !== null && p["PERSONAL ACCOUNT"] !== undefined ?
@@ -391,7 +418,6 @@
             infoPA.textContent = paFmt ? `PA: ${paFmt}` : "";
         }
 
-        // ABOUT (keep full text + line breaks)
         if (infoAbout) {
             const aboutRaw = p["ABOUT"] !== null && p["ABOUT"] !== undefined ? p["ABOUT"] : "";
             infoAbout.textContent = String(aboutRaw);
@@ -406,13 +432,13 @@
     }
 
     function updateMode() {
-        if (btnResults) btnResults.hidden = false; // TEMP: always active (we will вернуть обратно позже)
+        if (btnResults) btnResults.hidden = false; // TEMP
         const all = isAllOpened();
         if (btnRoll) btnRoll.hidden = all;
         if (nav) nav.hidden = !all;
     }
 
-    // ====== ROLL (x2 faster + visible) ======
+    // ====== ROLL ======
     function pickRandomClosedIndex() {
         const closed = [];
         for (let i = 0; i < players.length; i++) {
@@ -523,47 +549,30 @@
     // ====== EVENTS ======
     if (btnRoll) btnRoll.addEventListener("click", roll);
 
-    if (btnPrev)
-        btnPrev.addEventListener(
-            "click",
-            (e) => {
-                e.preventDefault();
-                step(-1);
-            }, { passive: false }
-        );
+    if (btnPrev) btnPrev.addEventListener("click", (e) => { e.preventDefault();
+        step(-1); }, { passive: false });
+    if (btnNext) btnNext.addEventListener("click", (e) => { e.preventDefault();
+        step(1); }, { passive: false });
 
-    if (btnNext)
-        btnNext.addEventListener(
-            "click",
-            (e) => {
-                e.preventDefault();
-                step(1);
-            }, { passive: false }
-        );
+    if (btnReset) btnReset.addEventListener("click", (e) => {
+        e.preventDefault();
+        localStorage.removeItem(STORAGE_KEY);
+        opened.clear();
+        for (const el of cardEls) el.classList.remove("is-open");
 
-    if (btnReset)
-        btnReset.addEventListener(
-            "click",
-            (e) => {
-                e.preventDefault();
-                localStorage.removeItem(STORAGE_KEY);
-                opened.clear();
-                for (const el of cardEls) el.classList.remove("is-open");
+        const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
+        active = firstClosed >= 0 ? firstClosed : 0;
 
-                const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
-                active = firstClosed >= 0 ? firstClosed : 0;
-
-                layout();
-                updateMode();
-            }, { passive: false }
-        );
+        layout();
+        updateMode();
+    }, { passive: false });
 
     // ====== RESULTS open/close ======
     function openResults() {
         if (!results) return;
         results.classList.add("is-open");
         results.setAttribute("aria-hidden", "false");
-        startFinalScene(); // 🔥
+        startFinalScene(); // 🔥 (async ok)
     }
 
     function closeResults() {
@@ -578,7 +587,7 @@
 
     window.addEventListener("resize", () => layout());
 
-    // ====== FINAL SCENE (Kevin wins) ======
+    // ====== FINAL SCENE ======
     function hasFinalDOM() {
         return !!(rsRoot && deerLeft && deerRight && coinsLayer && cauldron && pipeLeft && pipeRight && bottles && bottleKevin && bottleBandits && countKevin && countBandits);
     }
@@ -594,7 +603,7 @@
         spriteTimer = null;
     }
 
-    // ====== NEW: bottle fill helpers ======
+    // ====== bottle fill helpers ======
     function clamp01(x) {
         const n = Number(x);
         if (!Number.isFinite(n)) return 0;
@@ -609,8 +618,6 @@
     function resetBottleFill() {
         fillKevin = 0;
         fillBandits = 0;
-        fillMaxKevin = 1;
-        fillMaxBandits = 1;
         setBottleFill(bottleKevin, 0);
         setBottleFill(bottleBandits, 0);
     }
@@ -620,11 +627,9 @@
         clearTimers();
         if (!hasFinalDOM()) return;
 
-        // reset classes
         rsRoot.className = "rs";
         rsRoot.style.transform = "";
 
-        // reset transforms
         deerLeft.style.transform = "";
         deerRight.style.transform = "";
         cauldron.style.transform = "";
@@ -632,7 +637,6 @@
         pipeRight.style.transform = "";
         bottles.style.transform = "";
 
-        // reset visuals
         deerLeft.style.opacity = "0";
         deerRight.style.opacity = "0";
         cauldron.style.opacity = "0";
@@ -647,61 +651,43 @@
         if (winnerAvatars) winnerAvatars.style.opacity = "0";
         if (flash) flash.style.opacity = "0";
 
-        // clear coins
         if (coinsLayer) coinsLayer.innerHTML = "";
 
-        // reset bottle fill
-        resetBottleFill();
-
-        // reset counters
         setCounter(countKevin, 0, 7);
         setCounter(countBandits, 0, 7);
 
-        // reset bottle fill
         resetBottleFill();
 
-        // reset pipes/deer frames to "closed"/"a"
         setBgFromData(deerLeft, "closed");
         setBgFromData(deerRight, "closed");
         setBgFromData(pipeLeft, "a");
         setBgFromData(pipeRight, "a");
 
-        // reset loser bottle (in case it was hidden)
         bottleBandits.style.opacity = "";
         bottleBandits.style.transform = "";
         bottleBandits.style.filter = "";
     }
 
-    function startFinalScene() {
-        if (!hasFinalDOM()) return; // safe if you didn't paste the final HTML yet
+    async function startFinalScene() {
+        if (!hasFinalDOM()) return;
         if (finalRunning) return;
 
         finalRunning = true;
         clearTimers();
 
-        // make sure root is visible
         rsRoot.classList.add("is-on");
-
-        // reset bottle fill at the beginning
         resetBottleFill();
 
-        // prepare avatars (Kevin winners)
         renderWinnerAvatars();
 
-        // compute team totals from sheet PA (fallback values if empty)
-        const totals = computeTeamTotalsFromPlayers();
-        // Force Kevin as winner (as requested)
+        let totals = null;
+        try { totals = await fetchTotalsFromSheetCells(); } catch { totals = null; }
+        if (!totals) totals = computeTeamTotalsFromPlayers();
+
         const targetKevin = Math.max(0, totals.kevin || 0);
         const targetBandits = Math.max(0, totals.bandits || 0);
 
-        // bottle fill scales relative to final totals
-        fillMaxKevin = Math.max(1, targetKevin);
-        fillMaxBandits = Math.max(1, targetBandits);
-
-        // Run timeline
-        timelineKevinWins(targetKevin, targetBandits).catch(() => {
-            stopFinalScene();
-        });
+        timelineKevinWins(targetKevin, targetBandits).catch(() => stopFinalScene());
     }
 
     function computeTeamTotalsFromPlayers() {
@@ -718,7 +704,6 @@
                 "";
 
             const n = parseMoneyToInt(paRaw);
-
             if (team === "kevin") sumKevin += n;
             if (team === "bandits") sumBandits += n;
         }
@@ -757,16 +742,6 @@
         if (!el) return;
         const v = Math.max(0, Math.floor(value));
         el.textContent = String(v).padStart(digits, "0");
-
-        // NEW: bottle fill follows counters (0..1), only in final scene
-        if (!finalRunning) return;
-        if (el === countKevin) {
-            fillKevin = v;
-            setBottleFill(bottleKevin, v / Math.max(1, fillMaxKevin));
-        } else if (el === countBandits) {
-            fillBandits = v;
-            setBottleFill(bottleBandits, v / Math.max(1, fillMaxBandits));
-        }
     }
 
     function setBgFromData(el, which) {
@@ -820,7 +795,7 @@
             t = !t;
             setBgFromData(pipeLeft, t ? "b" : "a");
             setBgFromData(pipeRight, t ? "b" : "a");
-        }, 140); // чуть медленнее
+        }, 140);
     }
 
     function startChaosCounters() {
@@ -841,22 +816,21 @@
         setCounter(el, from, digits);
 
         return new Promise((resolve) => {
-            const step = (now) => {
+            const stepAnim = (now) => {
                 if (!finalRunning) return resolve();
                 const t = Math.min(1, (now - start) / Math.max(1, duration));
                 const v = Math.round(from + (to - from) * easing(t));
                 setCounter(el, v, digits);
 
-                // NEW: fill bottles with coin pattern (0..1)
                 if (fillBottleEl) {
                     const ratio = fillMax > 0 ? (v / fillMax) : 0;
                     setBottleFill(fillBottleEl, ratio);
                 }
 
                 if (t >= 1) return resolve();
-                requestAnimationFrame(step);
+                requestAnimationFrame(stepAnim);
             };
-            requestAnimationFrame(step);
+            requestAnimationFrame(stepAnim);
         });
     }
 
@@ -891,19 +865,34 @@
         }, 120);
     }
 
-    // ====== NEW: Outro (after red bottle disappears) ======
+    // ====== WINNER UI LIFT (bottle/counter move up AFTER Kevin sprite appears) ======
+    function liftBottlesUpAfterWinner() {
+        if (!bottles) return;
+
+        bottles.animate(
+            [
+                { transform: "translateY(0px)" },
+                { transform: "translateY(-110px)" },
+            ], {
+                duration: 700,
+                easing: "cubic-bezier(.2,.9,.2,1)",
+                fill: "forwards",
+            }
+        );
+
+        bottles.style.transform = "translateY(-110px)";
+    }
+
+    // ====== Outro ======
     async function playFinalOutro(deerInLeftX, deerInRightX, deerInY) {
         if (!finalRunning) return;
 
-        // close mouths first
         setBgFromData(deerLeft, "closed");
         setBgFromData(deerRight, "closed");
 
-        // stop coins EXACTLY when mouths close (requested)
         if (coinTimer) window.clearInterval(coinTimer);
         coinTimer = null;
 
-        // drop cauldron + pipes
         const dropDur = 650;
         if (cauldron) {
             cauldron.animate(
@@ -921,7 +910,6 @@
             );
         }
 
-        // deer go back out
         const outDur = 900;
         deerLeft.animate(
             [{ transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` }, { transform: "translateX(0px) translateY(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
@@ -939,10 +927,10 @@
     }
 
     function getDeerEdgeInX() {
-        const OFFSET = -25; // FINAL TUNE: deer stop 25px before edge
-        const LEFT_NUDGE = -10; // move LEFT deer total -10px
-        const RIGHT_NUDGE = 35; // move RIGHT deer total +35px
-        const DEER_Y_NUDGE = -15; // lift deer up by 15px
+        const OFFSET = -25;
+        const LEFT_NUDGE = -10;
+        const RIGHT_NUDGE = 35;
+        const DEER_Y_NUDGE = -15;
 
         const leftRaw = getComputedStyle(deerLeft).left;
         const rightRaw = getComputedStyle(deerRight).right;
@@ -955,15 +943,12 @@
     }
 
     async function timelineKevinWins(targetKevin, targetBandits) {
-        // Reset everything visual first
         stopFinalScene();
         finalRunning = true;
         rsRoot.classList.add("is-on");
 
-        // Phase 0: black moment
         await wait(220);
 
-        // Phase 1: deer slide in SLOW (closed mouths)
         deerLeft.style.opacity = "1";
         deerRight.style.opacity = "1";
         setBgFromData(deerLeft, "closed");
@@ -983,37 +968,26 @@
         );
 
         await wait(deerInDur + 160);
-
-        // Phase 1.5: остановились (пауза)
         await wait(420);
 
-
-
-        // ✅ TUNE MODE: freeze here so you can tweak positions in DevTools
         if (TUNE_MODE) {
-            // lock deer at the final position (in case browser drops animation state)
             deerLeft.style.transform = `translateX(${deerInLeftX}px) translateY(${deerInY}px)`;
             deerRight.style.transform = `translateX(${deerInRightX}px) translateY(${deerInY}px)`;
 
-            // keep mouths closed
             setBgFromData(deerLeft, "closed");
             setBgFromData(deerRight, "closed");
 
-            // show all major elements for composition tuning
             if (cauldron) cauldron.style.opacity = "1";
             if (pipeLeft) pipeLeft.style.opacity = "1";
             if (pipeRight) pipeRight.style.opacity = "1";
             if (bottles) bottles.style.opacity = "1";
-
-            // IMPORTANT: do not start coins/pipes/counters in tune mode
             return;
         }
-        // Phase 2: mouths open, THEN coins
+
         setBgFromData(deerLeft, "open");
         setBgFromData(deerRight, "open");
         await wait(180);
 
-        // show cauldron + pipes + bottles (stay visible until red bottle breaks)
         cauldron.style.opacity = "1";
         pipeLeft.style.opacity = "1";
         pipeRight.style.opacity = "1";
@@ -1025,43 +999,34 @@
 
         startPipeAnim();
 
-        // coins to cauldron entry (slightly above center)
         const caulCenter = rectCenterIn(cauldron, rsRoot);
         const toX1 = caulCenter.x - 18;
         const toX2 = caulCenter.x + 18;
         const toY = caulCenter.y - 28;
 
-        // coins run UNTIL mouths close (requested)
         coinTimer = window.setInterval(() => {
             if (!finalRunning) return;
             const leftC = rectCenterIn(deerLeft, rsRoot);
             const rightC = rectCenterIn(deerRight, rsRoot);
 
-            // mouth areas (tuned)
             const fromLeftX = leftC.x + 78;
             const fromLeftY = leftC.y + 46;
 
             const fromRightX = rightC.x - 78;
             const fromRightY = rightC.y + 46;
 
-            // diagonal streams
             spawnCoin(fromLeftX, fromLeftY, toX1, toY, 900);
             spawnCoin(fromRightX, fromRightY, toX2, toY, 900);
 
-            // NEW: while coins stream, slowly fill both bottles (visual)
             fillKevin = Math.min(0.28, fillKevin + 0.004);
             fillBandits = Math.min(0.28, fillBandits + 0.004);
             setBottleFill(bottleKevin, fillKevin);
             setBottleFill(bottleBandits, fillBandits);
         }, 155);
 
-        // Phase 3: show chaos counters (coins keep going; mouths stay open)
         await wait(900);
         startChaosCounters();
 
-        // keep coins running; no stop here anymore
-
-        // Phase 4: glitch / shake 3 sec + impact
         rsRoot.classList.add("is-shake");
         flashOnce(120);
         await wait(3000);
@@ -1072,13 +1037,11 @@
         setCounter(countKevin, 0, 7);
         setCounter(countBandits, 0, 7);
 
-        // NEW: after reset to 0, keep early fill (don’t drop)
         setBottleFill(bottleKevin, fillKevin);
         setBottleFill(bottleBandits, fillBandits);
 
         await wait(250);
 
-        // Phase 5: count both up to intrigue value (+ fill bottles to this level)
         const intrigue = 1700000;
         const bothTarget = intrigue;
         await Promise.all([
@@ -1088,20 +1051,16 @@
 
         await slowFlipSuspense(5000, bothTarget);
 
-        // Phase 6: Kevin accelerates to final, Bandits starts blinking then "breaks" (+ fill follows)
         const finalK = Math.max(targetKevin, intrigue + 1);
         const finalB = Math.min(targetBandits, finalK - 1);
 
-        const blink = bottleBandits.animate(
-            [{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 240, iterations: 10 }
-        );
+        const blink = bottleBandits.animate([{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 240, iterations: 10 });
 
         const countK = animateCountTo(countKevin, intrigue, finalK, 2600, 7, easeOutCubic, bottleKevin, finalK);
         const countB = animateCountTo(countBandits, intrigue, finalB, 900, 7, easeOutCubic, bottleBandits, finalK);
 
         await Promise.all([countK, countB]);
 
-        // "break" loser bottle: pop out (this is the trigger for outro)
         blink.cancel();
         bottleBandits.animate(
             [
@@ -1113,11 +1072,8 @@
 
         await wait(520);
 
-        // NOW: pipes+cauldron fall away, deer close and exit (coins stop inside playFinalOutro)
         await playFinalOutro(deerInLeftX, deerInRightX, deerInY);
 
-        // Phase 7: winner reveal (Kevin) (can stay after outro if you want)
-        // (оставил как было — но если хочешь, мы потом подвинем по драме)
         if (winnerLayer) winnerLayer.style.opacity = "1";
         if (fireworks) fireworks.style.opacity = "1";
         if (winText) winText.style.opacity = "1";
@@ -1133,6 +1089,9 @@
         }
 
         startKevinSprite();
+
+        window.setTimeout(() => { if (finalRunning) liftBottlesUpAfterWinner(); }, 260);
+
         flashOnce(110);
     }
 
@@ -1151,7 +1110,6 @@
                 setCounter(countKevin, vK, 7);
                 setCounter(countBandits, vB, 7);
 
-                // NEW: keep fill “alive” during suspense
                 if (fillMax > 0) {
                     setBottleFill(bottleKevin, vK / fillMax);
                     setBottleFill(bottleBandits, vB / fillMax);

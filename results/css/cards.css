@@ -40,6 +40,8 @@
     /* Team neon colors */
     --neon-kevin: #39ff14;
     --neon-bandits: #ff2a2a;
+    --gold: #ffd35f;
+    --gold2: #ffb100;
 }
 
 * {
@@ -854,6 +856,7 @@ body.mbha-cards {
     position: absolute;
     inset: 0;
     background: center/520px 520px no-repeat;
+    background-position: center 90px;
     opacity: 0;
     filter: drop-shadow(0 0 18px rgba(255, 255, 255, .22));
 }
@@ -861,7 +864,7 @@ body.mbha-cards {
 .rs__sprite {
     position: absolute;
     left: 50%;
-    bottom: 140px;
+    bottom: 210px;
     width: 240px;
     height: 240px;
     transform: translateX(-50%);
@@ -874,7 +877,7 @@ body.mbha-cards {
 .rs__winText {
     position: absolute;
     left: 50%;
-    bottom: 44px;
+    bottom: 150px;
     transform: translateX(-50%);
     font-size: 18px;
     letter-spacing: .16em;
@@ -887,7 +890,7 @@ body.mbha-cards {
 .rs__avatars {
     position: absolute;
     left: 50%;
-    bottom: 86px;
+    bottom: 52px;
     transform: translateX(-50%);
     width: 330px;
     display: grid;
@@ -954,4 +957,65 @@ body.mbha-cards {
 .rs__bottle--bandits .rs__counter {
     color: var(--neon-bandits);
     text-shadow: 0 0 12px var(--neon-bandits), 0 0 24px var(--neon-bandits);
+}
+
+
+/* WIN TEXT — gold pulse */
+
+.rs__winText {
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255, 211, 95, .55), 0 0 22px rgba(255, 177, 0, .55), 0 0 40px rgba(255, 177, 0, .25);
+    animation: winGoldPulse 1.05s ease-in-out infinite;
+}
+
+@keyframes winGoldPulse {
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        transform: translateX(-50%) scale(1.06);
+        filter: brightness(1.12);
+    }
+}
+
+
+/* Winner avatars — 4 + 3 centered */
+
+.rs__avatar:nth-child(5) {
+    grid-column: 2;
+}
+
+.rs__avatar:nth-child(6) {
+    grid-column: 3;
+}
+
+.rs__avatar:nth-child(7) {
+    grid-column: 4;
+}
+
+
+/* Scene shake */
+
+.rs.is-shake {
+    animation: rsShake 120ms linear infinite;
+}
+
+@keyframes rsShake {
+    0% {
+        transform: translate(0, 0);
+    }
+    25% {
+        transform: translate(1px, -1px);
+    }
+    50% {
+        transform: translate(-1px, 1px);
+    }
+    75% {
+        transform: translate(1px, 1px);
+    }
+    100% {
+        transform: translate(-1px, -1px);
+    }
 }
