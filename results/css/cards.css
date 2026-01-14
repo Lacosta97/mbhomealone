@@ -1051,3 +1051,66 @@ body.mbha-cards {
 .rs__avatar {
     flex: 0 0 auto;
 }
+
+
+/* ====== OVERRIDES v2 (per latest screenshot) ======
+   - Fireworks to the very top
+   - Kevin a bit to the right
+   - TEAM KEVIN WIN above avatars
+   - Avatars: keep current 4+3 layout (restore grid, no flex overrides)
+==================================================== */
+
+
+/* Fireworks: push to very top */
+
+.rs__fireworks {
+    background-position: center 14px;
+}
+
+
+/* Kevin sprite: a bit higher + to the right */
+
+.rs__sprite {
+    bottom: 255px;
+    transform: translateX(calc(-50% + 22px));
+}
+
+
+/* TEAM KEVIN WIN: above avatars */
+
+.rs__winText {
+    bottom: 235px;
+    z-index: 30;
+}
+
+
+/* Avatars: keep as grid (4 top + 3 centered) */
+
+.rs__avatars {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-items: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.rs__avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+}
+
+
+/* Keep 4 + 3 centered */
+
+.rs__avatar:nth-child(5) {
+    grid-column: 2;
+}
+
+.rs__avatar:nth-child(6) {
+    grid-column: 3;
+}
+
+.rs__avatar:nth-child(7) {
+    grid-column: 4;
+}

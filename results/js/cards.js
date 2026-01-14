@@ -876,7 +876,7 @@
         bottles.animate(
             [
                 { transform: "translateY(0px)" },
-                { transform: "translateY(-140px)" },
+                { transform: "translateY(-180px)" },
             ], {
                 duration: 700,
                 easing: "cubic-bezier(.2,.9,.2,1)",
