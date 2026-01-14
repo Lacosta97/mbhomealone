@@ -75,7 +75,21 @@
 
                     <div class="rs__pipe rs__pipe--right" id="pipeRight" data-a="./img/final/pipe-right-a.png" data-b="./img/final/pipe-right-b.png" style="background-image:url('./img/final/pipe-right-a.png');"></div>
 
-                    <!-- Bottles + counters (text counters; JS animates digits) -->
+                    <!-- NEW (future logic): Boxes (closed -> open) -->
+                    <!-- NOTE: пока просто добавлено, JS/CSS подключим следующим шагом -->
+                    <div class="rs__boxes" id="boxes" aria-hidden="true">
+                        <div class="rs__box rs__box--kevin" id="boxKevin" data-closed="./img/final/wbk.png" data-open="./img/final/wbk1.png" style="background-image:url('./img/final/wbk.png');">
+                            <div class="rs__label rs__label--box">KEVIN</div>
+                            <div class="rs__counter rs__counter--box" id="countKevinBox">0000000</div>
+                        </div>
+
+                        <div class="rs__box rs__box--bandits" id="boxBandits" data-closed="./img/final/wbb.png" data-open="./img/final/wbb1.png" style="background-image:url('./img/final/wbb.png');">
+                            <div class="rs__label rs__label--box">BANDITS</div>
+                            <div class="rs__counter rs__counter--box" id="countBanditsBox">0000000</div>
+                        </div>
+                    </div>
+
+                    <!-- OLD (current logic): Bottles + counters (оставил как есть, чтобы ничего не ломалось пока JS/CSS не обновили) -->
                     <div class="rs__bottles" id="bottles">
                         <div class="rs__bottle rs__bottle--kevin" id="bottleKevin" style="background-image:url('./img/final/bottle-green.png');">
                             <div class="rs__label">KEVIN</div>
@@ -87,6 +101,9 @@
                             <div class="rs__counter" id="countBandits">0000000</div>
                         </div>
                     </div>
+
+                    <!-- NEW (future logic): Dynamite -->
+                    <div class="rs__dynamite" id="dynamite" aria-hidden="true" style="background-image:url('./img/final/dynamite.png');"></div>
 
                     <!-- Winner finale layer -->
                     <div class="rs__winner" id="winnerLayer" aria-hidden="true">
@@ -103,6 +120,13 @@
 
                     <!-- Fullscreen flash for impact moments -->
                     <div class="rs__flash" id="flash"></div>
+
+                    <!-- Audio hooks (JS will control play/stop later) -->
+                    <audio id="audShmiak" preload="auto" src="../audio/shmiak.mp3"></audio>
+                    <audio id="audDontPush" preload="auto" src="../audio/dont-push-guest.mp3"></audio>
+                    <audio id="audTiktak" preload="auto" src="../audio/tiktak.mp3"></audio>
+                    <audio id="audBulk" preload="auto" src="../audio/bulk.mp3"></audio>
+                    <audio id="audWatc" preload="auto" src="../audio/watc.mp3" loop></audio>
                 </div>
                 <!-- ===== /MBHA FINAL SCENE ===== -->
 

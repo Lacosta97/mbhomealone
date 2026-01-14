@@ -1,4 +1,4 @@
-/* MBHA Cards — FINAL CLEAN (with RESULTS Final Scene layout) */
+/* MBHA Cards — FINAL CLEAN (with RESULTS Final Scene layout + BOXES + DYNAMITE) */
 
 :root {
     --bg0: #020617;
@@ -11,30 +11,22 @@
     --gap: 125px;
     /* RESULTS scene helpers */
     --rs-pad: 18px;
-    /* ===== FINAL SCENE TWEAKS (cosmetic) =====
-       Если захочешь потом микроподгонку — меняем только эти значения. */
+    /* FINAL SCENE TWEAKS (cosmetic) */
     --deer-in-x: 243px;
-    /* = ширина оленя + 10px (въезд ровно к краям) */
     --cauldron-bottom: 330px;
-    /* подняли казан на +100px */
-    /* было 210px -> выше */
     --pipes-bottom: 260px;
-    /* опустили трубы на -50px */
-    /* подогнано под новый казан */
-    /* Поворот труб (верхние точки к казану) */
     --pipe-rot-left: 45deg;
     --pipe-rot-right: -45deg;
-    /* Микросдвиг труб (если нужно руками в DevTools) */
     --pipe-left-x: 20px;
     --pipe-right-x: 20px;
     --pipe-y: 0px;
-    /* Bottles + text tuning (FINAL) */
-    --bottle-scale: 1.4;
-    --bottle-x-kevin: -7px;
-    --bottle-x-bandits: 7px;
-    /* keep text size stable even when bottle is scaled (1/1.4) */
+    /* Boxes scale + offsets (used by bottles container) */
+    --box-scale: 1.25;
+    --box-x-kevin: -7px;
+    --box-x-bandits: 7px;
+    /* keep text size stable when scale changes */
     --bottle-text-scale: 0.7142857;
-    /* Labels + counters tuning (FINAL) */
+    /* Labels + counters tuning */
     --label-dy: 220px;
     --counter-dy: -20px;
     /* Team neon colors */
@@ -67,14 +59,13 @@ button,
 body.mbha-cards {
     font-family: "Pixelify Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--txt);
-    /* bg-base.png строго як iPhone SE (375x667), без розтягування */
     background: url("../img/bg/bg-base.png") center top no-repeat, radial-gradient(1200px 600px at 15% 10%, rgba(255, 45, 85, .16), transparent 60%), radial-gradient(900px 700px at 85% 30%, rgba(50, 215, 75, .10), transparent 55%), linear-gradient(180deg, var(--bg0), var(--bg1));
     background-size: 375px 667px, auto, auto, auto;
     overflow: hidden;
 }
 
 
-/* iPhone SE stage (desktop looks like SE) */
+/* iPhone SE stage */
 
 .stage {
     width: 375px;
@@ -87,11 +78,11 @@ body.mbha-cards {
     justify-content: center;
 }
 
-@media (max-width: 390px),
-(max-height: 690px) {
+@media (max-width:390px),
+(max-height:690px) {
     .stage {
         transform-origin: top center;
-        transform: scale(min(calc(100vw / 375), calc(100vh / 667)));
+        transform: scale(min(calc(100vw/375), calc(100vh/667)))
     }
 }
 
@@ -116,7 +107,7 @@ body.mbha-cards {
 }
 
 .status.is-on {
-    display: flex;
+    display: flex
 }
 
 .loader {
@@ -130,7 +121,7 @@ body.mbha-cards {
 
 @keyframes spin {
     to {
-        transform: rotate(360deg);
+        transform: rotate(360deg)
     }
 }
 
@@ -142,7 +133,7 @@ body.mbha-cards {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 14px
 }
 
 .wheel-viewport {
@@ -157,7 +148,7 @@ body.mbha-cards {
 
 .wheel-track {
     position: absolute;
-    inset: 0;
+    inset: 0
 }
 
 .center-mark {
@@ -200,36 +191,36 @@ body.mbha-cards {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
-    transition: transform 720ms cubic-bezier(.2, .9, .2, 1);
+    transition: transform 720ms cubic-bezier(.2, .9, .2, 1)
 }
 
 .card.is-open .card__inner {
-    transform: rotateY(180deg);
+    transform: rotateY(180deg)
 }
 
 
-/* During roll animate INNER (so center doesn't look frozen) */
+/* During roll animate INNER */
 
 .wheel-track.is-rolling .card__inner {
-    animation: innerShuffle 180ms ease-in-out infinite;
+    animation: innerShuffle 180ms ease-in-out infinite
 }
 
 .wheel-track.is-rolling .card.is-active .card__inner {
-    animation-duration: 140ms;
+    animation-duration: 140ms
 }
 
 @keyframes innerShuffle {
     0% {
-        transform: translateZ(0) rotate(-1.2deg) scale(0.995);
-        filter: blur(.2px);
+        transform: translateZ(0) rotate(-1.2deg) scale(.995);
+        filter: blur(.2px)
     }
     50% {
         transform: translateZ(0) rotate(1.4deg) scale(1.01);
-        filter: blur(0px);
+        filter: blur(0)
     }
     100% {
-        transform: translateZ(0) rotate(-1.2deg) scale(0.995);
-        filter: blur(.2px);
+        transform: translateZ(0) rotate(-1.2deg) scale(.995);
+        filter: blur(.2px)
     }
 }
 
@@ -244,12 +235,12 @@ body.mbha-cards {
 }
 
 .face.back {
-    background: url("../img/cards/card-back.png") center/100% 100% no-repeat;
+    background: url("../img/cards/card-back.png") center/100% 100% no-repeat
 }
 
 .face.front {
     transform: rotateY(180deg);
-    background: rgba(255, 255, 255, .02);
+    background: rgba(255, 255, 255, .02)
 }
 
 .front__img {
@@ -259,7 +250,6 @@ body.mbha-cards {
     background-position: center;
     z-index: 1;
     image-rendering: auto;
-    /* brighten avatars only */
     filter: brightness(1.18) contrast(1.06);
 }
 
@@ -271,11 +261,11 @@ body.mbha-cards {
 }
 
 
-/* Hide any leftovers (if present) */
+/* Hide leftovers */
 
 .front__meta,
 .name {
-    display: none !important;
+    display: none!important
 }
 
 
@@ -293,11 +283,11 @@ body.mbha-cards {
 }
 
 
-/* Active card thin gold glow (behind card) */
+/* Active card glow */
 
 .card.is-active {
     isolation: isolate;
-    z-index: 1200;
+    z-index: 1200
 }
 
 .card.is-active::before {
@@ -314,13 +304,13 @@ body.mbha-cards {
 
 @keyframes glowPulse {
     0% {
-        opacity: .55;
+        opacity: .55
     }
     50% {
-        opacity: 1;
+        opacity: 1
     }
     100% {
-        opacity: .55;
+        opacity: .55
     }
 }
 
@@ -331,7 +321,7 @@ body.mbha-cards {
     width: 100%;
     padding: 12px 14px;
     border-radius: 18px;
-    background: rgba(6, 10, 20, 0.88);
+    background: rgba(6, 10, 20, .88);
     border: 1px solid rgba(255, 255, 255, .10);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -344,13 +334,13 @@ body.mbha-cards {
 
 .info.is-on {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0)
 }
 
 .info__name {
     font-size: 18px;
     letter-spacing: .06em;
-    text-transform: uppercase;
+    text-transform: uppercase
 }
 
 
@@ -371,7 +361,6 @@ body.mbha-cards {
     letter-spacing: .01em;
     text-align: left;
     white-space: pre-wrap;
-    /* keep line breaks from Sheet */
     max-height: 120px;
     overflow-y: auto;
     padding-right: 6px;
@@ -381,17 +370,17 @@ body.mbha-cards {
 /* slim scrollbar */
 
 .info__about::-webkit-scrollbar {
-    width: 4px;
+    width: 4px
 }
 
 .info__about::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, .22);
-    border-radius: 6px;
+    border-radius: 6px
 }
 
 .info__about::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, .06);
-    border-radius: 6px;
+    border-radius: 6px
 }
 
 
@@ -402,7 +391,7 @@ body.mbha-cards {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    flex-wrap: wrap;
+    flex-wrap: wrap
 }
 
 .btn {
@@ -420,7 +409,7 @@ body.mbha-cards {
 
 .btn:active {
     transform: translateY(2px);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .20), 0 4px 10px rgba(0, 0, 0, .60);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .20), 0 4px 10px rgba(0, 0, 0, .60)
 }
 
 .btn-roll {
@@ -432,12 +421,12 @@ body.mbha-cards {
 
 .nav {
     display: flex;
-    gap: 12px;
+    gap: 12px
 }
 
 .btn-nav {
     width: 76px;
-    font-size: 20px;
+    font-size: 20px
 }
 
 
@@ -448,7 +437,7 @@ body.mbha-cards {
     top: 12px;
     right: 12px;
     z-index: 90;
-    padding: 10px 14px;
+    padding: 10px 14px
 }
 
 
@@ -458,7 +447,7 @@ body.mbha-cards {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 50;
+    z-index: 50
 }
 
 .fx-dot {
@@ -476,41 +465,41 @@ body.mbha-cards {
 @keyframes fx {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(.8);
+        transform: translate(-50%, -50%) scale(.8)
     }
     15% {
-        opacity: 1;
+        opacity: 1
     }
     100% {
         opacity: 0;
-        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s));
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s))
     }
 }
 
 
 /* Mobile tweaks */
 
-@media (max-width: 430px) {
+@media (max-width:430px) {
      :root {
         --cardW: 180px;
-        --gap: 115px;
+        --gap: 115px
     }
     .wheel-viewport {
-        height: 360px;
+        height: 360px
     }
     .team-badge {
         width: 190px;
-        bottom: -42px;
+        bottom: -42px
     }
     .info__name {
-        font-size: 16px;
+        font-size: 16px
     }
     .info__pa {
-        font-size: 14px;
+        font-size: 14px
     }
     .info__about {
         font-size: 12px;
-        max-height: 112px;
+        max-height: 112px
     }
 }
 
@@ -528,19 +517,19 @@ body.mbha-cards {
 }
 
 
-/* Optional pulse when visible (kept as-is) */
+/* Optional pulse when visible */
 
 .btn-results.is-on {
-    animation: resultsPulse 1.35s ease-in-out infinite;
+    animation: resultsPulse 1.35s ease-in-out infinite
 }
 
 @keyframes resultsPulse {
     0%,
     100% {
-        transform: translateX(-50%) scale(1);
+        transform: translateX(-50%) scale(1)
     }
     50% {
-        transform: translateX(-50%) scale(1.08);
+        transform: translateX(-50%) scale(1.08)
     }
 }
 
@@ -562,14 +551,14 @@ body.mbha-cards {
 
 .results.is-open {
     opacity: 1;
-    pointer-events: auto;
+    pointer-events: auto
 }
 
 .results__close {
     position: absolute;
     top: 12px;
     right: 12px;
-    z-index: 10;
+    z-index: 10
 }
 
 
@@ -582,33 +571,29 @@ body.mbha-cards {
     overflow: hidden;
     transform-origin: top center;
     background: #000;
-    /* STATIC neon frame (no inner animation) */
     border-radius: 16px;
-    border: 2px solid rgba(220, 240, 255, 0.92);
-    box-shadow: 0 0 0 2px rgba(220, 240, 255, 0.20), 0 0 22px rgba(180, 220, 255, 0.55), 0 0 60px rgba(180, 220, 255, 0.25), inset 0 0 12px rgba(200, 230, 255, 0.18);
+    border: 2px solid rgba(220, 240, 255, .92);
+    box-shadow: 0 0 0 2px rgba(220, 240, 255, .20), 0 0 22px rgba(180, 220, 255, .55), 0 0 60px rgba(180, 220, 255, .25), inset 0 0 12px rgba(200, 230, 255, .18);
 }
 
-
-/* Scale down only when viewport smaller than the canvas */
-
-@media (max-width: 375px),
-(max-height: 667px) {
+@media (max-width:375px),
+(max-height:667px) {
     .results__stage {
-        transform: scale(min(calc(100vw / 375), calc(100vh / 667)));
+        transform: scale(min(calc(100vw/375), calc(100vh/667)))
     }
 }
 
 
-/* Kill any old spiral / pseudo frame, keep it CLEAN */
+/* Kill any old spiral / pseudo frame */
 
 .results__stage::before,
 .results__stage::after {
-    content: none !important;
+    content: none!important
 }
 
 
 /* ===============================
-   RESULTS FINAL SCENE (layout only)
+   RESULTS FINAL SCENE
 ================================ */
 
 .rs {
@@ -619,11 +604,8 @@ body.mbha-cards {
     pointer-events: none;
 }
 
-
-/* Helpers: all scene parts above black */
-
 .rs * {
-    image-rendering: auto;
+    image-rendering: auto
 }
 
 
@@ -637,15 +619,14 @@ body.mbha-cards {
     background: center/contain no-repeat;
     filter: drop-shadow(0 14px 22px rgba(0, 0, 0, .65));
     opacity: 0;
-    /* JS will fade/slide in */
 }
 
 .rs__deer--left {
-    left: -220px;
+    left: -220px
 }
 
 .rs__deer--right {
-    right: -220px;
+    right: -220px
 }
 
 
@@ -654,11 +635,8 @@ body.mbha-cards {
 .rs__coins {
     position: absolute;
     inset: 0;
-    pointer-events: none;
+    pointer-events: none
 }
-
-
-/* Coin particle (JS creates div.rs__coin and sets CSS vars) */
 
 .rs__coin {
     position: absolute;
@@ -684,7 +662,6 @@ body.mbha-cards {
     filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .7));
     opacity: 0;
     z-index: 6;
-    /* cauldron above pipes */
 }
 
 
@@ -698,30 +675,28 @@ body.mbha-cards {
     background: center/contain no-repeat;
     filter: drop-shadow(0 14px 20px rgba(0, 0, 0, .7));
     opacity: 0;
-    /* Важное: крутим так, чтобы "верхний конец" смотрел к казану */
     transform-origin: 50% 18%;
     z-index: 5;
 }
 
 .rs__pipe--left {
     left: calc(10px + var(--pipe-left-x));
-    transform: rotate(var(--pipe-rot-left));
+    transform: rotate(var(--pipe-rot-left))
 }
 
 .rs__pipe--right {
     right: calc(10px + var(--pipe-right-x));
-    transform: rotate(var(--pipe-rot-right));
+    transform: rotate(var(--pipe-rot-right))
 }
 
 
-/* Bottles row */
+/* Boxes row (re-using bottles container) */
 
 .rs__bottles {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 70px;
-    /* FIXED */
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -730,89 +705,56 @@ body.mbha-cards {
     z-index: 7;
 }
 
+
+/* Now boxes (same class name kept for JS compatibility) */
+
 .rs__bottle {
-    width: 150px;
-    height: 250px;
+    width: 170px;
+    height: 220px;
     position: relative;
     background: center/contain no-repeat;
-    transform: scale(var(--bottle-scale));
-    /* FIXED */
+    transform: scale(var(--box-scale));
     filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .75));
 }
 
-
-/* FINAL: bottle horizontal offsets */
-
 .rs__bottle--kevin {
-    transform: translateX(var(--bottle-x-kevin)) scale(var(--bottle-scale));
+    transform: translateX(var(--box-x-kevin)) scale(var(--box-scale))
 }
 
 .rs__bottle--bandits {
-    transform: translateX(var(--bottle-x-bandits)) scale(var(--bottle-scale));
+    transform: translateX(var(--box-x-bandits)) scale(var(--box-scale))
 }
 
 
-/* ===============================
-   BOTTLE FILL (coins inside bottle)
-   JS will set: bottle.style.setProperty('--fill', '0..1')
-================================ */
+/* Pulse for boxes (JS can toggle .is-pulse) */
 
-.rs__bottle {
-    --fill: 0;
-    /* 0..1 */
+.rs__bottles.is-pulse .rs__bottle {
+    animation: boxPulse 860ms ease-in-out infinite;
 }
 
-.rs__bottle::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    opacity: 0.95;
-    /* coin pattern */
-    background-image: url("../img/final/coin.png");
-    background-repeat: repeat;
-    background-size: 34px 34px;
-    /* start from bottom */
-    transform-origin: bottom center;
-    transform: scaleY(var(--fill));
-    /* keep inside bottle silhouette */
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-size: contain;
-    -webkit-mask-position: center;
-    mask-repeat: no-repeat;
-    mask-size: contain;
-    mask-position: center;
-    z-index: 2;
-    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .55));
-}
-
-.rs__bottle--kevin::before {
-    -webkit-mask-image: url("../img/final/bottle-green.png");
-    mask-image: url("../img/final/bottle-green.png");
-}
-
-.rs__bottle--bandits::before {
-    -webkit-mask-image: url("../img/final/bottle-red.png");
-    mask-image: url("../img/final/bottle-red.png");
+@keyframes boxPulse {
+    0%,
+    100% {
+        transform: translateX(var(--_x, 0px)) scale(var(--box-scale))
+    }
+    50% {
+        transform: translateX(var(--_x, 0px)) scale(calc(var(--box-scale) * 1.04))
+    }
 }
 
 
-/* keep bottle art above fill */
+/* per-side var helper */
 
-.rs__bottle::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: inherit;
-    /* uses the same bottle image */
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    z-index: 4;
-    pointer-events: none;
+.rs__bottle--kevin {
+    --_x: var(--box-x-kevin)
+}
+
+.rs__bottle--bandits {
+    --_x: var(--box-x-bandits)
 }
 
 
-/* Labels above bottles */
+/* Labels above boxes */
 
 .rs__label {
     position: absolute;
@@ -827,19 +769,82 @@ body.mbha-cards {
 }
 
 
-/* Text counters */
+/* Counters under boxes */
 
 .rs__counter {
     position: absolute;
     left: 50%;
     bottom: -6px;
     transform: translateX(-50%) translateY(var(--counter-dy)) scale(var(--bottle-text-scale));
-    width: 156px;
+    width: 180px;
     text-align: center;
     font-size: 22px;
     letter-spacing: .18em;
     color: rgba(229, 231, 235, .98);
     text-shadow: 0 0 14px rgba(255, 255, 255, .25);
+}
+
+
+/* Team neon colors (labels + counters) */
+
+.rs__bottle--kevin .rs__label,
+.rs__bottle--kevin .rs__counter {
+    color: var(--neon-kevin);
+    text-shadow: 0 0 12px var(--neon-kevin), 0 0 24px var(--neon-kevin);
+}
+
+.rs__bottle--bandits .rs__label,
+.rs__bottle--bandits .rs__counter {
+    color: var(--neon-bandits);
+    text-shadow: 0 0 12px var(--neon-bandits), 0 0 24px var(--neon-bandits);
+}
+
+
+/* DYNAMITE layer */
+
+.rs__dynamite {
+    position: absolute;
+    left: 50%;
+    top: 210px;
+    width: 220px;
+    height: 220px;
+    transform: translateX(-50%) scale(.96);
+    background: center/contain no-repeat;
+    opacity: 0;
+    filter: drop-shadow(0 18px 26px rgba(0, 0, 0, .75));
+    z-index: 20;
+}
+
+.rs__dynamite.is-on {
+    opacity: 1
+}
+
+.rs__dynamite.is-tick {
+    animation: dynaTick 120ms ease-in-out infinite;
+}
+
+@keyframes dynaTick {
+    0%,
+    100% {
+        transform: translateX(-50%) scale(.98);
+        filter: brightness(1)
+    }
+    50% {
+        transform: translateX(-50%) scale(1.06);
+        filter: brightness(1.15)
+    }
+}
+
+
+/* Flash for impact */
+
+.rs__flash {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
 }
 
 
@@ -849,14 +854,15 @@ body.mbha-cards {
     position: absolute;
     inset: 0;
     opacity: 0;
-    pointer-events: none;
+    pointer-events: none
 }
 
 .rs__fireworks {
     position: absolute;
     inset: 0;
     background: center/520px 520px no-repeat;
-    background-position: center 90px;
+    background-position: center 14px;
+    /* very top */
     opacity: 0;
     filter: drop-shadow(0 0 18px rgba(255, 255, 255, .22));
 }
@@ -864,10 +870,11 @@ body.mbha-cards {
 .rs__sprite {
     position: absolute;
     left: 50%;
-    bottom: 210px;
+    bottom: 255px;
     width: 240px;
     height: 240px;
-    transform: translateX(-50%);
+    transform: translateX(calc(-50% + 22px));
+    /* Kevin a bit right */
     background: center/contain no-repeat;
     image-rendering: pixelated;
     filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .7));
@@ -877,15 +884,33 @@ body.mbha-cards {
 .rs__winText {
     position: absolute;
     left: 50%;
-    bottom: 150px;
+    bottom: 420px;
+    /* ABOVE fireworks */
     transform: translateX(-50%);
     font-size: 18px;
     letter-spacing: .16em;
-    color: rgba(240, 250, 255, .95);
-    text-shadow: 0 0 16px rgba(180, 220, 255, .35);
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255, 211, 95, .55), 0 0 22px rgba(255, 177, 0, .55), 0 0 40px rgba(255, 177, 0, .25);
     opacity: 0;
     white-space: nowrap;
+    animation: winGoldPulse 1.05s ease-in-out infinite;
+    z-index: 40;
 }
+
+@keyframes winGoldPulse {
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+        filter: brightness(1)
+    }
+    50% {
+        transform: translateX(-50%) scale(1.06);
+        filter: brightness(1.12)
+    }
+}
+
+
+/* Winner avatars — keep 4 + 3 centered */
 
 .rs__avatars {
     position: absolute;
@@ -908,209 +933,64 @@ body.mbha-cards {
     box-shadow: 0 10px 20px rgba(0, 0, 0, .55);
 }
 
+.rs__avatar:nth-child(5) {
+    grid-column: 2
+}
 
-/* Flash for impact */
+.rs__avatar:nth-child(6) {
+    grid-column: 3
+}
 
-.rs__flash {
-    position: absolute;
-    inset: 0;
-    background: #fff;
-    opacity: 0;
-    pointer-events: none;
+.rs__avatar:nth-child(7) {
+    grid-column: 4
 }
 
 
-/* Utility classes that JS will toggle later */
+/* Utility classes JS toggles */
 
 .rs.is-on {
-    pointer-events: none;
+    pointer-events: none
 }
 
 .rs.show-deer .rs__deer,
 .rs.show-cauldron .rs__cauldron,
 .rs.show-pipes .rs__pipe,
 .rs.show-bottles .rs__bottles {
-    opacity: 1;
+    opacity: 1
 }
 
 .rs.show-winner .rs__winner {
-    opacity: 1;
+    opacity: 1
 }
 
 .rs.show-winner .rs__fireworks,
 .rs.show-winner .rs__sprite,
 .rs.show-winner .rs__winText,
 .rs.show-winner .rs__avatars {
-    opacity: 1;
-}
-
-
-/* FINAL: team neon colors (labels + counters) */
-
-.rs__bottle--kevin .rs__label,
-.rs__bottle--kevin .rs__counter {
-    color: var(--neon-kevin);
-    text-shadow: 0 0 12px var(--neon-kevin), 0 0 24px var(--neon-kevin);
-}
-
-.rs__bottle--bandits .rs__label,
-.rs__bottle--bandits .rs__counter {
-    color: var(--neon-bandits);
-    text-shadow: 0 0 12px var(--neon-bandits), 0 0 24px var(--neon-bandits);
-}
-
-
-/* WIN TEXT — gold pulse */
-
-.rs__winText {
-    color: var(--gold);
-    text-shadow: 0 0 10px rgba(255, 211, 95, .55), 0 0 22px rgba(255, 177, 0, .55), 0 0 40px rgba(255, 177, 0, .25);
-    animation: winGoldPulse 1.05s ease-in-out infinite;
-}
-
-@keyframes winGoldPulse {
-    0%,
-    100% {
-        transform: translateX(-50%) scale(1);
-        filter: brightness(1);
-    }
-    50% {
-        transform: translateX(-50%) scale(1.06);
-        filter: brightness(1.12);
-    }
-}
-
-
-/* Winner avatars — 4 + 3 centered */
-
-.rs__avatar:nth-child(5) {
-    grid-column: 2;
-}
-
-.rs__avatar:nth-child(6) {
-    grid-column: 3;
-}
-
-.rs__avatar:nth-child(7) {
-    grid-column: 4;
+    opacity: 1
 }
 
 
 /* Scene shake */
 
 .rs.is-shake {
-    animation: rsShake 120ms linear infinite;
+    animation: rsShake 120ms linear infinite
 }
 
 @keyframes rsShake {
     0% {
-        transform: translate(0, 0);
+        transform: translate(0, 0)
     }
     25% {
-        transform: translate(1px, -1px);
+        transform: translate(1px, -1px)
     }
     50% {
-        transform: translate(-1px, 1px);
+        transform: translate(-1px, 1px)
     }
     75% {
-        transform: translate(1px, 1px);
+        transform: translate(1px, 1px)
     }
     100% {
-        transform: translate(-1px, -1px);
+        transform: translate(-1px, -1px)
     }
-}
-
-
-/* ====== OVERRIDES (winner positioning + avatars 4+3 centered) ====== */
-
-
-/* Raise fireworks higher */
-
-.rs__fireworks {
-    background-position: center 55px;
-}
-
-
-/* Raise Kevin sprite higher */
-
-.rs__sprite {
-    bottom: 255px;
-}
-
-
-/* Winner avatars: force 4 on first row, 3 on second row centered */
-
-.rs__avatars {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.rs__avatar {
-    flex: 0 0 auto;
-}
-
-
-/* ====== OVERRIDES v2 (per latest screenshot) ======
-   - Fireworks to the very top
-   - Kevin a bit to the right
-   - TEAM KEVIN WIN above avatars
-   - Avatars: keep current 4+3 layout (restore grid, no flex overrides)
-==================================================== */
-
-
-/* Fireworks: push to very top */
-
-.rs__fireworks {
-    background-position: center 14px;
-}
-
-
-/* Kevin sprite: a bit higher + to the right */
-
-.rs__sprite {
-    bottom: 255px;
-    transform: translateX(calc(-50% + 22px));
-}
-
-
-/* TEAM KEVIN WIN: above avatars */
-
-.rs__winText {
-    bottom: 235px;
-    z-index: 30;
-}
-
-
-/* Avatars: keep as grid (4 top + 3 centered) */
-
-.rs__avatars {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    justify-items: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.rs__avatar {
-    width: 70px;
-    height: 70px;
-    border-radius: 14px;
-}
-
-
-/* Keep 4 + 3 centered */
-
-.rs__avatar:nth-child(5) {
-    grid-column: 2;
-}
-
-.rs__avatar:nth-child(6) {
-    grid-column: 3;
-}
-
-.rs__avatar:nth-child(7) {
-    grid-column: 4;
 }

@@ -6,37 +6,42 @@
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtWbgxyuW-7Dr8wSuY3Zq2giptTNS4V31mf_tryTyHUPXPrnZLalThAjCfa_YBMGRl9aNmQOe3mHuU/pubhtml";
     const SHEET_CSV_URL = PUBHTML_URL.replace(/\/pubhtml.*$/i, "/pub?output=csv");
 
-    // ====== PATHS (IMPORTANT: paths are resolved from results/cards.html) ======
-    // Avatars are in: mbhomealone/img/avatars  -> from results/ it's ../img/avatars
+    // ====== PATHS (IMPORTANT: this file runs from results/cards.html) ======
     const AVATAR_BASE = "../img/avatars/"; // CODE.png
     const AVATAR_GUEST = "GUEST.png";
 
-    // Team icons are in: mbhomealone/results/img/icons -> from results/ it's ./img/icons
+    // Team icons (results/img/icons)
     const TEAM_BADGES = {
         bandits: "./img/icons/team-bandits.png",
         boss: "./img/icons/team-boss.png",
         kevin: "./img/icons/team-kevin.png",
     };
 
-    // Final scene assets live in: mbhomealone/results/img/final
+    // Final scene assets (results/img/final)
     const FINAL_ASSETS = {
         coin: "./img/final/coin.png",
+
+        // Boxes:
+        boxK_closed: "./img/final/wbk.png",
+        boxB_closed: "./img/final/wbb.png",
+        boxK_open: "./img/final/wbk1.png",
+        boxB_open: "./img/final/wbb1.png",
+
+        dynamite: "./img/final/dynamite.png",
+    };
+
+    // Audio (mbhomealone/audio -> from results/ it's ../audio)
+    const AUDIO = {
+        shmiak: "../audio/shmiak.mp3",
+        dontpush: "../audio/dont-push-guest.mp3",
+        tiktak: "../audio/tiktak.mp3",
+        bulk: "../audio/bulk.mp3",
+        watc: "../audio/watc.mp3",
     };
 
     // ====== SETTINGS ======
     const STORAGE_KEY = "mbha_cards_opened_v2";
     const LIMIT = 18;
-
-    // ====== TUNE MODE (stop final scene after deer slide-in) ======
-    const TUNE_MODE = (() => {
-        try { return new URL(window.location.href).searchParams.get("tune") === "1"; } catch { return false; }
-    })();
-
-    function cssVarPx(name, fallback = 0) {
-        const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        const n = parseFloat(v);
-        return Number.isFinite(n) ? n : fallback;
-    }
 
     // ====== DOM ======
     const track = document.getElementById("track");
@@ -55,12 +60,12 @@
     const infoPA = document.getElementById("infoPA");
     const infoAbout = document.getElementById("infoAbout");
 
-    // RESULTS (button + overlay)
+    // RESULTS
     const btnResults = document.getElementById("btnResults");
     const results = document.getElementById("results");
     const btnResultsClose = document.getElementById("btnResultsClose");
 
-    // Final scene DOM (optional; exists only if you use the prepared cards.html)
+    // Final scene DOM
     const rsRoot = document.getElementById("rsRoot");
     const deerLeft = document.getElementById("deerLeft");
     const deerRight = document.getElementById("deerRight");
@@ -68,11 +73,12 @@
     const cauldron = document.getElementById("cauldron");
     const pipeLeft = document.getElementById("pipeLeft");
     const pipeRight = document.getElementById("pipeRight");
-    const bottles = document.getElementById("bottles");
-    const bottleKevin = document.getElementById("bottleKevin");
-    const bottleBandits = document.getElementById("bottleBandits");
+    const bottles = document.getElementById("bottles"); // we keep ID, but now it's boxes container
+    const bottleKevin = document.getElementById("bottleKevin"); // box K element
+    const bottleBandits = document.getElementById("bottleBandits"); // box B element
     const countKevin = document.getElementById("countKevin");
     const countBandits = document.getElementById("countBandits");
+
     const winnerLayer = document.getElementById("winnerLayer");
     const fireworks = document.getElementById("fireworks");
     const winnerSprite = document.getElementById("winnerSprite");
@@ -91,12 +97,13 @@
     let finalRunning = false;
     let coinTimer = null;
     let pipeTimer = null;
-    let chaosTimer = null;
-    let spriteTimer = null;
 
-    // ====== NEW: bottle fill state (0..1) ======
-    let fillKevin = 0;
-    let fillBandits = 0;
+    // Audio instances
+    let a_shmiak = null;
+    let a_dontpush = null;
+    let a_tiktak = null;
+    let a_bulk = null;
+    let a_watc = null;
 
     // ====== Anti-zoom (Safari) ======
     document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
@@ -131,7 +138,7 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify([...opened]));
     }
 
-    // ✅ make CODE safe vs case mismatch
+    // CODE safe
     function avatarUrl(code) {
         const c = String(code || "").trim().toUpperCase();
         if (!c || c === "GUEST") return AVATAR_BASE + AVATAR_GUEST;
@@ -212,7 +219,7 @@
 
     // ====== HELPERS: money ======
     function parseMoneyToInt(raw) {
-        const s = String((raw === null || raw === undefined) ? "" : raw).trim();
+        const s = String(raw === null || raw === undefined ? "" : raw).trim();
         if (!s) return 0;
         const m = s.replace(/[^\d-]/g, "");
         const n = Number(m);
@@ -231,8 +238,7 @@
         return s;
     }
 
-    // ====== SHEET CELLS (Totals) ======
-    // Kevin TOTAL: F2, Bandits TOTAL: G2
+    // ====== Totals from sheet cells F2 / G2 ======
     function colLetterToIndex(letter) {
         const s = String(letter || "").trim().toUpperCase();
         if (!s) return -1;
@@ -271,7 +277,7 @@
         return String(str).replaceAll("'", "%27");
     }
 
-    // ====== UI BUILD ======
+    // ====== UI BUILD (cards) ======
     function createCard(player) {
         const code = String(player.CODE || "").trim();
         const name = String(player.NAME || "").trim() || "Гість";
@@ -300,35 +306,39 @@
 
         if (opened.has(code)) el.classList.add("is-open");
 
-        el.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (rolling) return;
+        el.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                if (rolling) return;
 
-            const centerEl = cardEls[active];
-            if (el !== centerEl) return;
+                const centerEl = cardEls[active];
+                if (el !== centerEl) return;
 
-            const codeNow = String(player.CODE || "").trim();
-            if (opened.has(codeNow)) {
-                burstFx(centerEl, 10);
+                const codeNow = String(player.CODE || "").trim();
+                if (opened.has(codeNow)) {
+                    burstFx(centerEl, 10);
+                    updateInfo();
+                    return;
+                }
+
+                opened.add(codeNow);
+                saveOpened();
+                centerEl.classList.add("is-open");
+                burstFx(centerEl, 18);
+
                 updateInfo();
-                return;
-            }
+                updateMode();
 
-            opened.add(codeNow);
-            saveOpened();
-            centerEl.classList.add("is-open");
-            burstFx(centerEl, 18);
-
-            updateInfo();
-            updateMode();
-
-            if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
-        }, { passive: false });
+                if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
+            }, { passive: false }
+        );
 
         return el;
     }
 
     function mountCards() {
+        if (!track) return;
         track.innerHTML = "";
         cardEls = players.map((p) => createCard(p));
         for (const el of cardEls) track.appendChild(el);
@@ -432,7 +442,9 @@
     }
 
     function updateMode() {
-        if (btnResults) btnResults.hidden = false; // TEMP
+        // TEMP: always show RESULTS for testing
+        if (btnResults) btnResults.hidden = false;
+
         const all = isAllOpened();
         if (btnRoll) btnRoll.hidden = all;
         if (nav) nav.hidden = !all;
@@ -455,7 +467,7 @@
 
         rolling = true;
         if (btnRoll) btnRoll.hidden = true;
-        track.classList.add("is-rolling");
+        if (track) track.classList.add("is-rolling");
 
         const target = pickRandomClosedIndex();
         const N = players.length;
@@ -478,7 +490,7 @@
                 active = target;
                 layout();
                 updateInfo();
-                track.classList.remove("is-rolling");
+                if (track) track.classList.remove("is-rolling");
                 return;
             }
 
@@ -503,10 +515,10 @@
 
     // ====== FX ======
     function burstFx(cardEl, amount) {
+        if (!fxLayer) return;
         const rect = cardEl.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
         const cy = rect.top + rect.height / 2;
-
         const count = Number.isFinite(amount) ? amount : 14;
 
         for (let i = 0; i < count; i++) {
@@ -533,7 +545,7 @@
         }
     }
 
-    // ====== LOAD ======
+    // ====== LOAD PLAYERS ======
     async function loadPlayers() {
         showStatus("Завантажую гравців…");
         const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
@@ -549,34 +561,46 @@
     // ====== EVENTS ======
     if (btnRoll) btnRoll.addEventListener("click", roll);
 
-    if (btnPrev) btnPrev.addEventListener("click", (e) => {
-        e.preventDefault();
-        step(-1);
-    }, { passive: false });
-    if (btnNext) btnNext.addEventListener("click", (e) => {
-        e.preventDefault();
-        step(1);
-    }, { passive: false });
+    if (btnPrev)
+        btnPrev.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                step(-1);
+            }, { passive: false }
+        );
+    if (btnNext)
+        btnNext.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                step(1);
+            }, { passive: false }
+        );
 
-    if (btnReset) btnReset.addEventListener("click", (e) => {
-        e.preventDefault();
-        localStorage.removeItem(STORAGE_KEY);
-        opened.clear();
-        for (const el of cardEls) el.classList.remove("is-open");
+    if (btnReset)
+        btnReset.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                localStorage.removeItem(STORAGE_KEY);
+                opened.clear();
+                for (const el of cardEls) el.classList.remove("is-open");
 
-        const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
-        active = firstClosed >= 0 ? firstClosed : 0;
+                const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
+                active = firstClosed >= 0 ? firstClosed : 0;
 
-        layout();
-        updateMode();
-    }, { passive: false });
+                layout();
+                updateMode();
+            }, { passive: false }
+        );
 
     // ====== RESULTS open/close ======
     function openResults() {
         if (!results) return;
         results.classList.add("is-open");
         results.setAttribute("aria-hidden", "false");
-        startFinalScene(); // 🔥 (async ok)
+        startFinalScene().catch(() => stopFinalScene());
     }
 
     function closeResults() {
@@ -591,133 +615,154 @@
 
     window.addEventListener("resize", () => layout());
 
-    // ====== FINAL SCENE ======
+    // =========================
+    // FINAL SCENE (NEW сценарий)
+    // =========================
     function hasFinalDOM() {
-        return !!(rsRoot && deerLeft && deerRight && coinsLayer && cauldron && pipeLeft && pipeRight && bottles && bottleKevin && bottleBandits && countKevin && countBandits);
+        return !!(
+            rsRoot &&
+            deerLeft &&
+            deerRight &&
+            coinsLayer &&
+            cauldron &&
+            pipeLeft &&
+            pipeRight &&
+            bottles &&
+            bottleKevin &&
+            bottleBandits &&
+            countKevin &&
+            countBandits &&
+            winnerLayer &&
+            fireworks &&
+            winnerSprite &&
+            winText &&
+            winnerAvatars &&
+            flash
+        );
     }
 
     function clearTimers() {
         if (coinTimer) window.clearInterval(coinTimer);
         if (pipeTimer) window.clearInterval(pipeTimer);
-        if (chaosTimer) window.clearInterval(chaosTimer);
-        if (spriteTimer) window.clearInterval(spriteTimer);
         coinTimer = null;
         pipeTimer = null;
-        chaosTimer = null;
-        spriteTimer = null;
     }
 
-    // ====== bottle fill helpers ======
-    function clamp01(x) {
-        const n = Number(x);
-        if (!Number.isFinite(n)) return 0;
-        return Math.max(0, Math.min(1, n));
+    function stopAllAudio() {
+        const arr = [a_shmiak, a_dontpush, a_tiktak, a_bulk, a_watc];
+        for (const a of arr) {
+            if (!a) continue;
+            try {
+                a.pause();
+                a.currentTime = 0;
+            } catch {}
+        }
     }
 
-    function setBottleFill(bottleEl, fill01) {
-        if (!bottleEl) return;
-        bottleEl.style.setProperty("--fill", String(clamp01(fill01)));
-    }
-
-    function resetBottleFill() {
-        fillKevin = 0;
-        fillBandits = 0;
-        setBottleFill(bottleKevin, 0);
-        setBottleFill(bottleBandits, 0);
-    }
-
-    function stopFinalScene() {
-        finalRunning = false;
-        clearTimers();
-        if (!hasFinalDOM()) return;
-
-        rsRoot.className = "rs";
-        rsRoot.style.transform = "";
-
-        deerLeft.style.transform = "";
-        deerRight.style.transform = "";
-        cauldron.style.transform = "";
-        pipeLeft.style.transform = "";
-        pipeRight.style.transform = "";
-        bottles.style.transform = "";
-
-        deerLeft.style.opacity = "0";
-        deerRight.style.opacity = "0";
-        cauldron.style.opacity = "0";
-        pipeLeft.style.opacity = "0";
-        pipeRight.style.opacity = "0";
-        bottles.style.opacity = "0";
-
-        if (winnerLayer) winnerLayer.style.opacity = "0";
-        if (fireworks) fireworks.style.opacity = "0";
-        if (winnerSprite) winnerSprite.style.opacity = "0";
-        if (winText) winText.style.opacity = "0";
-        if (winnerAvatars) winnerAvatars.style.opacity = "0";
-        if (flash) flash.style.opacity = "0";
-
-        if (coinsLayer) coinsLayer.innerHTML = "";
-
-        setCounter(countKevin, 0, 7);
-        setCounter(countBandits, 0, 7);
-
-        resetBottleFill();
-
-        setBgFromData(deerLeft, "closed");
-        setBgFromData(deerRight, "closed");
-        setBgFromData(pipeLeft, "a");
-        setBgFromData(pipeRight, "a");
-
-        bottleBandits.style.opacity = "";
-        bottleBandits.style.transform = "";
-        bottleBandits.style.filter = "";
-    }
-
-    async function startFinalScene() {
-        if (!hasFinalDOM()) return;
-        if (finalRunning) return;
-
-        finalRunning = true;
-        clearTimers();
-
-        rsRoot.classList.add("is-on");
-        resetBottleFill();
-
-        renderWinnerAvatars();
-
-        let totals = null;
-        try { totals = await fetchTotalsFromSheetCells(); } catch { totals = null; }
-        if (!totals) totals = computeTeamTotalsFromPlayers();
-
-        const targetKevin = Math.max(0, totals.kevin || 0);
-        const targetBandits = Math.max(0, totals.bandits || 0);
-
-        timelineKevinWins(targetKevin, targetBandits).catch(() => stopFinalScene());
-    }
-
-    function computeTeamTotalsFromPlayers() {
-        let sumKevin = 0;
-        let sumBandits = 0;
-
-        for (const p of players) {
-            const team = normTeamKey(p.TEAM);
-            const paRaw =
-                p["PERSONAL ACCOUNT"] !== null && p["PERSONAL ACCOUNT"] !== undefined ?
-                p["PERSONAL ACCOUNT"] :
-                p.PA !== null && p.PA !== undefined ?
-                p.PA :
-                "";
-
-            const n = parseMoneyToInt(paRaw);
-            if (team === "kevin") sumKevin += n;
-            if (team === "bandits") sumBandits += n;
+    function ensureAudio() {
+        // создаем один раз
+        if (!a_shmiak) a_shmiak = new Audio(AUDIO.shmiak);
+        if (!a_dontpush) a_dontpush = new Audio(AUDIO.dontpush);
+        if (!a_tiktak) a_tiktak = new Audio(AUDIO.tiktak);
+        if (!a_bulk) a_bulk = new Audio(AUDIO.bulk);
+        if (!a_watc) {
+            a_watc = new Audio(AUDIO.watc);
+            a_watc.loop = true;
         }
 
-        if (sumKevin === 0 && sumBandits === 0) {
-            sumKevin = 1854320;
-            sumBandits = 1739010;
-        }
+        // громкость (если захочешь — подстроим)
+        a_shmiak.volume = 1;
+        a_dontpush.volume = 1;
+        a_tiktak.volume = 1;
+        a_bulk.volume = 1;
+        a_watc.volume = 1;
+    }
 
-        return { kevin: sumKevin, bandits: sumBandits };
+    function setBgFromData(el, which) {
+        if (!el) return;
+        const key =
+            which === "open" || which === "closed" ? which : which === "b" ? "b" : "a";
+        const src = el.dataset ? el.dataset[key] : "";
+        if (src) el.style.backgroundImage = `url('${src}')`;
+    }
+
+    function setBoxesState(state /* "closed" | "open" */ ) {
+        if (!bottleKevin || !bottleBandits) return;
+        if (state === "open") {
+            bottleKevin.style.backgroundImage = `url('${FINAL_ASSETS.boxK_open}')`;
+            bottleBandits.style.backgroundImage = `url('${FINAL_ASSETS.boxB_open}')`;
+        } else {
+            bottleKevin.style.backgroundImage = `url('${FINAL_ASSETS.boxK_closed}')`;
+            bottleBandits.style.backgroundImage = `url('${FINAL_ASSETS.boxB_closed}')`;
+        }
+    }
+
+    function setCounter(el, value, digits = 7) {
+        if (!el) return;
+        const v = Math.max(0, Math.floor(value));
+        el.textContent = String(v).padStart(digits, "0");
+    }
+
+    function rectCenterIn(el, root) {
+        const r = el.getBoundingClientRect();
+        const rr = root.getBoundingClientRect();
+        return { x: r.left - rr.left + r.width / 2, y: r.top - rr.top + r.height / 2 };
+    }
+
+    function spawnCoin(fromX, fromY, toX, toY, dur = 850) {
+        if (!coinsLayer) return;
+        const c = document.createElement("div");
+        c.className = "rs__coin";
+        c.style.backgroundImage = `url('${FINAL_ASSETS.coin}')`;
+        c.style.left = `${fromX}px`;
+        c.style.top = `${fromY}px`;
+        c.style.opacity = "1";
+
+        const rot = (Math.random() * 720 - 360) | 0;
+        const midX =
+            fromX +
+            (toX - fromX) * (0.35 + Math.random() * 0.18) +
+            (Math.random() * 70 - 35);
+        const midY =
+            fromY +
+            (toY - fromY) * (0.45 + Math.random() * 0.18) -
+            (60 + Math.random() * 70);
+
+        c.animate(
+            [
+                { transform: `translate(-50%,-50%) rotate(0deg)`, offset: 0 },
+                {
+                    transform: `translate(${midX - fromX}px, ${midY - fromY}px) rotate(${rot / 2}deg)`,
+                    offset: 0.55,
+                },
+                {
+                    transform: `translate(${toX - fromX}px, ${toY - fromY}px) rotate(${rot}deg)`,
+                    offset: 1,
+                },
+            ], { duration: dur, easing: "cubic-bezier(.2,.8,.2,1)" }
+        );
+
+        coinsLayer.appendChild(c);
+        window.setTimeout(() => c.remove(), dur + 50);
+    }
+
+    function flashOnce(ms = 120) {
+        if (!flash) return;
+        flash.style.opacity = "0";
+        flash.animate([{ opacity: 0 }, { opacity: 0.9 }, { opacity: 0 }], {
+            duration: ms,
+            easing: "ease-out",
+        });
+    }
+
+    function startPipeAnim() {
+        let t = false;
+        pipeTimer = window.setInterval(() => {
+            if (!finalRunning) return;
+            t = !t;
+            setBgFromData(pipeLeft, t ? "b" : "a");
+            setBgFromData(pipeRight, t ? "b" : "a");
+        }, 140);
     }
 
     function renderWinnerAvatars() {
@@ -742,110 +787,6 @@
         }
     }
 
-    function setCounter(el, value, digits = 7) {
-        if (!el) return;
-        const v = Math.max(0, Math.floor(value));
-        el.textContent = String(v).padStart(digits, "0");
-    }
-
-    function setBgFromData(el, which) {
-        if (!el) return;
-        const key = which === "open" || which === "closed" ? which : which === "b" ? "b" : "a";
-        const src = el.dataset ? el.dataset[key] : "";
-        if (src) el.style.backgroundImage = `url('${src}')`;
-    }
-
-    function rectCenterIn(el, root) {
-        const r = el.getBoundingClientRect();
-        const rr = root.getBoundingClientRect();
-        return { x: r.left - rr.left + r.width / 2, y: r.top - rr.top + r.height / 2 };
-    }
-
-    function spawnCoin(fromX, fromY, toX, toY, dur = 850) {
-        if (!coinsLayer) return;
-        const c = document.createElement("div");
-        c.className = "rs__coin";
-        c.style.backgroundImage = `url('${FINAL_ASSETS.coin}')`;
-        c.style.left = `${fromX}px`;
-        c.style.top = `${fromY}px`;
-        c.style.opacity = "1";
-
-        const rot = (Math.random() * 720 - 360) | 0;
-        const midX = fromX + (toX - fromX) * (0.35 + Math.random() * 0.18) + (Math.random() * 70 - 35);
-        const midY = fromY + (toY - fromY) * (0.45 + Math.random() * 0.18) - (60 + Math.random() * 70);
-
-        c.animate(
-            [
-                { transform: `translate(-50%,-50%) rotate(0deg)`, offset: 0 },
-                { transform: `translate(${midX - fromX}px, ${midY - fromY}px) rotate(${rot / 2}deg)`, offset: 0.55 },
-                { transform: `translate(${toX - fromX}px, ${toY - fromY}px) rotate(${rot}deg)`, offset: 1 },
-            ], { duration: dur, easing: "cubic-bezier(.2,.8,.2,1)" }
-        );
-
-        coinsLayer.appendChild(c);
-        window.setTimeout(() => c.remove(), dur + 50);
-    }
-
-    function flashOnce(ms = 90) {
-        if (!flash) return;
-        flash.style.opacity = "0";
-        flash.animate([{ opacity: 0 }, { opacity: 0.85 }, { opacity: 0 }], { duration: ms, easing: "ease-out" });
-    }
-
-    function startPipeAnim() {
-        let t = false;
-        pipeTimer = window.setInterval(() => {
-            if (!finalRunning) return;
-            t = !t;
-            setBgFromData(pipeLeft, t ? "b" : "a");
-            setBgFromData(pipeRight, t ? "b" : "a");
-        }, 140);
-    }
-
-    function startChaosCounters() {
-        chaosTimer = window.setInterval(() => {
-            if (!finalRunning) return;
-            setCounter(countKevin, Math.floor(Math.random() * 9999999), 7);
-            setCounter(countBandits, Math.floor(Math.random() * 9999999), 7);
-        }, 80);
-    }
-
-    function stopChaosCounters() {
-        if (chaosTimer) window.clearInterval(chaosTimer);
-        chaosTimer = null;
-    }
-
-    async function animateCountTo(el, from, to, duration, digits = 7, easing = (t) => t, fillBottleEl = null, fillMax = 1) {
-        const start = performance.now();
-        setCounter(el, from, digits);
-
-        return new Promise((resolve) => {
-            const stepAnim = (now) => {
-                if (!finalRunning) return resolve();
-                const t = Math.min(1, (now - start) / Math.max(1, duration));
-                const v = Math.round(from + (to - from) * easing(t));
-                setCounter(el, v, digits);
-
-                if (fillBottleEl) {
-                    const ratio = fillMax > 0 ? (v / fillMax) : 0;
-                    setBottleFill(fillBottleEl, ratio);
-                }
-
-                if (t >= 1) return resolve();
-                requestAnimationFrame(stepAnim);
-            };
-            requestAnimationFrame(stepAnim);
-        });
-    }
-
-    function easeOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
-    }
-
-    function easeInOutQuad(t) {
-        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-    }
-
     function startKevinSprite() {
         if (!winnerSprite) return;
 
@@ -857,80 +798,194 @@
         winnerSprite.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
 
         let frame = 0;
-        spriteTimer = window.setInterval(() => {
+        const timer = window.setInterval(() => {
             if (!finalRunning) return;
             const f = frame % frames;
             const cx = f % cols;
             const cy = Math.floor(f / cols);
-            const x = (cols === 1) ? 0 : (cx * 100) / (cols - 1);
-            const y = (rows === 1) ? 0 : (cy * 100) / (rows - 1);
+            const x = cols === 1 ? 0 : (cx * 100) / (cols - 1);
+            const y = rows === 1 ? 0 : (cy * 100) / (rows - 1);
             winnerSprite.style.backgroundPosition = `${x}% ${y}%`;
             frame++;
         }, 120);
+
+        // сохраняем как "coinTimer" нельзя, поэтому стопаем через finalRunning
+        // и дополнительно чистим при stopFinalScene через clearTimers? тут нет.
+        // Ок: привяжем к stopFinalScene via finalRunning=false (интервал сам будет жить),
+        // но лучше убить:
+        const kill = () => window.clearInterval(timer);
+        // когда stopFinalScene() дернет finalRunning=false, мы не узнаем.
+        // поэтому храним в winnerSprite.dataset
+        winnerSprite.dataset._spriteTimer = String(timer);
     }
 
-    // ====== WINNER UI LIFT (bottle/counter move up AFTER Kevin sprite appears) ======
-    function liftBottlesUpAfterWinner() {
-        if (!bottles) return;
-
-        bottles.animate(
-            [
-                { transform: "translateY(0px)" },
-                { transform: "translateY(-180px)" },
-            ], {
-                duration: 700,
-                easing: "cubic-bezier(.2,.9,.2,1)",
-                fill: "forwards",
-            }
-        );
-
-        bottles.style.transform = "translateY(-140px)";
+    function stopSpriteTimerIfAny() {
+        if (!winnerSprite) return;
+        const id = Number(winnerSprite.dataset._spriteTimer || 0);
+        if (id) window.clearInterval(id);
+        winnerSprite.dataset._spriteTimer = "";
     }
 
-    // ====== Outro ======
-    async function playFinalOutro(deerInLeftX, deerInRightX, deerInY) {
-        if (!finalRunning) return;
-
-        setBgFromData(deerLeft, "closed");
-        setBgFromData(deerRight, "closed");
-
-        if (coinTimer) window.clearInterval(coinTimer);
-        coinTimer = null;
-
-        const dropDur = 650;
-        if (cauldron) {
-            cauldron.animate(
-                [{ transform: "translateX(-50%) scale(1)", opacity: 1 }, { transform: "translateX(-50%) translateY(280px) scale(.9)", opacity: 0 }], { duration: dropDur, easing: "cubic-bezier(.2,.0,.2,1)", fill: "forwards" }
-            );
+    // Dynamite element: создаём в rsRoot, чтобы HTML не трогать
+    function ensureDynamiteEl() {
+        if (!rsRoot) return null;
+        let el = rsRoot.querySelector(".rs__dynamite");
+        if (!el) {
+            el = document.createElement("div");
+            el.className = "rs__dynamite";
+            el.style.backgroundImage = `url('${FINAL_ASSETS.dynamite}')`;
+            rsRoot.appendChild(el);
+        } else {
+            el.style.backgroundImage = `url('${FINAL_ASSETS.dynamite}')`;
         }
-        if (pipeLeft) {
-            pipeLeft.animate(
-                [{ transform: getComputedStyle(pipeLeft).transform, opacity: 1 }, { transform: "translateY(280px) rotate(45deg)", opacity: 0 }], { duration: dropDur, easing: "cubic-bezier(.2,.0,.2,1)", fill: "forwards" }
-            );
-        }
-        if (pipeRight) {
-            pipeRight.animate(
-                [{ transform: getComputedStyle(pipeRight).transform, opacity: 1 }, { transform: "translateY(280px) rotate(-45deg)", opacity: 0 }], { duration: dropDur, easing: "cubic-bezier(.2,.0,.2,1)", fill: "forwards" }
-            );
+        return el;
+    }
+
+    function computeTeamTotalsFromPlayers() {
+        let sumKevin = 0;
+        let sumBandits = 0;
+
+        for (const p of players) {
+            const team = normTeamKey(p.TEAM);
+            const paRaw =
+                p["PERSONAL ACCOUNT"] !== null && p["PERSONAL ACCOUNT"] !== undefined ?
+                p["PERSONAL ACCOUNT"] :
+                p.PA !== null && p.PA !== undefined ?
+                p.PA :
+                "";
+
+            const n = parseMoneyToInt(paRaw);
+            if (team === "kevin") sumKevin += n;
+            if (team === "bandits") sumBandits += n;
         }
 
-        const outDur = 900;
-        deerLeft.animate(
-            [{ transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` }, { transform: "translateX(0px) translateY(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
-        );
-        deerRight.animate(
-            [{ transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` }, { transform: "translateX(0px) translateY(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
-        );
+        if (sumKevin === 0 && sumBandits === 0) {
+            sumKevin = 1854320;
+            sumBandits = 1739010;
+        }
+        return { kevin: sumKevin, bandits: sumBandits };
+    }
 
-        await wait(Math.max(dropDur, outDur));
+    function wait(ms) {
+        return new Promise((r) => window.setTimeout(r, ms));
+    }
+
+    // ====== STOP/RESET FINAL ======
+    function stopFinalScene() {
+        finalRunning = false;
+        clearTimers();
+        stopSpriteTimerIfAny();
+        stopAllAudio();
+
+        if (!hasFinalDOM()) return;
+
+        // reset classes
+        rsRoot.className = "rs";
+
+        // clear coins
+        if (coinsLayer) coinsLayer.innerHTML = "";
+
+        // reset opacities
         deerLeft.style.opacity = "0";
         deerRight.style.opacity = "0";
         cauldron.style.opacity = "0";
         pipeLeft.style.opacity = "0";
         pipeRight.style.opacity = "0";
+        bottles.style.opacity = "0";
+
+        // reset transforms
+        deerLeft.style.transform = "";
+        deerRight.style.transform = "";
+        cauldron.style.transform = "";
+        pipeLeft.style.transform = "";
+        pipeRight.style.transform = "";
+        bottles.style.transform = "";
+
+        // pipes default frame
+        setBgFromData(pipeLeft, "a");
+        setBgFromData(pipeRight, "a");
+
+        // deer closed
+        setBgFromData(deerLeft, "closed");
+        setBgFromData(deerRight, "closed");
+
+        // boxes default (closed)
+        setBoxesState("closed");
+        bottles.classList.remove("is-pulse");
+
+        // counters reset
+        setCounter(countKevin, 0, 7);
+        setCounter(countBandits, 0, 7);
+
+        // hide winner
+        winnerLayer.style.opacity = "0";
+        fireworks.style.opacity = "0";
+        winnerSprite.style.opacity = "0";
+        winText.style.opacity = "0";
+        winnerAvatars.style.opacity = "0";
+
+        // hide flash
+        flash.style.opacity = "0";
+
+        // hide dynamite if exists
+        const d = rsRoot.querySelector(".rs__dynamite");
+        if (d) {
+            d.classList.remove("is-on", "is-tick");
+            d.style.opacity = "0";
+        }
     }
 
-    function getDeerEdgeInX() {
+    // ====== FINAL SCENE START ======
+    async function startFinalScene() {
+        if (!hasFinalDOM()) return;
+        if (finalRunning) return;
+
+        finalRunning = true;
+        clearTimers();
+        stopSpriteTimerIfAny();
+        stopAllAudio();
+        ensureAudio();
+
+        // base state
+        rsRoot.classList.add("is-on");
+        setBoxesState("closed");
+        bottles.classList.remove("is-pulse");
+
+        // show nothing yet
+        deerLeft.style.opacity = "0";
+        deerRight.style.opacity = "0";
+        cauldron.style.opacity = "0";
+        pipeLeft.style.opacity = "0";
+        pipeRight.style.opacity = "0";
+        bottles.style.opacity = "0";
+
+        winnerLayer.style.opacity = "0";
+        fireworks.style.opacity = "0";
+        winnerSprite.style.opacity = "0";
+        winText.style.opacity = "0";
+        winnerAvatars.style.opacity = "0";
+
+        // totals
+        let totals = null;
+        try {
+            totals = await fetchTotalsFromSheetCells();
+        } catch {
+            totals = null;
+        }
+        if (!totals) totals = computeTeamTotalsFromPlayers();
+
+        const targetKevin = Math.max(0, totals.kevin || 0);
+        const targetBandits = Math.max(0, totals.bandits || 0);
+
+        renderWinnerAvatars();
+
+        // RUN сценарий
+        await timelineScenario(targetKevin, targetBandits);
+    }
+
+    // ====== MAIN TIMELINE ======
+    function getDeerInTransforms() {
+        // Use your tuned magic values like before
         const OFFSET = -25;
         const LEFT_NUDGE = -10;
         const RIGHT_NUDGE = 35;
@@ -940,68 +995,54 @@
         const rightRaw = getComputedStyle(deerRight).right;
         const left = Number.isFinite(parseFloat(leftRaw)) ? parseFloat(leftRaw) : -220;
         const right = Number.isFinite(parseFloat(rightRaw)) ? parseFloat(rightRaw) : -220;
+
         const inLeftX = -left + OFFSET + LEFT_NUDGE;
         const inRightX = right + OFFSET + RIGHT_NUDGE;
-        const inY = DEER_Y_NUDGE;
-        return { inLeftX, inRightX, inY };
+
+        return { inLeftX, inRightX, inY: DEER_Y_NUDGE };
     }
 
-    async function timelineKevinWins(targetKevin, targetBandits) {
-        stopFinalScene();
-        finalRunning = true;
-        rsRoot.classList.add("is-on");
+    async function timelineScenario(targetKevin, targetBandits) {
+        // 0) small delay
+        await wait(120);
+        if (!finalRunning) return;
 
-        await wait(220);
-
+        // 1) DARK. Deer slide in + cauldron appears. Coins to cauldron 5s, then deer close and slide out.
         deerLeft.style.opacity = "1";
         deerRight.style.opacity = "1";
         setBgFromData(deerLeft, "closed");
         setBgFromData(deerRight, "closed");
 
-        const deerEdge = getDeerEdgeInX();
-        const deerInLeftX = deerEdge.inLeftX;
-        const deerInRightX = deerEdge.inRightX;
-        const deerInY = deerEdge.inY;
-        const deerInDur = 1450;
+        const { inLeftX, inRightX, inY } = getDeerInTransforms();
+        const deerInDur = 1100;
 
         deerLeft.animate(
-            [{ transform: "translateX(0px) translateY(0px)" }, { transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [
+                { transform: "translateX(0px) translateY(0px)" },
+                { transform: `translateX(${inLeftX}px) translateY(${inY}px)` },
+            ], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
         deerRight.animate(
-            [{ transform: "translateX(0px) translateY(0px)" }, { transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [
+                { transform: "translateX(0px) translateY(0px)" },
+                { transform: `translateX(${inRightX}px) translateY(${inY}px)` },
+            ], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
 
-        await wait(deerInDur + 160);
-        await wait(420);
+        await wait(deerInDur + 120);
+        if (!finalRunning) return;
 
-        if (TUNE_MODE) {
-            deerLeft.style.transform = `translateX(${deerInLeftX}px) translateY(${deerInY}px)`;
-            deerRight.style.transform = `translateX(${deerInRightX}px) translateY(${deerInY}px)`;
+        cauldron.style.opacity = "1";
+        cauldron.animate(
+            [{ transform: "translateX(-50%) scale(.985)" }, { transform: "translateX(-50%) scale(1)" }], { duration: 380, easing: "ease-out", fill: "forwards" }
+        );
 
-            setBgFromData(deerLeft, "closed");
-            setBgFromData(deerRight, "closed");
-
-            if (cauldron) cauldron.style.opacity = "1";
-            if (pipeLeft) pipeLeft.style.opacity = "1";
-            if (pipeRight) pipeRight.style.opacity = "1";
-            if (bottles) bottles.style.opacity = "1";
-            return;
-        }
+        // deer mouths open + coins start
+        await wait(160);
+        if (!finalRunning) return;
 
         setBgFromData(deerLeft, "open");
         setBgFromData(deerRight, "open");
-        await wait(180);
-
-        cauldron.style.opacity = "1";
-        pipeLeft.style.opacity = "1";
-        pipeRight.style.opacity = "1";
-        bottles.style.opacity = "1";
-
-        cauldron.animate(
-            [{ transform: "translateX(-50%) scale(.985)" }, { transform: "translateX(-50%) scale(1)" }], { duration: 420, easing: "ease-out", fill: "forwards" }
-        );
-
-        startPipeAnim();
 
         const caulCenter = rectCenterIn(cauldron, rsRoot);
         const toX1 = caulCenter.x - 18;
@@ -1021,112 +1062,184 @@
 
             spawnCoin(fromLeftX, fromLeftY, toX1, toY, 900);
             spawnCoin(fromRightX, fromRightY, toX2, toY, 900);
+        }, 145);
 
-            fillKevin = Math.min(0.28, fillKevin + 0.004);
-            fillBandits = Math.min(0.28, fillBandits + 0.004);
-            setBottleFill(bottleKevin, fillKevin);
-            setBottleFill(bottleBandits, fillBandits);
-        }, 155);
+        await wait(5000);
+        if (!finalRunning) return;
 
-        await wait(900);
-        startChaosCounters();
+        // stop coins, mouths close, deer slide out
+        if (coinTimer) window.clearInterval(coinTimer);
+        coinTimer = null;
 
-        rsRoot.classList.add("is-shake");
-        flashOnce(120);
-        await wait(3000);
-        rsRoot.classList.remove("is-shake");
+        setBgFromData(deerLeft, "closed");
+        setBgFromData(deerRight, "closed");
 
-        flashOnce(120);
-        stopChaosCounters();
-        setCounter(countKevin, 0, 7);
-        setCounter(countBandits, 0, 7);
-
-        setBottleFill(bottleKevin, fillKevin);
-        setBottleFill(bottleBandits, fillBandits);
-
-        await wait(250);
-
-        const intrigue = 1700000;
-        const bothTarget = intrigue;
-        await Promise.all([
-            animateCountTo(countKevin, 0, bothTarget, 2600, 7, easeInOutQuad, bottleKevin, bothTarget),
-            animateCountTo(countBandits, 0, bothTarget, 2600, 7, easeInOutQuad, bottleBandits, bothTarget),
-        ]);
-
-        await slowFlipSuspense(5000, bothTarget);
-
-        const finalK = Math.max(targetKevin, intrigue + 1);
-        const finalB = Math.min(targetBandits, finalK - 1);
-
-        const blink = bottleBandits.animate([{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 240, iterations: 10 });
-
-        const countK = animateCountTo(countKevin, intrigue, finalK, 2600, 7, easeOutCubic, bottleKevin, finalK);
-        const countB = animateCountTo(countBandits, intrigue, finalB, 900, 7, easeOutCubic, bottleBandits, finalK);
-
-        await Promise.all([countK, countB]);
-
-        blink.cancel();
-        bottleBandits.animate(
+        const deerOutDur = 900;
+        deerLeft.animate(
             [
-                { transform: "scale(.92)", opacity: 1, filter: "drop-shadow(0 16px 22px rgba(0,0,0,.75))" },
-                { transform: "scale(1.03)", opacity: 1 },
-                { transform: "scale(.2) translateY(40px)", opacity: 0 },
-            ], { duration: 520, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+                { transform: `translateX(${inLeftX}px) translateY(${inY}px)` },
+                { transform: "translateX(0px) translateY(0px)" },
+            ], { duration: deerOutDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+        deerRight.animate(
+            [
+                { transform: `translateX(${inRightX}px) translateY(${inY}px)` },
+                { transform: "translateX(0px) translateY(0px)" },
+            ], { duration: deerOutDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
 
-        await wait(520);
+        await wait(deerOutDur + 80);
+        if (!finalRunning) return;
 
-        await playFinalOutro(deerInLeftX, deerInRightX, deerInY);
+        deerLeft.style.opacity = "0";
+        deerRight.style.opacity = "0";
 
-        if (winnerLayer) winnerLayer.style.opacity = "1";
-        if (fireworks) fireworks.style.opacity = "1";
-        if (winText) winText.style.opacity = "1";
-        if (winnerAvatars) winnerAvatars.style.opacity = "1";
-        if (winnerSprite) winnerSprite.style.opacity = "1";
+        // 2) Pipes appear + boxes closed pulsing
+        pipeLeft.style.opacity = "1";
+        pipeRight.style.opacity = "1";
+        bottles.style.opacity = "1";
+        setBoxesState("closed");
+        bottles.classList.add("is-pulse");
 
-        if (fireworks) {
-            fireworks.animate([{ opacity: 0.0 }, { opacity: 0.85 }, { opacity: 0.25 }], {
-                duration: 1200,
-                iterations: 999,
-                easing: "ease-in-out",
+        startPipeAnim();
+        await wait(900);
+        if (!finalRunning) return;
+
+        // 3) Switch to open boxes with heaps of coins, counting
+        setBoxesState("open");
+
+        // digits chaos (3s) then settle to totals
+        const chaosStart = performance.now();
+        const chaos = () =>
+            new Promise((resolve) => {
+                const tick = () => {
+                    if (!finalRunning) return resolve();
+                    const t = performance.now() - chaosStart;
+                    setCounter(countKevin, Math.floor(Math.random() * 9999999), 7);
+                    setCounter(countBandits, Math.floor(Math.random() * 9999999), 7);
+                    if (t >= 3000) return resolve();
+                    window.setTimeout(tick, 70);
+                };
+                tick();
             });
+
+        await chaos();
+        if (!finalRunning) return;
+
+        // smooth count to totals (no blinking/pauses)
+        await Promise.all([
+            animateCountTo(countKevin, 0, targetKevin, 950, 7),
+            animateCountTo(countBandits, 0, targetBandits, 950, 7),
+        ]);
+
+        bottles.classList.remove("is-pulse");
+
+        // 4) Dynamite: shmiak -> show dynamite -> dontpush -> tiktak 2s pulse -> flash + bulk
+        const dyna = ensureDynamiteEl();
+        if (dyna) {
+            dyna.classList.remove("is-tick");
+            dyna.classList.add("is-on");
+            dyna.style.opacity = "1";
         }
 
+        // shmiak
+        try {
+            a_shmiak.currentTime = 0;
+            await a_shmiak.play();
+        } catch {}
+
+        // dont-push
+        try {
+            a_dontpush.currentTime = 0;
+            await a_dontpush.play();
+        } catch {}
+
+        // tiktak + pulse 2 sec
+        if (dyna) dyna.classList.add("is-tick");
+        try {
+            a_tiktak.currentTime = 0;
+            await a_tiktak.play();
+        } catch {}
+
+        await wait(2000);
+        if (!finalRunning) return;
+
+        if (dyna) dyna.classList.remove("is-tick");
+
+        // flash + bulk
+        flashOnce(150);
+        try {
+            a_bulk.currentTime = 0;
+            await a_bulk.play();
+        } catch {}
+
+        // hide dynamite fast
+        if (dyna) {
+            dyna.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: "ease-out", fill: "forwards" });
+            dyna.style.opacity = "0";
+        }
+
+        // 5) Winner finale screen
+        // hide previous elements smoothly (keep cauldron in place if хочешь — но ты сказал дальше экран как был)
+        // We'll fade pipes/boxes/cauldron:
+        cauldron.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "ease-out", fill: "forwards" });
+        pipeLeft.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "ease-out", fill: "forwards" });
+        pipeRight.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "ease-out", fill: "forwards" });
+        bottles.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "ease-out", fill: "forwards" });
+
+        await wait(260);
+        if (!finalRunning) return;
+
+        cauldron.style.opacity = "0";
+        pipeLeft.style.opacity = "0";
+        pipeRight.style.opacity = "0";
+        bottles.style.opacity = "0";
+
+        rsRoot.classList.add("show-winner");
+
+        winnerLayer.style.opacity = "1";
+        fireworks.style.opacity = "1";
+        winText.style.opacity = "1";
+        winnerAvatars.style.opacity = "1";
+        winnerSprite.style.opacity = "1";
+
+        // fireworks subtle pulse
+        fireworks.animate([{ opacity: 0.15 }, { opacity: 0.85 }, { opacity: 0.25 }], {
+            duration: 1200,
+            iterations: 999,
+            easing: "ease-in-out",
+        });
+
+        // animate sprite
         startKevinSprite();
 
-        window.setTimeout(() => { if (finalRunning) liftBottlesUpAfterWinner(); }, 260);
-
-        flashOnce(110);
+        // watc starts and loops (stop on CLOSE)
+        try {
+            a_watc.currentTime = 0;
+            await a_watc.play();
+        } catch {}
     }
 
-    async function slowFlipSuspense(ms, fillMax = 1) {
+    function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    async function animateCountTo(el, from, to, duration, digits = 7) {
         const start = performance.now();
+        setCounter(el, from, digits);
+
         return new Promise((resolve) => {
-            const tick = () => {
+            const stepAnim = (now) => {
                 if (!finalRunning) return resolve();
-                const t = performance.now() - start;
-                if (t >= ms) return resolve();
-
-                const base = 1700000;
-                const jitter = Math.floor(Math.random() * 900);
-                const vK = base + jitter;
-                const vB = base + (900 - jitter);
-                setCounter(countKevin, vK, 7);
-                setCounter(countBandits, vB, 7);
-
-                if (fillMax > 0) {
-                    setBottleFill(bottleKevin, vK / fillMax);
-                    setBottleFill(bottleBandits, vB / fillMax);
-                }
-
-                window.setTimeout(tick, 140 + Math.random() * 120);
+                const t = Math.min(1, (now - start) / Math.max(1, duration));
+                const eased = easeOutCubic(t);
+                const v = Math.round(from + (to - from) * eased);
+                setCounter(el, v, digits);
+                if (t >= 1) return resolve();
+                requestAnimationFrame(stepAnim);
             };
-            tick();
+            requestAnimationFrame(stepAnim);
         });
-    }
-
-    function wait(ms) {
-        return new Promise((r) => window.setTimeout(r, ms));
     }
 
     // ====== BOOT ======
