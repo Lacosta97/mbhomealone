@@ -1019,3 +1019,35 @@ body.mbha-cards {
         transform: translate(-1px, -1px);
     }
 }
+
+
+/* ====== OVERRIDES (winner positioning + avatars 4+3 centered) ====== */
+
+
+/* Raise fireworks higher */
+
+.rs__fireworks {
+    background-position: center 55px;
+}
+
+
+/* Raise Kevin sprite higher */
+
+.rs__sprite {
+    bottom: 255px;
+}
+
+
+/* Winner avatars: force 4 on first row, 3 on second row centered */
+
+.rs__avatars {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.rs__avatar {
+    flex: 0 0 auto;
+}

@@ -549,10 +549,14 @@
     // ====== EVENTS ======
     if (btnRoll) btnRoll.addEventListener("click", roll);
 
-    if (btnPrev) btnPrev.addEventListener("click", (e) => { e.preventDefault();
-        step(-1); }, { passive: false });
-    if (btnNext) btnNext.addEventListener("click", (e) => { e.preventDefault();
-        step(1); }, { passive: false });
+    if (btnPrev) btnPrev.addEventListener("click", (e) => {
+        e.preventDefault();
+        step(-1);
+    }, { passive: false });
+    if (btnNext) btnNext.addEventListener("click", (e) => {
+        e.preventDefault();
+        step(1);
+    }, { passive: false });
 
     if (btnReset) btnReset.addEventListener("click", (e) => {
         e.preventDefault();
@@ -872,7 +876,7 @@
         bottles.animate(
             [
                 { transform: "translateY(0px)" },
-                { transform: "translateY(-110px)" },
+                { transform: "translateY(-140px)" },
             ], {
                 duration: 700,
                 easing: "cubic-bezier(.2,.9,.2,1)",
@@ -880,7 +884,7 @@
             }
         );
 
-        bottles.style.transform = "translateY(-110px)";
+        bottles.style.transform = "translateY(-140px)";
     }
 
     // ====== Outro ======
