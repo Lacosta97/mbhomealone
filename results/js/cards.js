@@ -35,6 +35,8 @@
         tiktak: "../audio/tiktak.mp3",
         bulk: "../audio/bulk.mp3",
         watc: "../audio/watc.mp3",
+        boxshmyak: "../audio/boxshmyak.mp3",
+        boxopencoin: "../audio/boxopencoin.mp3",
     };
 
     // ====== SETTINGS ======
@@ -46,6 +48,11 @@
 
     // ROLL duration (exactly 1s)
     const ROLL_DURATION_MS = 1000;
+
+    // Slam tuning
+    const SLAM_DUR_MS = 260; // must match CSS boxSlam duration
+    const SLAM_GAP_MS = 1000; // gap between left & right slam
+    const OPEN_AFTER_PUMP_DELAY_MS = 500;
 
     // ====== TUNE MODE (stop final scene after deer slide-in) ======
     const TUNE_MODE = (() => {
@@ -356,6 +363,11 @@
         }
     }
 
+    async function playSfxForDuration(key, ms) {
+        await playSfx(key, { restart: true });
+        window.setTimeout(() => stopSfx(key), Math.max(0, ms | 0));
+    }
+
     // ====== UI BUILD ======
     function createCard(player) {
         const code = String(player.CODE || "").trim();
@@ -543,9 +555,18 @@
     function roll() {
         if (rolling) return;
         if (isAllOpened()) return;
+        // ✅ safety: если игроков меньше 2 — тасовка невозможна
+        if (!players || players.length < 2) {
+            rolling = false;
+            track.classList.remove("is-rolling");
+            if (btnRoll) btnRoll.hidden = false;
+            return;
+        }
 
         unlockAudioOnce();
-        playSfx("shuffle", { restart: true });
+
+        // ✅ звук тасовки строго 1 сек
+        playSfxForDuration("shuffle", ROLL_DURATION_MS);
 
         rolling = true;
         if (btnRoll) btnRoll.hidden = true;
@@ -554,49 +575,51 @@
         const target = pickRandomClosedIndex();
         const N = players.length;
 
-        // Exact duration: 1s, fixed tick rate
-        const tickMs = 50;
-        const totalTicks = Math.max(1, Math.round(ROLL_DURATION_MS / tickMs));
-
-        // Build a deterministic path that ends exactly at target
+        // Делаем "ощущение тасовки": 2 круга + добег до target
         const startIndex = active;
         const forwardDist = mod(target - startIndex, N);
-        const baseSteps = forwardDist;
-        const extraLoops = N * 2; // feel of shuffle (still ends in 1s)
-        const totalSteps = extraLoops + baseSteps;
+        const extraLoops = N * 2;
+        const totalSteps = extraLoops + forwardDist;
 
-        let stepsLeft = totalSteps;
-        let ticksLeft = totalTicks;
+        const startTime = performance.now();
+        const endTime = startTime + ROLL_DURATION_MS;
 
-        const tick = () => {
+        // Зафиксируем стартовую позицию и будем вычислять прогресс шагов по времени
+        let lastAppliedSteps = 0;
+
+        const rafTick = (now) => {
             if (!rolling) return;
 
-            // consume steps proportionally so we finish exactly at 1s
-            const stepsThisTick = Math.max(1, Math.round(stepsLeft / ticksLeft));
-            for (let i = 0; i < stepsThisTick; i++) {
-                active = mod(active + 1, N);
+            const t = Math.min(1, (now - startTime) / ROLL_DURATION_MS);
+            const stepsNow = Math.floor(totalSteps * t);
+
+            const delta = stepsNow - lastAppliedSteps;
+            if (delta > 0) {
+                active = mod(active + delta, N);
+                lastAppliedSteps = stepsNow;
+                layout();
             }
-            layout();
 
-            stepsLeft -= stepsThisTick;
-            ticksLeft -= 1;
-
-            if (ticksLeft <= 0) {
-                // end exactly at target
+            if (now >= endTime) {
+                // ✅ конец ровно в 1 сек: принудительно ставим target
                 active = target;
                 layout();
                 updateInfo();
 
                 rolling = false;
                 track.classList.remove("is-rolling");
+
+                // ✅ на всякий случай глушим тасовку (если таймер где-то задержался)
+                stopSfx("shuffle");
+
                 if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
                 return;
             }
 
-            window.setTimeout(tick, tickMs);
+            requestAnimationFrame(rafTick);
         };
 
-        tick();
+        requestAnimationFrame(rafTick);
     }
 
     // ====== NAV ======
@@ -776,6 +799,10 @@
         pipeRight.style.opacity = "0";
         boxes.style.opacity = "0";
         dynamite.style.opacity = "0";
+
+        if (boxKevin) boxKevin.classList.remove("is-slam");
+        if (boxBandits) boxBandits.classList.remove("is-slam");
+        if (boxes) boxes.classList.remove("is-pulse");
 
         if (winnerLayer) winnerLayer.style.opacity = "0";
         if (fireworks) fireworks.style.opacity = "0";
@@ -1027,6 +1054,22 @@
         return new Promise((r) => window.setTimeout(r, ms));
     }
 
+    // ====== Slam helper (so it retriggers every time) ======
+    async function slamBox(el) {
+        if (!el) return;
+        // restart animation reliably
+        el.classList.remove("is-slam");
+        // force reflow to restart animation
+        void el.offsetWidth;
+        el.classList.add("is-slam");
+        playSfx("boxshmyak", { restart: true });
+        // remove class after it ends so it can be triggered again
+        window.setTimeout(() => {
+            try { el.classList.remove("is-slam"); } catch { /* ignore */ }
+        }, SLAM_DUR_MS + 30);
+        await wait(SLAM_DUR_MS);
+    }
+
     // ============================================================
     // ====================== FINAL TIMELINE =======================
     // ============================================================
@@ -1055,6 +1098,10 @@
         setBgFromData(pipeRight, "a");
         setBgFromData(boxKevin, "closed"); // wbk
         setBgFromData(boxBandits, "closed"); // wbb
+
+        if (boxKevin) boxKevin.classList.remove("is-slam");
+        if (boxBandits) boxBandits.classList.remove("is-slam");
+        if (boxes) boxes.classList.remove("is-pulse");
 
         setCounter(countKevin, 0, 7);
         setCounter(countBandits, 0, 7);
@@ -1134,19 +1181,28 @@
         deerRight.style.opacity = "0";
         rsRoot.classList.remove("show-deer");
 
-        // ===== STEP 4: Pipes + CLOSED boxes appear =====
+        // ===== STEP 4: Pipes + boxes area appear (boxes slam one by one) =====
         rsRoot.classList.add("show-pipes", "show-boxes");
         pipeLeft.style.opacity = "1";
         pipeRight.style.opacity = "1";
         boxes.style.opacity = "1";
 
+        // CLOSED boxes as base
         setBgFromData(boxKevin, "closed");
         setBgFromData(boxBandits, "closed");
         hideCounts();
 
-        startPipeAnim();
+        // Slam left then right (1s gap)
+        await slamBox(boxKevin);
+        await wait(Math.max(0, SLAM_GAP_MS - SLAM_DUR_MS));
+        await slamBox(boxBandits);
+
+        // small buffer so second slam settles
+        await wait(40);
 
         // ===== STEP 5: Pump 4s + sound =====
+        startPipeAnim();
+
         playSfx("boxcoins", { restart: true });
         boxes.classList.add("is-pulse");
         await wait(4000);
@@ -1158,12 +1214,16 @@
         setBgFromData(pipeLeft, "a");
         setBgFromData(pipeRight, "a");
 
-        // ===== STEP 7: show labels + counters + swap boxes to OPEN =====
+        // ===== STEP 7: after pump -> play open coin sound, wait 0.5s, then open + show counts =====
+        playSfx("boxopencoin", { restart: true });
+        await wait(OPEN_AFTER_PUMP_DELAY_MS);
+
+        // now open boxes + show labels/counters
         showCounts();
         setBgFromData(boxKevin, "open"); // wbk1
         setBgFromData(boxBandits, "open"); // wbb1
 
-        await wait(250);
+        await wait(120);
 
         // ===== STEP 8: Count totals 5s + summa x2 =====
         playSfx("summa", { restart: true });

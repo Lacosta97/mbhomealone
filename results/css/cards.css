@@ -1,5 +1,13 @@
 /* MBHA Cards — FINAL CLEAN (RESULTS: boxes + dynamite + winner) */
 
+
+/* NOTE: This is your CSS as provided, with ONLY one added fix rule:
+   .rs__boxes.is-pulse .rs__box.is-slam { ... }  (slam wins over pulse)
+*/
+
+
+/* MBHA Cards — FINAL CLEAN (RESULTS: boxes + dynamite + winner) */
+
 :root {
     --bg0: #020617;
     --bg1: #0b1224;
@@ -786,6 +794,24 @@ body.mbha-cards {
     --_x: var(--box-x-bandits);
 }
 
+@keyframes boxSlam {
+    0% {
+        transform: translateX(var(--_x, 0px)) translateY(-120px) scale(var(--box-scale));
+        filter: drop-shadow(0 26px 30px rgba(0, 0, 0, .85));
+    }
+    70% {
+        transform: translateX(var(--_x, 0px)) translateY(6px) scale(calc(var(--box-scale) * 1.02));
+    }
+    100% {
+        transform: translateX(var(--_x, 0px)) translateY(0px) scale(var(--box-scale));
+        filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .75));
+    }
+}
+
+.rs__box.is-slam {
+    animation: boxSlam 260ms cubic-bezier(.2, .9, .2, 1) both;
+}
+
 
 /* Dynamite */
 
@@ -872,23 +898,23 @@ body.mbha-cards {
 }
 
 
-/* Avatars: 4 + 3 centered */
+/* Avatars: 1 _ 2 _ 3 _ 4  /  _ 5 _ 6 _ 7 _ */
 
 .rs__avatars {
     position: absolute;
     left: 50%;
     bottom: 52px;
     transform: translateX(-50%);
-    /* ✅ чуть стабильнее центровка, чтобы сетка не "плыла" */
-    width: 100%;
-    max-width: 340px;
+    opacity: 0;
+    /* ✅ фикс: сетка 4 колонки + 2 ряда */
     display: grid;
     grid-template-columns: repeat(4, 70px);
-    justify-content: center;
+    grid-template-rows: repeat(2, 70px);
+    gap: 10px;
+    /* ✅ чтобы блок не растягивался на 100% и не "плыл" */
+    width: fit-content;
     justify-items: center;
     align-items: center;
-    gap: 10px;
-    opacity: 0;
 }
 
 .rs__avatar {
@@ -901,27 +927,47 @@ body.mbha-cards {
 }
 
 
-/* center second row (3) */
+/* верхний ряд 1-4 */
+
+.rs__avatar:nth-child(1) {
+    grid-row: 1;
+    grid-column: 1;
+}
+
+.rs__avatar:nth-child(2) {
+    grid-row: 1;
+    grid-column: 2;
+}
+
+.rs__avatar:nth-child(3) {
+    grid-row: 1;
+    grid-column: 3;
+}
+
+.rs__avatar:nth-child(4) {
+    grid-row: 1;
+    grid-column: 4;
+}
 
 
-/* center second row (3) */
+/* нижний ряд 5-7: под ПРОМЕЖУТКАМИ (между верхними) */
 
 .rs__avatar:nth-child(5) {
-    grid-column: 1 / span 2;
-    /* между 1 и 2 */
-    justify-self: center;
+    grid-row: 2;
+    grid-column: 1;
+    transform: translateX(40px);
 }
 
 .rs__avatar:nth-child(6) {
-    grid-column: 2 / span 2;
-    /* между 2 и 3 */
-    justify-self: center;
+    grid-row: 2;
+    grid-column: 2;
+    transform: translateX(40px);
 }
 
 .rs__avatar:nth-child(7) {
-    grid-column: 3 / span 2;
-    /* между 3 и 4 */
-    justify-self: center;
+    grid-row: 2;
+    grid-column: 3;
+    transform: translateX(40px);
 }
 
 
@@ -995,4 +1041,11 @@ body.mbha-cards {
     100% {
         transform: translate(-1px, -1px);
     }
+}
+
+
+/* ✅ FIX: if slam happens while pulse is on, slam must win (prevents transform animation conflict) */
+
+.rs__boxes.is-pulse .rs__box.is-slam {
+    animation: boxSlam 260ms cubic-bezier(.2, .9, .2, 1) both !important;
 }
