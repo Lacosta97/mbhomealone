@@ -7,39 +7,45 @@
     const SHEET_CSV_URL = PUBHTML_URL.replace(/\/pubhtml.*$/i, "/pub?output=csv");
 
     // ====== PATHS (IMPORTANT: paths are resolved from results/cards.html) ======
-    // Avatars are in: mbhomealone/img/avatars  -> from results/ it's ../img/avatars
+    // Avatars: mbhomealone/img/avatars -> from results/ it's ../img/avatars
     const AVATAR_BASE = "../img/avatars/"; // CODE.png
     const AVATAR_GUEST = "GUEST.png";
 
-    // Team icons are in: mbhomealone/results/img/icons -> from results/ it's ./img/icons
+    // Team icons: mbhomealone/results/img/icons -> from results/ it's ./img/icons
     const TEAM_BADGES = {
         bandits: "./img/icons/team-bandits.png",
         boss: "./img/icons/team-boss.png",
         kevin: "./img/icons/team-kevin.png",
     };
 
-    // Final scene assets live in: mbhomealone/results/img/final
+    // Final scene assets: mbhomealone/results/img/final
     const FINAL_ASSETS = {
         coin: "./img/final/coin.png",
     };
 
-    // ====== AUDIO (paths are resolved from results/cards.html) ======
-    // Put your files here (recommended):
-    // mbhomealone/results/audio/olenmoneta.mp3 etc
+    // ====== AUDIO ======
+    // Your audio folder is: mbhomealone/audio  -> from results/ it's ../audio
     const AUDIO = {
-        olenmoneta: "./audio/olenmoneta.mp3",
-        boxcoins: "./audio/boxcoins.mp3",
-        summa: "./audio/summa.mp3",
-        shmiak: "./audio/shmiak.mp3",
-        dontPush: "./audio/dont-push-guest.mp3",
-        tiktak: "./audio/tiktak.mp3",
-        bulk: "./audio/bulk.mp3",
-        watc: "./audio/watc.mp3",
+        shuffle: "../audio/card_shuffle03.mp3", // ROLL shuffle sound (1s shuffle)
+        olenmoneta: "../audio/olenmoneta.mp3", // deer coins 5s
+        boxcoins: "../audio/boxcoins.mp3", // pump 4s
+        summa: "../audio/summa.mp3", // count 5s (play twice)
+        shmiak: "../audio/shmiak.mp3",
+        dontPush: "../audio/dont-push-guest.mp3",
+        tiktak: "../audio/tiktak.mp3",
+        bulk: "../audio/bulk.mp3",
+        watc: "../audio/watc.mp3",
     };
 
     // ====== SETTINGS ======
     const STORAGE_KEY = "mbha_cards_opened_v2";
     const LIMIT = 18;
+
+    // IMPORTANT (temporary): RESULTS button visible always
+    const RESULTS_ALWAYS_VISIBLE = true;
+
+    // ROLL duration (exactly 1s)
+    const ROLL_DURATION_MS = 1000;
 
     // ====== TUNE MODE (stop final scene after deer slide-in) ======
     const TUNE_MODE = (() => {
@@ -97,6 +103,10 @@
     const winText = document.getElementById("winText");
     const winnerAvatars = document.getElementById("winnerAvatars");
     const flash = document.getElementById("flash");
+
+    // Box inner label nodes (for delayed appearance)
+    const labelKevin = boxKevin ? boxKevin.querySelector(".rs__label") : null;
+    const labelBandits = boxBandits ? boxBandits.querySelector(".rs__label") : null;
 
     // ====== STATE ======
     const opened = loadOpened();
@@ -308,7 +318,7 @@
         audioUnlocked = true;
 
         // iOS unlock trick: play muted, then pause
-        const a = getAudio("olenmoneta") || new Audio();
+        const a = getAudio("shuffle") || new Audio();
         try {
             a.muted = true;
             await a.play();
@@ -320,16 +330,19 @@
         }
     }
 
-    function stopAllAudio() {
-        for (const k of Object.keys(audioPool)) {
-            const a = audioPool[k];
-            try {
-                a.pause();
-                a.currentTime = 0;
-            } catch {
-                // ignore
-            }
+    function stopSfx(key) {
+        const a = audioPool[key];
+        if (!a) return;
+        try {
+            a.pause();
+            a.currentTime = 0;
+        } catch {
+            // ignore
         }
+    }
+
+    function stopAllAudio() {
+        for (const k of Object.keys(audioPool)) stopSfx(k);
     }
 
     async function playSfx(key, { restart = true } = {}) {
@@ -509,14 +522,14 @@
     function updateMode() {
         const all = isAllOpened();
 
-        // ✅ RESULTS visible only when all opened (as intended)
-        if (btnResults) btnResults.hidden = !all;
+        // ✅ TEMP: RESULTS visible always
+        if (btnResults) btnResults.hidden = !RESULTS_ALWAYS_VISIBLE ? !all : false;
 
         if (btnRoll) btnRoll.hidden = all;
         if (nav) nav.hidden = !all;
     }
 
-    // ====== ROLL ======
+    // ====== ROLL (exact 1s + shuffle sound) ======
     function pickRandomClosedIndex() {
         const closed = [];
         for (let i = 0; i < players.length; i++) {
@@ -531,6 +544,9 @@
         if (rolling) return;
         if (isAllOpened()) return;
 
+        unlockAudioOnce();
+        playSfx("shuffle", { restart: true });
+
         rolling = true;
         if (btnRoll) btnRoll.hidden = true;
         track.classList.add("is-rolling");
@@ -538,35 +554,46 @@
         const target = pickRandomClosedIndex();
         const N = players.length;
 
-        const extraLoops = 2 + Math.floor(Math.random() * 2);
-        let steps = extraLoops * N + mod(target - active, N);
+        // Exact duration: 1s, fixed tick rate
+        const tickMs = 50;
+        const totalTicks = Math.max(1, Math.round(ROLL_DURATION_MS / tickMs));
 
-        let delay = 14;
-        const delayMax = 70;
-        const slowStart = Math.floor(steps * 0.55);
-        const totalPlanned = steps;
+        // Build a deterministic path that ends exactly at target
+        const startIndex = active;
+        const forwardDist = mod(target - startIndex, N);
+        const baseSteps = forwardDist;
+        const extraLoops = N * 2; // feel of shuffle (still ends in 1s)
+        const totalSteps = extraLoops + baseSteps;
+
+        let stepsLeft = totalSteps;
+        let ticksLeft = totalTicks;
 
         const tick = () => {
-            active = mod(active + 1, N);
-            layout();
-            steps--;
+            if (!rolling) return;
 
-            if (steps <= 0) {
-                rolling = false;
+            // consume steps proportionally so we finish exactly at 1s
+            const stepsThisTick = Math.max(1, Math.round(stepsLeft / ticksLeft));
+            for (let i = 0; i < stepsThisTick; i++) {
+                active = mod(active + 1, N);
+            }
+            layout();
+
+            stepsLeft -= stepsThisTick;
+            ticksLeft -= 1;
+
+            if (ticksLeft <= 0) {
+                // end exactly at target
                 active = target;
                 layout();
                 updateInfo();
+
+                rolling = false;
                 track.classList.remove("is-rolling");
+                if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
                 return;
             }
 
-            const done = totalPlanned - steps;
-            if (done > slowStart) {
-                const k = (done - slowStart) / Math.max(1, totalPlanned - slowStart);
-                delay = Math.min(delayMax, 14 + k * (delayMax - 14));
-            }
-
-            window.setTimeout(tick, delay);
+            window.setTimeout(tick, tickMs);
         };
 
         tick();
@@ -635,6 +662,7 @@
                 step(-1);
             }, { passive: false }
         );
+
     if (btnNext)
         btnNext.addEventListener(
             "click",
@@ -664,7 +692,7 @@
     // ====== RESULTS open/close ======
     function openResults() {
         if (!results) return;
-        unlockAudioOnce(); // ✅ unlock on user gesture
+        unlockAudioOnce(); // unlock on user gesture
         results.classList.add("is-open");
         results.setAttribute("aria-hidden", "false");
         startFinalScene(); // async ok
@@ -714,6 +742,20 @@
         spriteTimer = null;
     }
 
+    function hideCounts() {
+        if (labelKevin) labelKevin.style.opacity = "0";
+        if (labelBandits) labelBandits.style.opacity = "0";
+        if (countKevin) countKevin.style.opacity = "0";
+        if (countBandits) countBandits.style.opacity = "0";
+    }
+
+    function showCounts() {
+        if (labelKevin) labelKevin.style.opacity = "1";
+        if (labelBandits) labelBandits.style.opacity = "1";
+        if (countKevin) countKevin.style.opacity = "1";
+        if (countBandits) countBandits.style.opacity = "1";
+    }
+
     function stopFinalScene() {
         finalRunning = false;
         clearTimers();
@@ -726,7 +768,7 @@
         rsRoot.style.transform = "";
         rsRoot.style.opacity = "";
 
-        // reset visibility
+        // reset visibility (EMPTY screen)
         deerLeft.style.opacity = "0";
         deerRight.style.opacity = "0";
         cauldron.style.opacity = "0";
@@ -766,6 +808,8 @@
 
         // reset winner avatars
         if (winnerAvatars) winnerAvatars.innerHTML = "";
+
+        hideCounts();
     }
 
     async function startFinalScene() {
@@ -776,11 +820,12 @@
         clearTimers();
         stopAllAudio();
 
-        stopFinalScene(); // ensures clean slate, then re-enable
+        // Make sure we start from ABSOLUTE EMPTY screen
+        stopFinalScene();
         finalRunning = true;
 
         rsRoot.classList.add("is-on");
-
+        hideCounts();
         renderWinnerAvatars();
 
         let totals = null;
@@ -853,8 +898,7 @@
 
     function setBgFromData(el, which) {
         if (!el) return;
-        const key =
-            which === "open" || which === "closed" ? which : which === "b" ? "b" : "a";
+        const key = which === "open" || which === "closed" ? which : which === "b" ? "b" : "a";
         const src = el.dataset ? el.dataset[key] : "";
         if (src) el.style.backgroundImage = `url('${src}')`;
     }
@@ -875,10 +919,8 @@
         c.style.opacity = "1";
 
         const rot = (Math.random() * 720 - 360) | 0;
-        const midX =
-            fromX + (toX - fromX) * (0.35 + Math.random() * 0.18) + (Math.random() * 70 - 35);
-        const midY =
-            fromY + (toY - fromY) * (0.45 + Math.random() * 0.18) - (60 + Math.random() * 70);
+        const midX = fromX + (toX - fromX) * (0.35 + Math.random() * 0.18) + (Math.random() * 70 - 35);
+        const midY = fromY + (toY - fromY) * (0.45 + Math.random() * 0.18) - (60 + Math.random() * 70);
 
         c.animate(
             [
@@ -892,7 +934,7 @@
         window.setTimeout(() => c.remove(), dur + 60);
     }
 
-    function flashOnce(ms = 140) {
+    function flashOnce(ms = 160) {
         if (!flash) return;
         flash.style.opacity = "0";
         flash.animate([{ opacity: 0 }, { opacity: 0.95 }, { opacity: 0 }], {
@@ -933,8 +975,8 @@
             const f = frame % frames;
             const cx = f % cols;
             const cy = Math.floor(f / cols);
-            const x = (cols === 1) ? 0 : (cx * 100) / (cols - 1);
-            const y = (rows === 1) ? 0 : (cy * 100) / (rows - 1);
+            const x = cols === 1 ? 0 : (cx * 100) / (cols - 1);
+            const y = rows === 1 ? 0 : (cy * 100) / (rows - 1);
             winnerSprite.style.backgroundPosition = `${x}% ${y}%`;
             frame++;
         }, 120);
@@ -942,7 +984,6 @@
 
     // ====== POSITIONS / SLIDE-IN ======
     function getDeerEdgeInX() {
-        // These are the values we tuned earlier (kept same behavior)
         const OFFSET = -25;
         const LEFT_NUDGE = -10;
         const RIGHT_NUDGE = 35;
@@ -958,215 +999,6 @@
         const inY = DEER_Y_NUDGE;
 
         return { inLeftX, inRightX, inY };
-    }
-
-    // ====== TIMELINE (as agreed) ======
-    // 1) Deer coins -> cauldron (5s) + olenmoneta.mp3
-    // 2) Coins -> pipes -> boxes (4s) + boxcoins.mp3
-    // 3) Count totals (5s) + summa.mp3 x2
-    // 4) Dynamite: shmiak -> dont-push-guest -> tiktak 2s -> white flash -> bulk
-    // 5) Winner: fireworks + Kevin + TEAM KEVIN WIN + 4+3 avatars + watc.mp3
-
-    async function timelineKevinWins(targetKevin, targetBandits) {
-        if (!finalRunning) return;
-
-        // ===== reset visuals =====
-        rsRoot.className = "rs is-on";
-
-        // hide everything first
-        deerLeft.style.opacity = "0";
-        deerRight.style.opacity = "0";
-        cauldron.style.opacity = "0";
-        pipeLeft.style.opacity = "0";
-        pipeRight.style.opacity = "0";
-        boxes.style.opacity = "0";
-        dynamite.style.opacity = "0";
-        if (winnerLayer) winnerLayer.style.opacity = "0";
-        if (coinsLayer) coinsLayer.innerHTML = "";
-
-        // reset images
-        setBgFromData(deerLeft, "closed");
-        setBgFromData(deerRight, "closed");
-        setBgFromData(pipeLeft, "a");
-        setBgFromData(pipeRight, "a");
-        setBgFromData(boxKevin, "closed");
-        setBgFromData(boxBandits, "closed");
-
-        // reset counters
-        setCounter(countKevin, 0, 7);
-        setCounter(countBandits, 0, 7);
-
-        await wait(200);
-
-        // ===== SCENE 1: deer slide-in =====
-        rsRoot.classList.add("show-deer");
-        deerLeft.style.opacity = "1";
-        deerRight.style.opacity = "1";
-
-        const deerEdge = getDeerEdgeInX();
-        const deerInLeftX = deerEdge.inLeftX;
-        const deerInRightX = deerEdge.inRightX;
-        const deerInY = deerEdge.inY;
-        const deerInDur = 1450;
-
-        deerLeft.animate(
-            [
-                { transform: "translateX(0px) translateY(0px)" },
-                { transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` },
-            ], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
-        );
-        deerRight.animate(
-            [
-                { transform: "translateX(0px) translateY(0px)" },
-                { transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` },
-            ], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
-        );
-
-        await wait(deerInDur + 200);
-
-        // For tuning: stop here
-        if (TUNE_MODE) {
-            deerLeft.style.transform = `translateX(${deerInLeftX}px) translateY(${deerInY}px)`;
-            deerRight.style.transform = `translateX(${deerInRightX}px) translateY(${deerInY}px)`;
-            rsRoot.classList.add("show-cauldron", "show-pipes", "show-boxes");
-            cauldron.style.opacity = "1";
-            pipeLeft.style.opacity = "1";
-            pipeRight.style.opacity = "1";
-            boxes.style.opacity = "1";
-            return;
-        }
-
-        // open mouths
-        setBgFromData(deerLeft, "open");
-        setBgFromData(deerRight, "open");
-
-        // show cauldron/pipes/boxes (they appear now, but coins drive attention)
-        rsRoot.classList.add("show-cauldron", "show-pipes", "show-boxes");
-        cauldron.style.opacity = "1";
-        pipeLeft.style.opacity = "1";
-        pipeRight.style.opacity = "1";
-        boxes.style.opacity = "1";
-
-        // little cauldron pop
-        cauldron.animate(
-            [{ transform: "translateX(-50%) scale(.985)" }, { transform: "translateX(-50%) scale(1)" }], { duration: 420, easing: "ease-out", fill: "forwards" }
-        );
-
-        // start pipes toggle
-        startPipeAnim();
-
-        // ===== SCENE 1 CONT: deer -> cauldron (5s) + sound =====
-        playSfx("olenmoneta", { restart: true });
-
-        const caulCenter = rectCenterIn(cauldron, rsRoot);
-        const toX1 = caulCenter.x - 18;
-        const toX2 = caulCenter.x + 18;
-        const toY = caulCenter.y - 28;
-
-        coinTimer = window.setInterval(() => {
-            if (!finalRunning) return;
-
-            const leftC = rectCenterIn(deerLeft, rsRoot);
-            const rightC = rectCenterIn(deerRight, rsRoot);
-
-            const fromLeftX = leftC.x + 78;
-            const fromLeftY = leftC.y + 46;
-
-            const fromRightX = rightC.x - 78;
-            const fromRightY = rightC.y + 46;
-
-            spawnCoin(fromLeftX, fromLeftY, toX1, toY, 900);
-            spawnCoin(fromRightX, fromRightY, toX2, toY, 900);
-        }, 155);
-
-        await wait(5000);
-
-        // ===== SCENE 2: cauldron -> pipes -> boxes (4s) + boxcoins =====
-        playSfx("boxcoins", { restart: true });
-
-        // pulse boxes while "boxcoins"
-        boxes.classList.add("is-pulse");
-        await wait(4000);
-        boxes.classList.remove("is-pulse");
-
-        // ===== SCENE 3: counting totals (5s) + summa x2 =====
-        // Stop deer coin rain now (so it feels clean)
-        if (coinTimer) window.clearInterval(coinTimer);
-        coinTimer = null;
-
-        // (optional) small impact before counting
-        flashOnce(120);
-
-        // play summa twice across 5s
-        playSfx("summa", { restart: true });
-        window.setTimeout(() => playSfx("summa", { restart: true }), 2400);
-
-        // animate counters up to targets in 5 seconds
-        await Promise.all([
-            animateCountTo(countKevin, 0, targetKevin, 5000, 7, easeInOutQuad),
-            animateCountTo(countBandits, 0, targetBandits, 5000, 7, easeInOutQuad),
-        ]);
-
-        // ===== SCENE 4: dynamite beat =====
-        rsRoot.classList.add("show-dynamite");
-        dynamite.style.opacity = "1";
-
-        await wait(150);
-        playSfx("shmiak", { restart: true });
-
-        // little pop
-        dynamite.animate(
-            [{ transform: "translateX(-50%) scale(0.90)" }, { transform: "translateX(-50%) scale(0.98)" }], { duration: 220, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
-        );
-
-        await wait(450);
-
-        playSfx("dontPush", { restart: true });
-        await wait(700);
-
-        playSfx("tiktak", { restart: true });
-        await wait(2000);
-
-        // White flash (mandatory)
-        flashOnce(170);
-
-        await wait(120);
-        playSfx("bulk", { restart: true });
-
-        // little shake impact
-        rsRoot.classList.add("is-shake");
-        await wait(420);
-        rsRoot.classList.remove("is-shake");
-
-        // ===== After explosion: show OPEN boxes (important) =====
-        setBgFromData(boxKevin, "open");
-        setBgFromData(boxBandits, "open");
-
-        // ===== SCENE 5: Winner =====
-        await wait(350);
-
-        // Winner layer on
-        rsRoot.classList.add("show-winner");
-        if (winnerLayer) winnerLayer.style.opacity = "1";
-        if (fireworks) fireworks.style.opacity = "1";
-        if (winText) winText.style.opacity = "1";
-        if (winnerAvatars) winnerAvatars.style.opacity = "1";
-        if (winnerSprite) winnerSprite.style.opacity = "1";
-
-        // fireworks shimmer
-        if (fireworks) {
-            fireworks.animate([{ opacity: 0.0 }, { opacity: 0.85 }, { opacity: 0.25 }], {
-                duration: 1200,
-                iterations: 999,
-                easing: "ease-in-out",
-            });
-        }
-
-        // play final sound + sprite
-        playSfx("watc", { restart: true });
-        startKevinSprite();
-
-        flashOnce(110);
     }
 
     // ====== Counter animation ======
@@ -1193,6 +1025,209 @@
 
     function wait(ms) {
         return new Promise((r) => window.setTimeout(r, ms));
+    }
+
+    // ============================================================
+    // ====================== FINAL TIMELINE =======================
+    // ============================================================
+    async function timelineKevinWins(targetKevin, targetBandits) {
+        if (!finalRunning) return;
+
+        // ===== RESET VISUALS to EMPTY =====
+        rsRoot.className = "rs is-on";
+        hideCounts();
+
+        // hide everything
+        deerLeft.style.opacity = "0";
+        deerRight.style.opacity = "0";
+        cauldron.style.opacity = "0";
+        pipeLeft.style.opacity = "0";
+        pipeRight.style.opacity = "0";
+        boxes.style.opacity = "0";
+        dynamite.style.opacity = "0";
+        if (winnerLayer) winnerLayer.style.opacity = "0";
+        if (coinsLayer) coinsLayer.innerHTML = "";
+
+        // reset images
+        setBgFromData(deerLeft, "closed");
+        setBgFromData(deerRight, "closed");
+        setBgFromData(pipeLeft, "a");
+        setBgFromData(pipeRight, "a");
+        setBgFromData(boxKevin, "closed"); // wbk
+        setBgFromData(boxBandits, "closed"); // wbb
+
+        setCounter(countKevin, 0, 7);
+        setCounter(countBandits, 0, 7);
+
+        await wait(220);
+
+        // ===== STEP 1: Deer slide in + cauldron appears =====
+        rsRoot.classList.add("show-deer", "show-cauldron");
+        deerLeft.style.opacity = "1";
+        deerRight.style.opacity = "1";
+        cauldron.style.opacity = "1"; // cauldron stays
+
+        const deerEdge = getDeerEdgeInX();
+        const deerInLeftX = deerEdge.inLeftX;
+        const deerInRightX = deerEdge.inRightX;
+        const deerInY = deerEdge.inY;
+        const deerInDur = 1450;
+
+        deerLeft.animate(
+            [{ transform: "translateX(0px) translateY(0px)" }, { transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+        deerRight.animate(
+            [{ transform: "translateX(0px) translateY(0px)" }, { transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+
+        await wait(deerInDur + 160);
+
+        if (TUNE_MODE) return;
+
+        // ===== STEP 2: Mouths open + coins rain (5s) + sound =====
+        setBgFromData(deerLeft, "open");
+        setBgFromData(deerRight, "open");
+
+        playSfx("olenmoneta", { restart: true });
+
+        const caulCenter = rectCenterIn(cauldron, rsRoot);
+        const toX1 = caulCenter.x - 18;
+        const toX2 = caulCenter.x + 18;
+        const toY = caulCenter.y - 28;
+
+        coinTimer = window.setInterval(() => {
+            if (!finalRunning) return;
+
+            const leftC = rectCenterIn(deerLeft, rsRoot);
+            const rightC = rectCenterIn(deerRight, rsRoot);
+
+            const fromLeftX = leftC.x + 78;
+            const fromLeftY = leftC.y + 46;
+
+            const fromRightX = rightC.x - 78;
+            const fromRightY = rightC.y + 46;
+
+            spawnCoin(fromLeftX, fromLeftY, toX1, toY, 900);
+            spawnCoin(fromRightX, fromRightY, toX2, toY, 900);
+        }, 155);
+
+        await wait(5000);
+
+        // ===== STEP 3: coins stop, mouths close, deer slide OUT =====
+        if (coinTimer) window.clearInterval(coinTimer);
+        coinTimer = null;
+        stopSfx("olenmoneta");
+
+        setBgFromData(deerLeft, "closed");
+        setBgFromData(deerRight, "closed");
+
+        const outDur = 900;
+        deerLeft.animate(
+            [{ transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` }, { transform: "translateX(0px) translateY(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+        deerRight.animate(
+            [{ transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` }, { transform: "translateX(0px) translateY(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+
+        await wait(outDur);
+        deerLeft.style.opacity = "0";
+        deerRight.style.opacity = "0";
+        rsRoot.classList.remove("show-deer");
+
+        // ===== STEP 4: Pipes + CLOSED boxes appear =====
+        rsRoot.classList.add("show-pipes", "show-boxes");
+        pipeLeft.style.opacity = "1";
+        pipeRight.style.opacity = "1";
+        boxes.style.opacity = "1";
+
+        setBgFromData(boxKevin, "closed");
+        setBgFromData(boxBandits, "closed");
+        hideCounts();
+
+        startPipeAnim();
+
+        // ===== STEP 5: Pump 4s + sound =====
+        playSfx("boxcoins", { restart: true });
+        boxes.classList.add("is-pulse");
+        await wait(4000);
+        boxes.classList.remove("is-pulse");
+        stopSfx("boxcoins");
+
+        // ===== STEP 6: Stop pipe animation =====
+        stopPipeAnim();
+        setBgFromData(pipeLeft, "a");
+        setBgFromData(pipeRight, "a");
+
+        // ===== STEP 7: show labels + counters + swap boxes to OPEN =====
+        showCounts();
+        setBgFromData(boxKevin, "open"); // wbk1
+        setBgFromData(boxBandits, "open"); // wbb1
+
+        await wait(250);
+
+        // ===== STEP 8: Count totals 5s + summa x2 =====
+        playSfx("summa", { restart: true });
+        window.setTimeout(() => { if (finalRunning) playSfx("summa", { restart: true }); }, 2400);
+
+        await Promise.all([
+            animateCountTo(countKevin, 0, targetKevin, 5000, 7, easeInOutQuad),
+            animateCountTo(countBandits, 0, targetBandits, 5000, 7, easeInOutQuad),
+        ]);
+
+        // ===== STEP 12: Dynamite chain (0.5s gaps) =====
+        rsRoot.classList.add("show-dynamite");
+        dynamite.style.opacity = "1";
+
+        dynamite.animate(
+            [{ transform: "translateX(-50%) scale(0.90)" }, { transform: "translateX(-50%) scale(0.98)" }], { duration: 220, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        );
+
+        await playSfx("shmiak", { restart: true });
+        await wait(500);
+
+        await playSfx("dontPush", { restart: true });
+        await wait(500);
+
+        await playSfx("tiktak", { restart: true });
+        await wait(2000);
+
+        // FLASH + BULK simultaneously
+        flashOnce(170);
+        playSfx("bulk", { restart: true });
+
+        rsRoot.classList.add("is-shake");
+        await wait(420);
+        rsRoot.classList.remove("is-shake");
+
+        // After flash: hide dynamite, cauldron, pipes, boxes
+        dynamite.style.opacity = "0";
+        cauldron.style.opacity = "0";
+        pipeLeft.style.opacity = "0";
+        pipeRight.style.opacity = "0";
+        boxes.style.opacity = "0";
+
+        // ===== Winner =====
+        await wait(350);
+
+        rsRoot.classList.add("show-winner");
+        if (winnerLayer) winnerLayer.style.opacity = "1";
+        if (fireworks) fireworks.style.opacity = "1";
+        if (winText) winText.style.opacity = "1";
+        if (winnerAvatars) winnerAvatars.style.opacity = "1";
+        if (winnerSprite) winnerSprite.style.opacity = "1";
+
+        if (fireworks) {
+            fireworks.animate([{ opacity: 0.0 }, { opacity: 0.85 }, { opacity: 0.25 }], {
+                duration: 1200,
+                iterations: 999,
+                easing: "ease-in-out",
+            });
+        }
+
+        playSfx("watc", { restart: true });
+        startKevinSprite();
+
+        flashOnce(110);
     }
 
     // ====== BOOT ======
