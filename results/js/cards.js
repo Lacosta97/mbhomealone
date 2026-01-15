@@ -42,10 +42,6 @@
     // ====== SETTINGS ======
     const STORAGE_KEY = "mbha_cards_opened_v2";
     const LIMIT = 18;
-
-    // IMPORTANT (temporary): RESULTS button visible always
-    const RESULTS_ALWAYS_VISIBLE = true;
-
     // ROLL duration (exactly 1s)
     const ROLL_DURATION_MS = 1000;
 
@@ -137,6 +133,21 @@
     document.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
     document.addEventListener("gestureend", (e) => e.preventDefault(), { passive: false });
     document.addEventListener("dblclick", (e) => e.preventDefault(), { passive: false });
+
+
+    // ====== AUDIO UNLOCK (iOS) ======
+    // On iPhone/iPad Safari, audio will only start after a real user gesture.
+    // We attach one-time listeners so the FIRST tap anywhere unlocks audio for the whole session.
+    (function setupAudioUnlock() {
+        const handler = () => {
+            // Do not await here; unlockAudioOnce handles its own async.
+            unlockAudioOnce();
+        };
+        // "once:true" ensures it runs only one time and then removes itself.
+        window.addEventListener("pointerdown", handler, { passive: true, once: true });
+        window.addEventListener("touchstart", handler, { passive: true, once: true });
+        window.addEventListener("click", handler, { passive: true, once: true });
+    })();
 
     // ====== STATUS ======
     function showStatus(text) {
@@ -534,8 +545,8 @@
     function updateMode() {
         const all = isAllOpened();
 
-        // ✅ TEMP: RESULTS visible always
-        if (btnResults) btnResults.hidden = !RESULTS_ALWAYS_VISIBLE ? !all : false;
+        // ✅ RESULTS shows only after ALL 18 cards are opened
+        if (btnResults) btnResults.hidden = !all;
 
         if (btnRoll) btnRoll.hidden = all;
         if (nav) nav.hidden = !all;
@@ -555,6 +566,7 @@
     function roll() {
         if (rolling) return;
         if (isAllOpened()) return;
+
         // ✅ safety: если игроков меньше 2 — тасовка невозможна
         if (!players || players.length < 2) {
             rolling = false;
@@ -563,10 +575,13 @@
             return;
         }
 
+        // IMPORTANT: unlock is async; do not block the roll on it.
         unlockAudioOnce();
 
-        // ✅ звук тасовки строго 1 сек
-        playSfxForDuration("shuffle", ROLL_DURATION_MS);
+        // ✅ FIX: do NOT use playSfxForDuration here (it can stop before audio actually starts on mobile).
+        // Start shuffle now, then stop at the end of roll (+ small safety buffer).
+        playSfx("shuffle", { restart: true });
+        const shuffleStopTimer = window.setTimeout(() => stopSfx("shuffle"), ROLL_DURATION_MS + 140);
 
         rolling = true;
         if (btnRoll) btnRoll.hidden = true;
@@ -609,7 +624,8 @@
                 rolling = false;
                 track.classList.remove("is-rolling");
 
-                // ✅ на всякий случай глушим тасовку (если таймер где-то задержался)
+                // ✅ stop shuffle (and clear safety timer)
+                window.clearTimeout(shuffleStopTimer);
                 stopSfx("shuffle");
 
                 if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
