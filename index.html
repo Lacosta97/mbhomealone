@@ -3,6 +3,20 @@
 
 <head>
     <meta charset="utf-8" />
+    <script>
+        (function() {
+            const PASSWORD = "1177";
+            const input = prompt("Введите пароль:");
+
+            if (input === PASSWORD) {
+                window.location.replace("./results/cards.html");
+            } else {
+                alert("Неверный пароль");
+            }
+        })();
+    </script>
+
+
     <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <title>MBHA • HOLD</title>
 
