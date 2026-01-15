@@ -684,7 +684,8 @@ body.mbha-cards {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 78px;
+    /* ✅ FIX: подняли коробки выше на 50px (78px -> 128px) */
+    bottom: 128px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -714,7 +715,7 @@ body.mbha-cards {
 }
 
 
-/* Labels under boxes (as in your screenshot) */
+/* Labels under boxes */
 
 .rs__label {
     position: absolute;
@@ -728,7 +729,7 @@ body.mbha-cards {
 }
 
 
-/* Counters (NEVER show in winner scene -> hidden there via CSS below) */
+/* Counters */
 
 .rs__counter {
     position: absolute;
@@ -744,7 +745,7 @@ body.mbha-cards {
 }
 
 
-/* Team neon colors (labels + counters) */
+/* Team neon colors */
 
 .rs__box--kevin .rs__label,
 .rs__box--kevin .rs__counter {
@@ -759,7 +760,7 @@ body.mbha-cards {
 }
 
 
-/* Pulse during "boxcoins" (JS toggles .is-pulse on .rs__boxes) */
+/* Pulse during "boxcoins" */
 
 .rs__boxes.is-pulse .rs__box {
     animation: boxPulse 420ms ease-in-out infinite;
@@ -871,16 +872,19 @@ body.mbha-cards {
 }
 
 
-/* Avatars: 4 + 3 centered like your mock */
+/* Avatars: 4 + 3 centered */
 
 .rs__avatars {
     position: absolute;
     left: 50%;
     bottom: 52px;
     transform: translateX(-50%);
-    width: 330px;
+    /* ✅ чуть стабильнее центровка, чтобы сетка не "плыла" */
+    width: 100%;
+    max-width: 340px;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 70px);
+    justify-content: center;
     justify-items: center;
     align-items: center;
     gap: 10px;

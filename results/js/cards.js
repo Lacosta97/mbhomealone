@@ -23,20 +23,32 @@
         coin: "./img/final/coin.png",
     };
 
+    // ====== AUDIO (paths are resolved from results/cards.html) ======
+    // Put your files here (recommended):
+    // mbhomealone/results/audio/olenmoneta.mp3 etc
+    const AUDIO = {
+        olenmoneta: "./audio/olenmoneta.mp3",
+        boxcoins: "./audio/boxcoins.mp3",
+        summa: "./audio/summa.mp3",
+        shmiak: "./audio/shmiak.mp3",
+        dontPush: "./audio/dont-push-guest.mp3",
+        tiktak: "./audio/tiktak.mp3",
+        bulk: "./audio/bulk.mp3",
+        watc: "./audio/watc.mp3",
+    };
+
     // ====== SETTINGS ======
     const STORAGE_KEY = "mbha_cards_opened_v2";
     const LIMIT = 18;
 
     // ====== TUNE MODE (stop final scene after deer slide-in) ======
     const TUNE_MODE = (() => {
-        try { return new URL(window.location.href).searchParams.get("tune") === "1"; } catch { return false; }
+        try {
+            return new URL(window.location.href).searchParams.get("tune") === "1";
+        } catch {
+            return false;
+        }
     })();
-
-    function cssVarPx(name, fallback = 0) {
-        const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        const n = parseFloat(v);
-        return Number.isFinite(n) ? n : fallback;
-    }
 
     // ====== DOM ======
     const track = document.getElementById("track");
@@ -60,7 +72,7 @@
     const results = document.getElementById("results");
     const btnResultsClose = document.getElementById("btnResultsClose");
 
-    // Final scene DOM (optional; exists only if you use the prepared cards.html)
+    // Final scene DOM
     const rsRoot = document.getElementById("rsRoot");
     const deerLeft = document.getElementById("deerLeft");
     const deerRight = document.getElementById("deerRight");
@@ -69,13 +81,16 @@
     const pipeLeft = document.getElementById("pipeLeft");
     const pipeRight = document.getElementById("pipeRight");
 
-    // ✅ FIX: BOXES (replace old bottles ids)
+    // ✅ BOXES (not bottles)
     const boxes = document.getElementById("boxes");
     const boxKevin = document.getElementById("boxKevin");
     const boxBandits = document.getElementById("boxBandits");
 
     const countKevin = document.getElementById("countKevin");
     const countBandits = document.getElementById("countBandits");
+
+    const dynamite = document.getElementById("dynamite");
+
     const winnerLayer = document.getElementById("winnerLayer");
     const fireworks = document.getElementById("fireworks");
     const winnerSprite = document.getElementById("winnerSprite");
@@ -94,12 +109,11 @@
     let finalRunning = false;
     let coinTimer = null;
     let pipeTimer = null;
-    let chaosTimer = null;
     let spriteTimer = null;
 
-    // (legacy) "fill" state – harmless even if CSS doesn't use it
-    let fillKevin = 0;
-    let fillBandits = 0;
+    // Audio state
+    const audioPool = {};
+    let audioUnlocked = false;
 
     // ====== Anti-zoom (Safari) ======
     document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
@@ -107,6 +121,7 @@
     document.addEventListener("gestureend", (e) => e.preventDefault(), { passive: false });
     document.addEventListener("dblclick", (e) => e.preventDefault(), { passive: false });
 
+    // ====== STATUS ======
     function showStatus(text) {
         if (!status) return;
         status.classList.add("is-on");
@@ -118,6 +133,7 @@
         status.classList.remove("is-on");
     }
 
+    // ====== STORAGE ======
     function loadOpened() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
@@ -132,6 +148,11 @@
 
     function saveOpened() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify([...opened]));
+    }
+
+    // ====== HELPERS ======
+    function escapeAttr(str) {
+        return String(str).replaceAll("'", "%27");
     }
 
     // ✅ make CODE safe vs case mismatch
@@ -213,9 +234,9 @@
         return out;
     }
 
-    // ====== HELPERS: money ======
+    // ====== money ======
     function parseMoneyToInt(raw) {
-        const s = String((raw === null || raw === undefined) ? "" : raw).trim();
+        const s = String(raw === null || raw === undefined ? "" : raw).trim();
         if (!s) return 0;
         const m = s.replace(/[^\d-]/g, "");
         const n = Number(m);
@@ -270,8 +291,56 @@
         return { kevin, bandits };
     }
 
-    function escapeAttr(str) {
-        return String(str).replaceAll("'", "%27");
+    // ====== AUDIO ======
+    function getAudio(key) {
+        if (audioPool[key]) return audioPool[key];
+        const src = AUDIO[key];
+        if (!src) return null;
+        const a = new Audio(src);
+        a.preload = "auto";
+        a.volume = 1;
+        audioPool[key] = a;
+        return a;
+    }
+
+    async function unlockAudioOnce() {
+        if (audioUnlocked) return;
+        audioUnlocked = true;
+
+        // iOS unlock trick: play muted, then pause
+        const a = getAudio("olenmoneta") || new Audio();
+        try {
+            a.muted = true;
+            await a.play();
+            a.pause();
+            a.currentTime = 0;
+            a.muted = false;
+        } catch {
+            // ignore
+        }
+    }
+
+    function stopAllAudio() {
+        for (const k of Object.keys(audioPool)) {
+            const a = audioPool[k];
+            try {
+                a.pause();
+                a.currentTime = 0;
+            } catch {
+                // ignore
+            }
+        }
+    }
+
+    async function playSfx(key, { restart = true } = {}) {
+        const a = getAudio(key);
+        if (!a) return;
+        try {
+            if (restart) a.currentTime = 0;
+            await a.play();
+        } catch {
+            // ignore (autoplay policy / missing file)
+        }
     }
 
     // ====== UI BUILD ======
@@ -303,30 +372,33 @@
 
         if (opened.has(code)) el.classList.add("is-open");
 
-        el.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (rolling) return;
+        el.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                if (rolling) return;
 
-            const centerEl = cardEls[active];
-            if (el !== centerEl) return;
+                const centerEl = cardEls[active];
+                if (el !== centerEl) return;
 
-            const codeNow = String(player.CODE || "").trim();
-            if (opened.has(codeNow)) {
-                burstFx(centerEl, 10);
+                const codeNow = String(player.CODE || "").trim();
+                if (opened.has(codeNow)) {
+                    burstFx(centerEl, 10);
+                    updateInfo();
+                    return;
+                }
+
+                opened.add(codeNow);
+                saveOpened();
+                centerEl.classList.add("is-open");
+                burstFx(centerEl, 18);
+
                 updateInfo();
-                return;
-            }
+                updateMode();
 
-            opened.add(codeNow);
-            saveOpened();
-            centerEl.classList.add("is-open");
-            burstFx(centerEl, 18);
-
-            updateInfo();
-            updateMode();
-
-            if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
-        }, { passive: false });
+                if (!isAllOpened() && btnRoll) btnRoll.hidden = false;
+            }, { passive: false }
+        );
 
         return el;
     }
@@ -435,8 +507,11 @@
     }
 
     function updateMode() {
-        if (btnResults) btnResults.hidden = false; // TEMP
         const all = isAllOpened();
+
+        // ✅ RESULTS visible only when all opened (as intended)
+        if (btnResults) btnResults.hidden = !all;
+
         if (btnRoll) btnRoll.hidden = all;
         if (nav) nav.hidden = !all;
     }
@@ -552,34 +627,47 @@
     // ====== EVENTS ======
     if (btnRoll) btnRoll.addEventListener("click", roll);
 
-    if (btnPrev) btnPrev.addEventListener("click", (e) => {
-        e.preventDefault();
-        step(-1);
-    }, { passive: false });
-    if (btnNext) btnNext.addEventListener("click", (e) => {
-        e.preventDefault();
-        step(1);
-    }, { passive: false });
+    if (btnPrev)
+        btnPrev.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                step(-1);
+            }, { passive: false }
+        );
+    if (btnNext)
+        btnNext.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                step(1);
+            }, { passive: false }
+        );
 
-    if (btnReset) btnReset.addEventListener("click", (e) => {
-        e.preventDefault();
-        localStorage.removeItem(STORAGE_KEY);
-        opened.clear();
-        for (const el of cardEls) el.classList.remove("is-open");
+    if (btnReset)
+        btnReset.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                localStorage.removeItem(STORAGE_KEY);
+                opened.clear();
+                for (const el of cardEls) el.classList.remove("is-open");
 
-        const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
-        active = firstClosed >= 0 ? firstClosed : 0;
+                const firstClosed = players.findIndex((p) => !opened.has(String(p.CODE || "").trim()));
+                active = firstClosed >= 0 ? firstClosed : 0;
 
-        layout();
-        updateMode();
-    }, { passive: false });
+                layout();
+                updateMode();
+            }, { passive: false }
+        );
 
     // ====== RESULTS open/close ======
     function openResults() {
         if (!results) return;
+        unlockAudioOnce(); // ✅ unlock on user gesture
         results.classList.add("is-open");
         results.setAttribute("aria-hidden", "false");
-        startFinalScene(); // 🔥 (async ok)
+        startFinalScene(); // async ok
     }
 
     function closeResults() {
@@ -594,76 +682,58 @@
 
     window.addEventListener("resize", () => layout());
 
-    // ====== FINAL SCENE ======
+    // ============================================================
+    // ====================== FINAL SCENE ==========================
+    // ============================================================
+
     function hasFinalDOM() {
-        // ✅ FIX: check boxes ids (not bottles)
-        return !!(rsRoot && deerLeft && deerRight && coinsLayer && cauldron && pipeLeft && pipeRight && boxes && boxKevin && boxBandits && countKevin && countBandits);
+        return !!(
+            rsRoot &&
+            deerLeft &&
+            deerRight &&
+            coinsLayer &&
+            cauldron &&
+            pipeLeft &&
+            pipeRight &&
+            boxes &&
+            boxKevin &&
+            boxBandits &&
+            countKevin &&
+            countBandits &&
+            dynamite &&
+            flash
+        );
     }
 
     function clearTimers() {
         if (coinTimer) window.clearInterval(coinTimer);
         if (pipeTimer) window.clearInterval(pipeTimer);
-        if (chaosTimer) window.clearInterval(chaosTimer);
         if (spriteTimer) window.clearInterval(spriteTimer);
         coinTimer = null;
         pipeTimer = null;
-        chaosTimer = null;
         spriteTimer = null;
-    }
-
-    // (legacy) fill helpers – safe no-op for boxes unless you later add CSS using --fill
-    function clamp01(x) {
-        const n = Number(x);
-        if (!Number.isFinite(n)) return 0;
-        return Math.max(0, Math.min(1, n));
-    }
-
-    function setBottleFill(el, fill01) {
-        if (!el) return;
-        el.style.setProperty("--fill", String(clamp01(fill01)));
-    }
-
-    function resetBottleFill() {
-        fillKevin = 0;
-        fillBandits = 0;
-        setBottleFill(boxKevin, 0);
-        setBottleFill(boxBandits, 0);
-    }
-
-    function setCounter(el, value, digits = 7) {
-        if (!el) return;
-        const v = Math.max(0, Math.floor(value));
-        el.textContent = String(v).padStart(digits, "0");
-    }
-
-    function setBgFromData(el, which) {
-        if (!el) return;
-        const key = which === "open" || which === "closed" ? which : which === "b" ? "b" : "a";
-        const src = el.dataset ? el.dataset[key] : "";
-        if (src) el.style.backgroundImage = `url('${src}')`;
     }
 
     function stopFinalScene() {
         finalRunning = false;
         clearTimers();
+        stopAllAudio();
+
         if (!hasFinalDOM()) return;
 
+        // reset classes
         rsRoot.className = "rs";
         rsRoot.style.transform = "";
+        rsRoot.style.opacity = "";
 
-        deerLeft.style.transform = "";
-        deerRight.style.transform = "";
-        cauldron.style.transform = "";
-        pipeLeft.style.transform = "";
-        pipeRight.style.transform = "";
-        boxes.style.transform = "";
-
+        // reset visibility
         deerLeft.style.opacity = "0";
         deerRight.style.opacity = "0";
         cauldron.style.opacity = "0";
         pipeLeft.style.opacity = "0";
         pipeRight.style.opacity = "0";
         boxes.style.opacity = "0";
+        dynamite.style.opacity = "0";
 
         if (winnerLayer) winnerLayer.style.opacity = "0";
         if (fireworks) fireworks.style.opacity = "0";
@@ -677,20 +747,25 @@
         setCounter(countKevin, 0, 7);
         setCounter(countBandits, 0, 7);
 
-        resetBottleFill();
-
+        // reset images
         setBgFromData(deerLeft, "closed");
         setBgFromData(deerRight, "closed");
         setBgFromData(pipeLeft, "a");
         setBgFromData(pipeRight, "a");
-
-        // ✅ restore closed box images
         setBgFromData(boxKevin, "closed");
         setBgFromData(boxBandits, "closed");
 
-        boxBandits.style.opacity = "";
-        boxBandits.style.transform = "";
-        boxBandits.style.filter = "";
+        // reset transforms
+        deerLeft.style.transform = "";
+        deerRight.style.transform = "";
+        cauldron.style.transform = "";
+        pipeLeft.style.transform = "";
+        pipeRight.style.transform = "";
+        boxes.style.transform = "";
+        dynamite.style.transform = "";
+
+        // reset winner avatars
+        if (winnerAvatars) winnerAvatars.innerHTML = "";
     }
 
     async function startFinalScene() {
@@ -699,14 +774,21 @@
 
         finalRunning = true;
         clearTimers();
+        stopAllAudio();
+
+        stopFinalScene(); // ensures clean slate, then re-enable
+        finalRunning = true;
 
         rsRoot.classList.add("is-on");
-        resetBottleFill();
 
         renderWinnerAvatars();
 
         let totals = null;
-        try { totals = await fetchTotalsFromSheetCells(); } catch { totals = null; }
+        try {
+            totals = await fetchTotalsFromSheetCells();
+        } catch {
+            totals = null;
+        }
         if (!totals) totals = computeTeamTotalsFromPlayers();
 
         const targetKevin = Math.max(0, totals.kevin || 0);
@@ -763,13 +845,27 @@
         }
     }
 
+    function setCounter(el, value, digits = 7) {
+        if (!el) return;
+        const v = Math.max(0, Math.floor(value));
+        el.textContent = String(v).padStart(digits, "0");
+    }
+
+    function setBgFromData(el, which) {
+        if (!el) return;
+        const key =
+            which === "open" || which === "closed" ? which : which === "b" ? "b" : "a";
+        const src = el.dataset ? el.dataset[key] : "";
+        if (src) el.style.backgroundImage = `url('${src}')`;
+    }
+
     function rectCenterIn(el, root) {
         const r = el.getBoundingClientRect();
         const rr = root.getBoundingClientRect();
         return { x: r.left - rr.left + r.width / 2, y: r.top - rr.top + r.height / 2 };
     }
 
-    function spawnCoin(fromX, fromY, toX, toY, dur = 850) {
+    function spawnCoin(fromX, fromY, toX, toY, dur = 900) {
         if (!coinsLayer) return;
         const c = document.createElement("div");
         c.className = "rs__coin";
@@ -779,8 +875,10 @@
         c.style.opacity = "1";
 
         const rot = (Math.random() * 720 - 360) | 0;
-        const midX = fromX + (toX - fromX) * (0.35 + Math.random() * 0.18) + (Math.random() * 70 - 35);
-        const midY = fromY + (toY - fromY) * (0.45 + Math.random() * 0.18) - (60 + Math.random() * 70);
+        const midX =
+            fromX + (toX - fromX) * (0.35 + Math.random() * 0.18) + (Math.random() * 70 - 35);
+        const midY =
+            fromY + (toY - fromY) * (0.45 + Math.random() * 0.18) - (60 + Math.random() * 70);
 
         c.animate(
             [
@@ -791,13 +889,16 @@
         );
 
         coinsLayer.appendChild(c);
-        window.setTimeout(() => c.remove(), dur + 50);
+        window.setTimeout(() => c.remove(), dur + 60);
     }
 
-    function flashOnce(ms = 90) {
+    function flashOnce(ms = 140) {
         if (!flash) return;
         flash.style.opacity = "0";
-        flash.animate([{ opacity: 0 }, { opacity: 0.85 }, { opacity: 0 }], { duration: ms, easing: "ease-out" });
+        flash.animate([{ opacity: 0 }, { opacity: 0.95 }, { opacity: 0 }], {
+            duration: ms,
+            easing: "ease-out",
+        });
     }
 
     function startPipeAnim() {
@@ -810,53 +911,15 @@
         }, 140);
     }
 
-    function startChaosCounters() {
-        chaosTimer = window.setInterval(() => {
-            if (!finalRunning) return;
-            setCounter(countKevin, Math.floor(Math.random() * 9999999), 7);
-            setCounter(countBandits, Math.floor(Math.random() * 9999999), 7);
-        }, 80);
-    }
-
-    function stopChaosCounters() {
-        if (chaosTimer) window.clearInterval(chaosTimer);
-        chaosTimer = null;
-    }
-
-    async function animateCountTo(el, from, to, duration, digits = 7, easing = (t) => t, fillEl = null, fillMax = 1) {
-        const start = performance.now();
-        setCounter(el, from, digits);
-
-        return new Promise((resolve) => {
-            const stepAnim = (now) => {
-                if (!finalRunning) return resolve();
-                const t = Math.min(1, (now - start) / Math.max(1, duration));
-                const v = Math.round(from + (to - from) * easing(t));
-                setCounter(el, v, digits);
-
-                if (fillEl) {
-                    const ratio = fillMax > 0 ? (v / fillMax) : 0;
-                    setBottleFill(fillEl, ratio);
-                }
-
-                if (t >= 1) return resolve();
-                requestAnimationFrame(stepAnim);
-            };
-            requestAnimationFrame(stepAnim);
-        });
-    }
-
-    function easeOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
-    }
-
-    function easeInOutQuad(t) {
-        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    function stopPipeAnim() {
+        if (pipeTimer) window.clearInterval(pipeTimer);
+        pipeTimer = null;
     }
 
     function startKevinSprite() {
         if (!winnerSprite) return;
 
+        // sprite sheet: 6 frames, 3 cols x 2 rows
         const frames = 6;
         const cols = 3;
         const rows = 2;
@@ -877,68 +940,9 @@
         }, 120);
     }
 
-    // ====== WINNER UI LIFT ======
-    function liftBoxesUpAfterWinner() {
-        if (!boxes) return;
-
-        boxes.animate(
-            [
-                { transform: "translateY(0px)" },
-                { transform: "translateY(-140px)" },
-            ], {
-                duration: 700,
-                easing: "cubic-bezier(.2,.9,.2,1)",
-                fill: "forwards",
-            }
-        );
-
-        boxes.style.transform = "translateY(-140px)";
-    }
-
-    // ====== Outro ======
-    async function playFinalOutro(deerInLeftX, deerInRightX, deerInY) {
-        if (!finalRunning) return;
-
-        setBgFromData(deerLeft, "closed");
-        setBgFromData(deerRight, "closed");
-
-        if (coinTimer) window.clearInterval(coinTimer);
-        coinTimer = null;
-
-        const dropDur = 650;
-        if (cauldron) {
-            cauldron.animate(
-                [{ transform: "translateX(-50%) scale(1)", opacity: 1 }, { transform: "translateX(-50%) translateY(280px) scale(.9)", opacity: 0 }], { duration: dropDur, easing: "cubic-bezier(.2,.0,.2,1)", fill: "forwards" }
-            );
-        }
-        if (pipeLeft) {
-            pipeLeft.animate(
-                [{ transform: getComputedStyle(pipeLeft).transform, opacity: 1 }, { transform: "translateY(280px) rotate(45deg)", opacity: 0 }], { duration: dropDur, easing: "cubic-bezier(.2,.0,.2,1)", fill: "forwards" }
-            );
-        }
-        if (pipeRight) {
-            pipeRight.animate(
-                [{ transform: getComputedStyle(pipeRight).transform, opacity: 1 }, { transform: "translateY(280px) rotate(-45deg)", opacity: 0 }], { duration: dropDur, easing: "cubic-bezier(.2,.0,.2,1)", fill: "forwards" }
-            );
-        }
-
-        const outDur = 900;
-        deerLeft.animate(
-            [{ transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` }, { transform: "translateX(0px) translateY(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
-        );
-        deerRight.animate(
-            [{ transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` }, { transform: "translateX(0px) translateY(0px)" }], { duration: outDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
-        );
-
-        await wait(Math.max(dropDur, outDur));
-        deerLeft.style.opacity = "0";
-        deerRight.style.opacity = "0";
-        cauldron.style.opacity = "0";
-        pipeLeft.style.opacity = "0";
-        pipeRight.style.opacity = "0";
-    }
-
+    // ====== POSITIONS / SLIDE-IN ======
     function getDeerEdgeInX() {
+        // These are the values we tuned earlier (kept same behavior)
         const OFFSET = -25;
         const LEFT_NUDGE = -10;
         const RIGHT_NUDGE = 35;
@@ -948,23 +952,56 @@
         const rightRaw = getComputedStyle(deerRight).right;
         const left = Number.isFinite(parseFloat(leftRaw)) ? parseFloat(leftRaw) : -220;
         const right = Number.isFinite(parseFloat(rightRaw)) ? parseFloat(rightRaw) : -220;
+
         const inLeftX = -left + OFFSET + LEFT_NUDGE;
         const inRightX = right + OFFSET + RIGHT_NUDGE;
         const inY = DEER_Y_NUDGE;
+
         return { inLeftX, inRightX, inY };
     }
 
+    // ====== TIMELINE (as agreed) ======
+    // 1) Deer coins -> cauldron (5s) + olenmoneta.mp3
+    // 2) Coins -> pipes -> boxes (4s) + boxcoins.mp3
+    // 3) Count totals (5s) + summa.mp3 x2
+    // 4) Dynamite: shmiak -> dont-push-guest -> tiktak 2s -> white flash -> bulk
+    // 5) Winner: fireworks + Kevin + TEAM KEVIN WIN + 4+3 avatars + watc.mp3
+
     async function timelineKevinWins(targetKevin, targetBandits) {
-        stopFinalScene();
-        finalRunning = true;
-        rsRoot.classList.add("is-on");
+        if (!finalRunning) return;
 
-        await wait(220);
+        // ===== reset visuals =====
+        rsRoot.className = "rs is-on";
 
-        deerLeft.style.opacity = "1";
-        deerRight.style.opacity = "1";
+        // hide everything first
+        deerLeft.style.opacity = "0";
+        deerRight.style.opacity = "0";
+        cauldron.style.opacity = "0";
+        pipeLeft.style.opacity = "0";
+        pipeRight.style.opacity = "0";
+        boxes.style.opacity = "0";
+        dynamite.style.opacity = "0";
+        if (winnerLayer) winnerLayer.style.opacity = "0";
+        if (coinsLayer) coinsLayer.innerHTML = "";
+
+        // reset images
         setBgFromData(deerLeft, "closed");
         setBgFromData(deerRight, "closed");
+        setBgFromData(pipeLeft, "a");
+        setBgFromData(pipeRight, "a");
+        setBgFromData(boxKevin, "closed");
+        setBgFromData(boxBandits, "closed");
+
+        // reset counters
+        setCounter(countKevin, 0, 7);
+        setCounter(countBandits, 0, 7);
+
+        await wait(200);
+
+        // ===== SCENE 1: deer slide-in =====
+        rsRoot.classList.add("show-deer");
+        deerLeft.style.opacity = "1";
+        deerRight.style.opacity = "1";
 
         const deerEdge = getDeerEdgeInX();
         const deerInLeftX = deerEdge.inLeftX;
@@ -973,43 +1010,53 @@
         const deerInDur = 1450;
 
         deerLeft.animate(
-            [{ transform: "translateX(0px) translateY(0px)" }, { transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [
+                { transform: "translateX(0px) translateY(0px)" },
+                { transform: `translateX(${deerInLeftX}px) translateY(${deerInY}px)` },
+            ], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
         deerRight.animate(
-            [{ transform: "translateX(0px) translateY(0px)" }, { transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` }], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+            [
+                { transform: "translateX(0px) translateY(0px)" },
+                { transform: `translateX(${deerInRightX}px) translateY(${deerInY}px)` },
+            ], { duration: deerInDur, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
 
-        await wait(deerInDur + 160);
-        await wait(420);
+        await wait(deerInDur + 200);
 
+        // For tuning: stop here
         if (TUNE_MODE) {
             deerLeft.style.transform = `translateX(${deerInLeftX}px) translateY(${deerInY}px)`;
             deerRight.style.transform = `translateX(${deerInRightX}px) translateY(${deerInY}px)`;
-
-            setBgFromData(deerLeft, "closed");
-            setBgFromData(deerRight, "closed");
-
-            if (cauldron) cauldron.style.opacity = "1";
-            if (pipeLeft) pipeLeft.style.opacity = "1";
-            if (pipeRight) pipeRight.style.opacity = "1";
-            if (boxes) boxes.style.opacity = "1";
+            rsRoot.classList.add("show-cauldron", "show-pipes", "show-boxes");
+            cauldron.style.opacity = "1";
+            pipeLeft.style.opacity = "1";
+            pipeRight.style.opacity = "1";
+            boxes.style.opacity = "1";
             return;
         }
 
+        // open mouths
         setBgFromData(deerLeft, "open");
         setBgFromData(deerRight, "open");
-        await wait(180);
 
+        // show cauldron/pipes/boxes (they appear now, but coins drive attention)
+        rsRoot.classList.add("show-cauldron", "show-pipes", "show-boxes");
         cauldron.style.opacity = "1";
         pipeLeft.style.opacity = "1";
         pipeRight.style.opacity = "1";
         boxes.style.opacity = "1";
 
+        // little cauldron pop
         cauldron.animate(
             [{ transform: "translateX(-50%) scale(.985)" }, { transform: "translateX(-50%) scale(1)" }], { duration: 420, easing: "ease-out", fill: "forwards" }
         );
 
+        // start pipes toggle
         startPipeAnim();
+
+        // ===== SCENE 1 CONT: deer -> cauldron (5s) + sound =====
+        playSfx("olenmoneta", { restart: true });
 
         const caulCenter = rectCenterIn(cauldron, rsRoot);
         const toX1 = caulCenter.x - 18;
@@ -1018,6 +1065,7 @@
 
         coinTimer = window.setInterval(() => {
             if (!finalRunning) return;
+
             const leftC = rectCenterIn(deerLeft, rsRoot);
             const rightC = rectCenterIn(deerRight, rsRoot);
 
@@ -1029,69 +1077,83 @@
 
             spawnCoin(fromLeftX, fromLeftY, toX1, toY, 900);
             spawnCoin(fromRightX, fromRightY, toX2, toY, 900);
-
-            fillKevin = Math.min(0.28, fillKevin + 0.004);
-            fillBandits = Math.min(0.28, fillBandits + 0.004);
-            setBottleFill(boxKevin, fillKevin);
-            setBottleFill(boxBandits, fillBandits);
         }, 155);
 
-        await wait(900);
-        startChaosCounters();
+        await wait(5000);
 
-        rsRoot.classList.add("is-shake");
+        // ===== SCENE 2: cauldron -> pipes -> boxes (4s) + boxcoins =====
+        playSfx("boxcoins", { restart: true });
+
+        // pulse boxes while "boxcoins"
+        boxes.classList.add("is-pulse");
+        await wait(4000);
+        boxes.classList.remove("is-pulse");
+
+        // ===== SCENE 3: counting totals (5s) + summa x2 =====
+        // Stop deer coin rain now (so it feels clean)
+        if (coinTimer) window.clearInterval(coinTimer);
+        coinTimer = null;
+
+        // (optional) small impact before counting
         flashOnce(120);
-        await wait(3000);
-        rsRoot.classList.remove("is-shake");
 
-        flashOnce(120);
-        stopChaosCounters();
-        setCounter(countKevin, 0, 7);
-        setCounter(countBandits, 0, 7);
+        // play summa twice across 5s
+        playSfx("summa", { restart: true });
+        window.setTimeout(() => playSfx("summa", { restart: true }), 2400);
 
-        setBottleFill(boxKevin, fillKevin);
-        setBottleFill(boxBandits, fillBandits);
-
-        await wait(250);
-
-        const intrigue = 1700000;
-        const bothTarget = intrigue;
+        // animate counters up to targets in 5 seconds
         await Promise.all([
-            animateCountTo(countKevin, 0, bothTarget, 2600, 7, easeInOutQuad, boxKevin, bothTarget),
-            animateCountTo(countBandits, 0, bothTarget, 2600, 7, easeInOutQuad, boxBandits, bothTarget),
+            animateCountTo(countKevin, 0, targetKevin, 5000, 7, easeInOutQuad),
+            animateCountTo(countBandits, 0, targetBandits, 5000, 7, easeInOutQuad),
         ]);
 
-        await slowFlipSuspense(5000, bothTarget);
+        // ===== SCENE 4: dynamite beat =====
+        rsRoot.classList.add("show-dynamite");
+        dynamite.style.opacity = "1";
 
-        const finalK = Math.max(targetKevin, intrigue + 1);
-        const finalB = Math.min(targetBandits, finalK - 1);
+        await wait(150);
+        playSfx("shmiak", { restart: true });
 
-        const blink = boxBandits.animate([{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 240, iterations: 10 });
-
-        const countK = animateCountTo(countKevin, intrigue, finalK, 2600, 7, easeOutCubic, boxKevin, finalK);
-        const countB = animateCountTo(countBandits, intrigue, finalB, 900, 7, easeOutCubic, boxBandits, finalK);
-
-        await Promise.all([countK, countB]);
-
-        blink.cancel();
-        boxBandits.animate(
-            [
-                { transform: "scale(.92)", opacity: 1, filter: "drop-shadow(0 16px 22px rgba(0,0,0,.75))" },
-                { transform: "scale(1.03)", opacity: 1 },
-                { transform: "scale(.2) translateY(40px)", opacity: 0 },
-            ], { duration: 520, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
+        // little pop
+        dynamite.animate(
+            [{ transform: "translateX(-50%) scale(0.90)" }, { transform: "translateX(-50%) scale(0.98)" }], { duration: 220, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" }
         );
 
-        await wait(520);
+        await wait(450);
 
-        await playFinalOutro(deerInLeftX, deerInRightX, deerInY);
+        playSfx("dontPush", { restart: true });
+        await wait(700);
 
+        playSfx("tiktak", { restart: true });
+        await wait(2000);
+
+        // White flash (mandatory)
+        flashOnce(170);
+
+        await wait(120);
+        playSfx("bulk", { restart: true });
+
+        // little shake impact
+        rsRoot.classList.add("is-shake");
+        await wait(420);
+        rsRoot.classList.remove("is-shake");
+
+        // ===== After explosion: show OPEN boxes (important) =====
+        setBgFromData(boxKevin, "open");
+        setBgFromData(boxBandits, "open");
+
+        // ===== SCENE 5: Winner =====
+        await wait(350);
+
+        // Winner layer on
+        rsRoot.classList.add("show-winner");
         if (winnerLayer) winnerLayer.style.opacity = "1";
         if (fireworks) fireworks.style.opacity = "1";
         if (winText) winText.style.opacity = "1";
         if (winnerAvatars) winnerAvatars.style.opacity = "1";
         if (winnerSprite) winnerSprite.style.opacity = "1";
 
+        // fireworks shimmer
         if (fireworks) {
             fireworks.animate([{ opacity: 0.0 }, { opacity: 0.85 }, { opacity: 0.25 }], {
                 duration: 1200,
@@ -1100,37 +1162,33 @@
             });
         }
 
+        // play final sound + sprite
+        playSfx("watc", { restart: true });
         startKevinSprite();
-
-        window.setTimeout(() => { if (finalRunning) liftBoxesUpAfterWinner(); }, 260);
 
         flashOnce(110);
     }
 
-    async function slowFlipSuspense(ms, fillMax = 1) {
+    // ====== Counter animation ======
+    async function animateCountTo(el, from, to, duration, digits = 7, easing = (t) => t) {
         const start = performance.now();
+        setCounter(el, from, digits);
+
         return new Promise((resolve) => {
-            const tick = () => {
+            const stepAnim = (now) => {
                 if (!finalRunning) return resolve();
-                const t = performance.now() - start;
-                if (t >= ms) return resolve();
-
-                const base = 1700000;
-                const jitter = Math.floor(Math.random() * 900);
-                const vK = base + jitter;
-                const vB = base + (900 - jitter);
-                setCounter(countKevin, vK, 7);
-                setCounter(countBandits, vB, 7);
-
-                if (fillMax > 0) {
-                    setBottleFill(boxKevin, vK / fillMax);
-                    setBottleFill(boxBandits, vB / fillMax);
-                }
-
-                window.setTimeout(tick, 140 + Math.random() * 120);
+                const t = Math.min(1, (now - start) / Math.max(1, duration));
+                const v = Math.round(from + (to - from) * easing(t));
+                setCounter(el, v, digits);
+                if (t >= 1) return resolve();
+                requestAnimationFrame(stepAnim);
             };
-            tick();
+            requestAnimationFrame(stepAnim);
         });
+    }
+
+    function easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
     }
 
     function wait(ms) {
@@ -1143,10 +1201,12 @@
             players = await loadPlayers();
             mountCards();
             hideStatus();
+            updateMode();
         } catch (err) {
             showStatus("Помилка завантаження. Перевір доступ до Google Sheet.");
             players = [];
             mountCards();
+            updateMode();
         }
     })();
 })();
