@@ -68,9 +68,12 @@
     const cauldron = document.getElementById("cauldron");
     const pipeLeft = document.getElementById("pipeLeft");
     const pipeRight = document.getElementById("pipeRight");
-    const bottles = document.getElementById("bottles");
-    const bottleKevin = document.getElementById("bottleKevin");
-    const bottleBandits = document.getElementById("bottleBandits");
+
+    // ✅ FIX: BOXES (replace old bottles ids)
+    const boxes = document.getElementById("boxes");
+    const boxKevin = document.getElementById("boxKevin");
+    const boxBandits = document.getElementById("boxBandits");
+
     const countKevin = document.getElementById("countKevin");
     const countBandits = document.getElementById("countBandits");
     const winnerLayer = document.getElementById("winnerLayer");
@@ -94,7 +97,7 @@
     let chaosTimer = null;
     let spriteTimer = null;
 
-    // ====== NEW: bottle fill state (0..1) ======
+    // (legacy) "fill" state – harmless even if CSS doesn't use it
     let fillKevin = 0;
     let fillBandits = 0;
 
@@ -593,7 +596,8 @@
 
     // ====== FINAL SCENE ======
     function hasFinalDOM() {
-        return !!(rsRoot && deerLeft && deerRight && coinsLayer && cauldron && pipeLeft && pipeRight && bottles && bottleKevin && bottleBandits && countKevin && countBandits);
+        // ✅ FIX: check boxes ids (not bottles)
+        return !!(rsRoot && deerLeft && deerRight && coinsLayer && cauldron && pipeLeft && pipeRight && boxes && boxKevin && boxBandits && countKevin && countBandits);
     }
 
     function clearTimers() {
@@ -607,23 +611,36 @@
         spriteTimer = null;
     }
 
-    // ====== bottle fill helpers ======
+    // (legacy) fill helpers – safe no-op for boxes unless you later add CSS using --fill
     function clamp01(x) {
         const n = Number(x);
         if (!Number.isFinite(n)) return 0;
         return Math.max(0, Math.min(1, n));
     }
 
-    function setBottleFill(bottleEl, fill01) {
-        if (!bottleEl) return;
-        bottleEl.style.setProperty("--fill", String(clamp01(fill01)));
+    function setBottleFill(el, fill01) {
+        if (!el) return;
+        el.style.setProperty("--fill", String(clamp01(fill01)));
     }
 
     function resetBottleFill() {
         fillKevin = 0;
         fillBandits = 0;
-        setBottleFill(bottleKevin, 0);
-        setBottleFill(bottleBandits, 0);
+        setBottleFill(boxKevin, 0);
+        setBottleFill(boxBandits, 0);
+    }
+
+    function setCounter(el, value, digits = 7) {
+        if (!el) return;
+        const v = Math.max(0, Math.floor(value));
+        el.textContent = String(v).padStart(digits, "0");
+    }
+
+    function setBgFromData(el, which) {
+        if (!el) return;
+        const key = which === "open" || which === "closed" ? which : which === "b" ? "b" : "a";
+        const src = el.dataset ? el.dataset[key] : "";
+        if (src) el.style.backgroundImage = `url('${src}')`;
     }
 
     function stopFinalScene() {
@@ -639,14 +656,14 @@
         cauldron.style.transform = "";
         pipeLeft.style.transform = "";
         pipeRight.style.transform = "";
-        bottles.style.transform = "";
+        boxes.style.transform = "";
 
         deerLeft.style.opacity = "0";
         deerRight.style.opacity = "0";
         cauldron.style.opacity = "0";
         pipeLeft.style.opacity = "0";
         pipeRight.style.opacity = "0";
-        bottles.style.opacity = "0";
+        boxes.style.opacity = "0";
 
         if (winnerLayer) winnerLayer.style.opacity = "0";
         if (fireworks) fireworks.style.opacity = "0";
@@ -667,9 +684,13 @@
         setBgFromData(pipeLeft, "a");
         setBgFromData(pipeRight, "a");
 
-        bottleBandits.style.opacity = "";
-        bottleBandits.style.transform = "";
-        bottleBandits.style.filter = "";
+        // ✅ restore closed box images
+        setBgFromData(boxKevin, "closed");
+        setBgFromData(boxBandits, "closed");
+
+        boxBandits.style.opacity = "";
+        boxBandits.style.transform = "";
+        boxBandits.style.filter = "";
     }
 
     async function startFinalScene() {
@@ -742,19 +763,6 @@
         }
     }
 
-    function setCounter(el, value, digits = 7) {
-        if (!el) return;
-        const v = Math.max(0, Math.floor(value));
-        el.textContent = String(v).padStart(digits, "0");
-    }
-
-    function setBgFromData(el, which) {
-        if (!el) return;
-        const key = which === "open" || which === "closed" ? which : which === "b" ? "b" : "a";
-        const src = el.dataset ? el.dataset[key] : "";
-        if (src) el.style.backgroundImage = `url('${src}')`;
-    }
-
     function rectCenterIn(el, root) {
         const r = el.getBoundingClientRect();
         const rr = root.getBoundingClientRect();
@@ -815,7 +823,7 @@
         chaosTimer = null;
     }
 
-    async function animateCountTo(el, from, to, duration, digits = 7, easing = (t) => t, fillBottleEl = null, fillMax = 1) {
+    async function animateCountTo(el, from, to, duration, digits = 7, easing = (t) => t, fillEl = null, fillMax = 1) {
         const start = performance.now();
         setCounter(el, from, digits);
 
@@ -826,9 +834,9 @@
                 const v = Math.round(from + (to - from) * easing(t));
                 setCounter(el, v, digits);
 
-                if (fillBottleEl) {
+                if (fillEl) {
                     const ratio = fillMax > 0 ? (v / fillMax) : 0;
-                    setBottleFill(fillBottleEl, ratio);
+                    setBottleFill(fillEl, ratio);
                 }
 
                 if (t >= 1) return resolve();
@@ -869,11 +877,11 @@
         }, 120);
     }
 
-    // ====== WINNER UI LIFT (bottle/counter move up AFTER Kevin sprite appears) ======
-    function liftBottlesUpAfterWinner() {
-        if (!bottles) return;
+    // ====== WINNER UI LIFT ======
+    function liftBoxesUpAfterWinner() {
+        if (!boxes) return;
 
-        bottles.animate(
+        boxes.animate(
             [
                 { transform: "translateY(0px)" },
                 { transform: "translateY(-140px)" },
@@ -884,7 +892,7 @@
             }
         );
 
-        bottles.style.transform = "translateY(-140px)";
+        boxes.style.transform = "translateY(-140px)";
     }
 
     // ====== Outro ======
@@ -984,7 +992,7 @@
             if (cauldron) cauldron.style.opacity = "1";
             if (pipeLeft) pipeLeft.style.opacity = "1";
             if (pipeRight) pipeRight.style.opacity = "1";
-            if (bottles) bottles.style.opacity = "1";
+            if (boxes) boxes.style.opacity = "1";
             return;
         }
 
@@ -995,7 +1003,7 @@
         cauldron.style.opacity = "1";
         pipeLeft.style.opacity = "1";
         pipeRight.style.opacity = "1";
-        bottles.style.opacity = "1";
+        boxes.style.opacity = "1";
 
         cauldron.animate(
             [{ transform: "translateX(-50%) scale(.985)" }, { transform: "translateX(-50%) scale(1)" }], { duration: 420, easing: "ease-out", fill: "forwards" }
@@ -1024,8 +1032,8 @@
 
             fillKevin = Math.min(0.28, fillKevin + 0.004);
             fillBandits = Math.min(0.28, fillBandits + 0.004);
-            setBottleFill(bottleKevin, fillKevin);
-            setBottleFill(bottleBandits, fillBandits);
+            setBottleFill(boxKevin, fillKevin);
+            setBottleFill(boxBandits, fillBandits);
         }, 155);
 
         await wait(900);
@@ -1041,16 +1049,16 @@
         setCounter(countKevin, 0, 7);
         setCounter(countBandits, 0, 7);
 
-        setBottleFill(bottleKevin, fillKevin);
-        setBottleFill(bottleBandits, fillBandits);
+        setBottleFill(boxKevin, fillKevin);
+        setBottleFill(boxBandits, fillBandits);
 
         await wait(250);
 
         const intrigue = 1700000;
         const bothTarget = intrigue;
         await Promise.all([
-            animateCountTo(countKevin, 0, bothTarget, 2600, 7, easeInOutQuad, bottleKevin, bothTarget),
-            animateCountTo(countBandits, 0, bothTarget, 2600, 7, easeInOutQuad, bottleBandits, bothTarget),
+            animateCountTo(countKevin, 0, bothTarget, 2600, 7, easeInOutQuad, boxKevin, bothTarget),
+            animateCountTo(countBandits, 0, bothTarget, 2600, 7, easeInOutQuad, boxBandits, bothTarget),
         ]);
 
         await slowFlipSuspense(5000, bothTarget);
@@ -1058,15 +1066,15 @@
         const finalK = Math.max(targetKevin, intrigue + 1);
         const finalB = Math.min(targetBandits, finalK - 1);
 
-        const blink = bottleBandits.animate([{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 240, iterations: 10 });
+        const blink = boxBandits.animate([{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 240, iterations: 10 });
 
-        const countK = animateCountTo(countKevin, intrigue, finalK, 2600, 7, easeOutCubic, bottleKevin, finalK);
-        const countB = animateCountTo(countBandits, intrigue, finalB, 900, 7, easeOutCubic, bottleBandits, finalK);
+        const countK = animateCountTo(countKevin, intrigue, finalK, 2600, 7, easeOutCubic, boxKevin, finalK);
+        const countB = animateCountTo(countBandits, intrigue, finalB, 900, 7, easeOutCubic, boxBandits, finalK);
 
         await Promise.all([countK, countB]);
 
         blink.cancel();
-        bottleBandits.animate(
+        boxBandits.animate(
             [
                 { transform: "scale(.92)", opacity: 1, filter: "drop-shadow(0 16px 22px rgba(0,0,0,.75))" },
                 { transform: "scale(1.03)", opacity: 1 },
@@ -1094,7 +1102,7 @@
 
         startKevinSprite();
 
-        window.setTimeout(() => { if (finalRunning) liftBottlesUpAfterWinner(); }, 260);
+        window.setTimeout(() => { if (finalRunning) liftBoxesUpAfterWinner(); }, 260);
 
         flashOnce(110);
     }
@@ -1115,8 +1123,8 @@
                 setCounter(countBandits, vB, 7);
 
                 if (fillMax > 0) {
-                    setBottleFill(bottleKevin, vK / fillMax);
-                    setBottleFill(bottleBandits, vB / fillMax);
+                    setBottleFill(boxKevin, vK / fillMax);
+                    setBottleFill(boxBandits, vB / fillMax);
                 }
 
                 window.setTimeout(tick, 140 + Math.random() * 120);
